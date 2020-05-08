@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => 'http://localhost/',
+    'url' => 'https://dev.tlloyd.com',
 
     /*
     |--------------------------------------------------------------------------
@@ -104,7 +104,7 @@ return [
     |
     */
 
-    'key' => 'CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!',
+    'key' => 'base64:6auDQH4VvoCduJn7ym0buniMv95GnmdNZdo/MEglblc=',
 
     'cipher' => 'AES-256-CBC',
 
