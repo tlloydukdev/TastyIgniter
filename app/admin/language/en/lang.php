@@ -617,7 +617,7 @@ return [
         'is_required' => 'is required',
         'is_not_required' => 'is not required',
         'text_option' => 'Option',
-        'text_option_summary' => 'Option %s and will be displayed as a %s HTML input tag',
+        'text_option_summary' => 'Display as a %s HTML element',
 
         'column_display_type' => 'Display Type',
 
@@ -893,6 +893,14 @@ return [
 
         'error_not_found_in_order' => 'The sale ID entered can not be found in orders',
         'error_not_found_in_reservation' => 'The sale ID entered can not be found in reservations',
+    ],
+
+    'settings' => [
+        'text_tab_setup' => 'Setup',
+        'text_tab_user' => 'User',
+
+        'text_tab_desc_user' => 'Configure registration email confirmation, default customer group, ...',
+        'text_tab_desc_setup' => 'Configure order and reservation related settings',
     ],
 
     'staff_groups' => [
