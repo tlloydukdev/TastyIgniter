@@ -878,6 +878,9 @@ class MainController extends BaseController
 
     public function url($path = null, $params = [])
     {
+        if (windows_os())
+          $path = str_replace('/', '\\', $path); 
+          
         if (is_null($path))
             return $this->currentPageUrl($params);
 
@@ -896,6 +899,9 @@ class MainController extends BaseController
 
         if ($path == setting('menus_page'))
             $params = $this->bindLocationRouteParameter($params);
+
+        if (windows_os())
+          $path = str_replace('/', '\\', $path); 
 
         return $this->url($path, $params);
     }
