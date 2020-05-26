@@ -13,12 +13,14 @@ return [
                     'label' => 'lang:admin::lang.button_save',
                     'class' => 'btn btn-primary',
                     'data-request' => 'onSave',
+                    'data-progress-indicator' => 'admin::lang.text_saving',
                 ],
                 'saveClose' => [
                     'label' => 'lang:admin::lang.button_save_close',
                     'class' => 'btn btn-default',
                     'data-request' => 'onSave',
                     'data-request-data' => 'close:1',
+                    'data-progress-indicator' => 'admin::lang.text_saving',
                 ],
             ],
         ],
@@ -140,6 +142,7 @@ return [
                     'default' => 'GBP',
                     'options' => ['System\Models\Currencies_model', 'getDropdownOptions'],
                     'placeholder' => 'lang:admin::lang.text_please_select',
+                    'comment' => 'lang:system::lang.settings.help_site_currency',
                 ],
                 'currency_converter[api]' => [
                     'label' => 'lang:system::lang.settings.label_currency_converter',
@@ -218,7 +221,7 @@ return [
         ],
         'rules' => [
             ['site_name', 'lang:system::lang.settings.label_site_name', 'required|min:2|max:128'],
-            ['site_email', 'lang:system::lang.settings.label_site_email', 'required|email'],
+            ['site_email', 'lang:system::lang.settings.label_site_email', 'required|email:filter|max:96'],
             ['site_logo', 'lang:system::lang.settings.label_site_logo', 'required'],
             ['timezone', 'lang:system::lang.settings.label_timezone', 'required'],
             ['date_format', 'lang:system::lang.settings.label_date_format', 'required'],

@@ -12,15 +12,15 @@ return [
                 'save' => [
                     'label' => 'lang:admin::lang.button_save',
                     'class' => 'btn btn-primary',
-                    'data-request-submit' => 'true',
                     'data-request' => 'onSave',
+                    'data-progress-indicator' => 'admin::lang.text_saving',
                 ],
                 'saveClose' => [
                     'label' => 'lang:admin::lang.button_save_close',
                     'class' => 'btn btn-default',
                     'data-request' => 'onSave',
-                    'data-request-submit' => 'true',
                     'data-request-data' => 'close:1',
+                    'data-progress-indicator' => 'admin::lang.text_saving',
                 ],
             ],
         ],
@@ -44,6 +44,7 @@ return [
                     'sendmail' => 'lang:system::lang.settings.text_sendmail',
                     'smtp' => 'lang:system::lang.settings.text_smtp',
                     'mailgun' => 'lang:system::lang.settings.text_mailgun',
+                    'postmark' => 'lang:system::lang.settings.text_postmark',
                     'ses' => 'lang:system::lang.settings.text_ses',
                 ],
             ],
@@ -137,6 +138,16 @@ return [
                 ],
             ],
 
+            'postmark_token' => [
+                'label' => 'lang:system::lang.settings.label_postmark_token',
+                'type' => 'text',
+                'trigger' => [
+                    'action' => 'show',
+                    'field' => 'protocol',
+                    'condition' => 'value[postmark]',
+                ],
+            ],
+
             'ses_key' => [
                 'label' => 'lang:system::lang.settings.label_ses_key',
                 'type' => 'text',
@@ -180,16 +191,18 @@ return [
 
             ['smtp_host', 'lang:system::lang.settings.label_smtp_host', 'string'],
             ['smtp_port', 'lang:system::lang.settings.label_smtp_port', 'string'],
-            ['smtp_encryption', 'lang:system::lang.settings.label_smtp_encryption', 'required_if:protocol,smtp|string'],
+            ['smtp_encryption', 'lang:system::lang.settings.label_smtp_encryption'],
             ['smtp_user', 'lang:system::lang.settings.label_smtp_user', 'string'],
             ['smtp_pass', 'lang:system::lang.settings.label_smtp_pass', 'string'],
 
-            ['mailgun_domain', 'lang:system::lang.settings.label_smtp_pass', 'required_if:protocol,mailgun|string'],
-            ['mailgun_secret', 'lang:system::lang.settings.label_smtp_pass', 'required_if:protocol,mailgun|string'],
+            ['mailgun_domain', 'lang:system::lang.settings.label_mailgun_domain', 'required_if:protocol,mailgun|string'],
+            ['mailgun_secret', 'lang:system::lang.settings.label_mailgun_secret', 'required_if:protocol,mailgun|string'],
 
-            ['ses_key', 'lang:system::lang.settings.label_smtp_pass', 'required_if:protocol,ses|string'],
-            ['ses_secret', 'lang:system::lang.settings.label_smtp_pass', 'required_if:protocol,ses|string'],
-            ['ses_region', 'lang:system::lang.settings.label_smtp_pass', 'required_if:protocol,ses|string'],
+            ['postmark_token', 'lang:system::lang.settings.label_postmark_token', 'required_if:protocol,postmark|string'],
+
+            ['ses_key', 'lang:system::lang.settings.label_ses_key', 'required_if:protocol,ses|string'],
+            ['ses_secret', 'lang:system::lang.settings.label_ses_secret', 'required_if:protocol,ses|string'],
+            ['ses_region', 'lang:system::lang.settings.label_ses_region', 'required_if:protocol,ses|string'],
         ],
     ],
 ];

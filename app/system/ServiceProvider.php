@@ -16,6 +16,7 @@ use Igniter\Flame\Currency\CurrencyServiceProvider;
 use Igniter\Flame\Foundation\Providers\AppServiceProvider;
 use Igniter\Flame\Geolite\GeoliteServiceProvider;
 use Igniter\Flame\Pagic\PagicServiceProvider;
+use Igniter\Flame\Support\Facades\File;
 use Igniter\Flame\Support\HelperServiceProvider;
 use Igniter\Flame\Translation\Drivers\Database;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -66,7 +67,7 @@ class ServiceProvider extends AppServiceProvider
 
         if (App::runningInAdmin()) {
             $this->registerPermissions();
-            $this->registerSettings();
+            $this->registerSystemSettings();
         }
     }
 
@@ -245,6 +246,10 @@ class ServiceProvider extends AppServiceProvider
                 'subcopy' => 'system::_mail.partials.subcopy',
                 'promotion' => 'system::_mail.partials.promotion',
             ]);
+
+            $manager->registerMailVariables(
+                File::getRequire(__DIR__.'/models/config/mail_variables.php')
+            );
         });
 
         Event::listen('mailer.beforeRegister', function () {
@@ -321,17 +326,11 @@ class ServiceProvider extends AppServiceProvider
         });
 
         Assets::registerCallback(function (Assets $manager) {
-            // System asset bundles
-            $manager->registerBundle('scss',
-                '~/app/system/assets/ui/scss/flame.scss',
-                '~/app/system/assets/ui/flame.css',
-                'admin'
-            );
             $manager->registerBundle('js', [
-                '~/app/system/assets/node_modules/jquery/dist/jquery.min.js',
-                '~/app/system/assets/node_modules/popper.js/dist/umd/popper.min.js',
-                '~/app/system/assets/node_modules/bootstrap/dist/js/bootstrap.min.js',
-                '~/app/system/assets/node_modules/sweetalert/dist/sweetalert.min.js',
+                '~/app/admin/assets/node_modules/jquery/dist/jquery.min.js',
+                '~/app/admin/assets/node_modules/popper.js/dist/umd/popper.min.js',
+                '~/app/admin/assets/node_modules/bootstrap/dist/js/bootstrap.min.js',
+                '~/app/admin/assets/node_modules/sweetalert/dist/sweetalert.min.js',
                 '~/app/system/assets/ui/js/vendor/waterfall.min.js',
                 '~/app/system/assets/ui/js/vendor/transition.js',
                 '~/app/system/assets/ui/js/app.js',
@@ -341,15 +340,6 @@ class ServiceProvider extends AppServiceProvider
                 '~/app/system/assets/ui/js/toggler.js',
                 '~/app/system/assets/ui/js/trigger.js',
             ], '~/app/system/assets/ui/flame.js', 'admin');
-
-            // Admin asset bundles
-            $manager->registerBundle('scss', '~/app/admin/assets/scss/admin.scss', null, 'admin');
-            $manager->registerBundle('js', [
-                '~/app/system/assets/node_modules/js-cookie/src/js.cookie.js',
-                '~/app/system/assets/node_modules/select2/dist/js/select2.min.js',
-                '~/app/system/assets/node_modules/metismenu/dist/metisMenu.min.js',
-                '~/app/admin/assets/js/src/app.js',
-            ], '~/app/admin/assets/js/admin.js', 'admin');
         });
     }
 
@@ -437,7 +427,7 @@ class ServiceProvider extends AppServiceProvider
         });
     }
 
-    protected function registerSettings()
+    protected function registerSystemSettings()
     {
         Settings_model::registerCallback(function (Settings_model $manager) {
             $manager->registerSettingItems('core', [

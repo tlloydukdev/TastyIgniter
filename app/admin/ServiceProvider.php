@@ -46,13 +46,13 @@ class ServiceProvider extends AppServiceProvider
     {
         parent::register('admin');
 
+        $this->registerAssets();
         $this->registerActivityTypes();
         $this->registerMailTemplates();
         $this->registerAllocatorSchedule();
 
         if ($this->app->runningInAdmin()) {
-            $this->registerAssets();
-            $this->registerSettings();
+            $this->registerSystemSettings();
             $this->registerPermissions();
             $this->registerDashboardWidgets();
             $this->registerFormWidgets();
@@ -77,9 +77,21 @@ class ServiceProvider extends AppServiceProvider
     protected function registerAssets()
     {
         Assets::registerCallback(function (Assets $manager) {
-            $manager->registerSourcePath(app_path('admin/assets'));
+            if ($this->app->runningInAdmin()) {
+                $manager->registerSourcePath(app_path('admin/assets'));
 
-            $manager->addFromManifest('~/app/admin/views/_meta/assets.json');
+                $manager->addFromManifest('~/app/admin/views/_meta/assets.json', 'admin');
+            }
+
+            // Admin asset bundles
+            $manager->registerBundle('scss', '~/app/admin/assets/scss/admin.scss', null, 'admin');
+            $manager->registerBundle('js', [
+                '~/app/system/assets/ui/flame.js',
+                '~/app/admin/assets/node_modules/js-cookie/src/js.cookie.js',
+                '~/app/admin/assets/node_modules/select2/dist/js/select2.min.js',
+                '~/app/admin/assets/node_modules/metismenu/dist/metisMenu.min.js',
+                '~/app/admin/assets/js/src/app.js',
+            ], '~/app/admin/assets/js/admin.js', 'admin');
         });
     }
 
@@ -192,6 +204,11 @@ class ServiceProvider extends AppServiceProvider
                 'code' => 'richeditor',
             ]);
 
+            $manager->registerFormWidget('Admin\FormWidgets\SeatMap', [
+                'label' => 'Seat Map',
+                'code' => 'seatmap',
+            ]);
+
             $manager->registerFormWidget('Admin\FormWidgets\StatusEditor', [
                 'label' => 'Status Editor',
                 'code' => 'statuseditor',
@@ -280,41 +297,33 @@ class ServiceProvider extends AppServiceProvider
                             'title' => lang('admin::lang.side_menu.location'),
                             'permission' => 'Admin.Locations',
                         ],
-                        'tables' => [
-                            'priority' => 20,
-                            'class' => 'tables',
-                            'href' => admin_url('tables'),
-                            'title' => lang('admin::lang.side_menu.table'),
-                            'permission' => 'Admin.Tables',
-                        ],
-                    ],
-                ],
-                'kitchen' => [
-                    'priority' => 20,
-                    'class' => 'kitchen',
-                    'icon' => 'fa-utensils',
-                    'title' => lang('admin::lang.side_menu.kitchen'),
-                    'child' => [
                         'menus' => [
-                            'priority' => 10,
+                            'priority' => 20,
                             'class' => 'menus',
                             'href' => admin_url('menus'),
                             'title' => lang('admin::lang.side_menu.menu'),
                             'permission' => 'Admin.Menus',
                         ],
                         'categories' => [
-                            'priority' => 20,
+                            'priority' => 30,
                             'class' => 'categories',
                             'href' => admin_url('categories'),
                             'title' => lang('admin::lang.side_menu.category'),
                             'permission' => 'Admin.Categories',
                         ],
                         'mealtimes' => [
-                            'priority' => 30,
+                            'priority' => 40,
                             'class' => 'mealtimes',
                             'href' => admin_url('mealtimes'),
                             'title' => lang('admin::lang.side_menu.mealtimes'),
                             'permission' => 'Admin.Mealtimes',
+                        ],
+                        'reviews' => [
+                            'priority' => 50,
+                            'class' => 'reviews',
+                            'href' => admin_url('reviews'),
+                            'title' => lang('admin::lang.side_menu.review'),
+                            'permission' => 'Admin.Reviews',
                         ],
                     ],
                 ],
@@ -366,13 +375,6 @@ class ServiceProvider extends AppServiceProvider
                             'href' => admin_url('coupons'),
                             'title' => lang('admin::lang.side_menu.coupon'),
                             'permission' => 'Admin.Coupons',
-                        ],
-                        'reviews' => [
-                            'priority' => 20,
-                            'class' => 'reviews',
-                            'href' => admin_url('reviews'),
-                            'title' => lang('admin::lang.side_menu.review'),
-                            'permission' => 'Admin.Reviews',
                         ],
                     ],
                 ],
@@ -660,9 +662,6 @@ class ServiceProvider extends AppServiceProvider
                 'Admin.Locations' => [
                     'label' => 'admin::lang.permissions.locations', 'group' => 'admin::lang.permissions.name',
                 ],
-                'Admin.Tables' => [
-                    'label' => 'admin::lang.permissions.tables', 'group' => 'admin::lang.permissions.name',
-                ],
                 'Admin.Orders' => [
                     'label' => 'admin::lang.permissions.orders', 'group' => 'admin::lang.permissions.name',
                 ],
@@ -713,7 +712,7 @@ class ServiceProvider extends AppServiceProvider
         });
     }
 
-    protected function registerSettings()
+    protected function registerSystemSettings()
     {
         Settings_model::registerCallback(function (Settings_model $manager) {
             $manager->registerSettingItems('core', [

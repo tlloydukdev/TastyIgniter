@@ -44,6 +44,11 @@ class MailManager
     protected $registeredLayouts;
 
     /**
+     * @var array List of registered variables in the system
+     */
+    protected $registeredVariables;
+
+    /**
      * @var bool Internal marker for rendering mode
      */
     protected $isRenderingHtml = FALSE;
@@ -91,8 +96,8 @@ class MailManager
         $config = App::make('config');
         $settings = App::make('system.setting');
         $config->set('mail.driver', $settings->get('protocol'));
-        $config->set('mail.from.name', $settings->get('sender_email'));
-        $config->set('mail.from.address', $settings->get('sender_name'));
+        $config->set('mail.from.name', $settings->get('sender_name'));
+        $config->set('mail.from.address', $settings->get('sender_email'));
 
         switch ($settings->get('protocol')) {
             case 'sendmail':
@@ -114,6 +119,9 @@ class MailManager
             case 'mailgun':
                 $config->set('services.mailgun.domain', $settings->get('mailgun_domain'));
                 $config->set('services.mailgun.secret', $settings->get('mailgun_secret'));
+                break;
+            case 'postmark':
+                $config->set('services.postmark.token', $settings->get('postmark_token'));
                 break;
             case 'ses':
                 $config->set('services.ses.key', $settings->get('ses_key'));
@@ -337,6 +345,18 @@ class MailManager
     }
 
     /**
+     * Returns a list of the registered variables.
+     * @return array
+     */
+    public function listRegisteredVariables()
+    {
+        if (is_null($this->registeredVariables))
+            $this->loadRegisteredTemplates();
+
+        return $this->registeredVariables;
+    }
+
+    /**
      * Registers mail views and manageable layouts.
      * @param array $definitions
      */
@@ -373,6 +393,19 @@ class MailManager
         }
 
         $this->registeredPartials = $definitions + $this->registeredPartials;
+    }
+
+    /**
+     * Registers mail variables.
+     * @param array $definitions
+     */
+    public function registerMailVariables(array $definitions)
+    {
+        if (!$this->registeredVariables) {
+            $this->registeredVariables = [];
+        }
+
+        $this->registeredVariables = $definitions + $this->registeredVariables;
     }
 
     /**

@@ -182,6 +182,7 @@ class Lists extends BaseWidget
         $this->vars['showCheckboxes'] = $this->showCheckboxes;
         $this->vars['showDragHandle'] = $this->showDragHandle;
         $this->vars['showSetup'] = $this->showSetup;
+        $this->vars['showFilter'] = count($this->filterCallbacks);
         $this->vars['showPagination'] = $this->showPagination;
         $this->vars['showSorting'] = $this->showSorting;
         $this->vars['sortColumn'] = $this->getSortColumn();
@@ -210,7 +211,7 @@ class Lists extends BaseWidget
 
     protected function validateModel()
     {
-        if (!$this->model OR !$this->model instanceof Model) {
+        if (!$this->model OR !$this->model instanceof \Illuminate\Database\Eloquent\Model) {
             throw new Exception(sprintf(lang('admin::lang.list.missing_model'), get_class($this->controller)));
         }
 
@@ -665,7 +666,7 @@ class Lists extends BaseWidget
             if ($key == 'href' AND !preg_match('#^(\w+:)?//#i', $value)) {
                 $result[$key] = $this->controller->pageUrl($value);
             }
-            else if (is_string($value)) {
+            elseif (is_string($value)) {
                 $result[$key] = lang($value);
             }
         }

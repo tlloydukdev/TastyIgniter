@@ -50,17 +50,19 @@ class Payment_profiles_model extends Model
      */
     public function makePrimary()
     {
-        $this
-            ->newQuery()
+        $this->timestamps = FALSE;
+
+        $this->newQuery()
+            ->where('is_primary', '!=', FALSE)
+            ->where('customer_id', $this->customer_id)
+            ->update(['is_primary' => FALSE]);
+
+        $this->newQuery()
             ->where('payment_profile_id', $this->payment_profile_id)
             ->where('customer_id', $this->customer_id)
             ->update(['is_primary' => TRUE]);
 
-        $this
-            ->newQuery()
-            ->where('payment_profile_id', '<>', $this->payment_profile_id)
-            ->where('customer_id', $this->customer_id)
-            ->update(['is_primary' => FALSE]);
+        $this->timestamps = TRUE;
     }
 
     public static function getPrimary($customer)
@@ -87,7 +89,7 @@ class Payment_profiles_model extends Model
 
     public function scopeApplyCustomer($query, $customer)
     {
-        if ($customer instanceof Model) {
+        if ($customer instanceof \Illuminate\Database\Eloquent\Model) {
             $customer = $customer->getKey();
         }
 
