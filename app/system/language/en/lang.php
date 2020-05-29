@@ -32,6 +32,7 @@ return [
         'text_title' => 'Activities',
         'button_mark_as_read' => 'Mark all as read',
         'text_empty' => 'There are no activities available.',
+        'activity_system' => 'System',
         'activity_self' => 'You',
         'activity_master_logged_in' => ' <b>logged</b> in as <b>:subject.first_name :subject.last_name</b>.',
     ],
@@ -84,11 +85,6 @@ return [
         'help_iso' => 'Learn more about <a target="_blank" href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a>',
     ],
 
-    'error_logs' => [
-        'text_title' => 'System Logs',
-        'text_clear_logs' => 'Clear Logs',
-    ],
-
     'extensions' => [
         'text_title' => 'Extensions',
         'text_delete_title' => 'Extension: Delete',
@@ -101,8 +97,8 @@ return [
         'text_files_data' => 'files and data',
         'text_settings' => 'Settings',
 
-        'button_browse' => '<i class="fa fa-globe"></i>  Browse more extensions',
-        'button_check' => '<i class="fa fa-refresh"></i>  Updates',
+        'button_browse' => '<i class="fa fa-globe"></i>&nbsp;&nbsp;Browse more extensions',
+        'button_check' => '<i class="fa fa-refresh"></i>&nbsp;&nbsp;Updates',
         'button_delete' => 'Delete',
         'button_payments' => 'Manage Payments',
         'button_settings' => 'Manage Settings',
@@ -295,12 +291,28 @@ return [
         'activities' => 'Access activities',
         'countries' => 'Create, edit and delete countries',
         'currencies' => 'Create, edit and delete currencies',
-        'error_logs' => 'View system logs',
+        'system_logs' => 'View system and requests logs',
         'extensions' => 'Install, uninstall and delete extension',
         'mail_templates' => 'Create, edit and delete mail templates',
         'languages' => 'Create, edit and delete site languages',
         'settings' => 'Manage system settings',
         'updates' => 'Ability to apply updates when a new version of TastyIgniter is available',
+    ],
+
+    'request_logs' => [
+        'text_title' => 'Request Logs',
+        'text_form_name' => 'Request Log',
+        'text_filter_search' => 'Search by name.',
+        'text_filter_status' => 'View all status',
+        'text_empty' => 'There are no request logs available.',
+        'text_empty_referrer' => 'There are no referrers to this URL.',
+
+        'column_status_code' => 'Status Code',
+        'column_url' => 'Requested Url',
+        'column_count' => 'Counter',
+
+        'label_url' => 'Requested Url',
+        'label_referer' => 'Referrer',
     ],
 
     'settings' => [
@@ -326,8 +338,7 @@ return [
         'text_tab_title_order' => 'Order',
         'text_tab_title_reservation' => 'Reservation',
         'text_tab_title_maintenance' => 'Maintenance',
-        'text_tab_title_permalink' => 'Permalink',
-        'text_tab_title_caching' => 'Caching',
+        'text_tab_title_system_log' => 'Log Settings',
         'text_single' => 'Single',
         'text_multiple' => 'Multiple',
         'text_1_hour' => '1 Hours',
@@ -436,6 +447,7 @@ return [
         'label_ses_secret' => 'SES secret',
         'label_ses_region' => 'SES region',
         'label_permalink' => 'Permalink',
+        'label_enable_request_log' => 'Log Bad Requests',
         'label_maintenance_mode' => 'Maintenance Mode',
         'label_maintenance_message' => 'Maintenance Message',
         'label_cache_mode' => 'Cache Mode',
@@ -490,10 +502,15 @@ return [
         'help_registration_email' => 'Send a confirmation mail to the customer and/or admin email after successfully account registration',
         'help_order_email' => 'Send a confirmation mail to the customer, admin and/or location email after a new order has been created',
         'help_reservation_email' => 'Send a confirmation mail to the customer, admin and/or location email when a new reservation is received',
+        'help_enable_request_log' => 'Whether to log bad browser requests, such as 404 errors.',
         'help_maintenance' => 'Enable to prevent customers from viewing your store. The maintenance message will be displayed to customers except logged admin.',
-        'help_permalink' => 'To use SEO URLs, apache module mod-rewrite must be installed.',
-        'help_cache_mode' => 'Enable if you want to cache pages in order to achieve maximum performance.',
-        'help_cache_time' => 'Set the number of minutes a page remain cached.',
+    ],
+
+    'system_logs' => [
+        'text_title' => 'System Logs',
+
+        'button_empty' => '<i class="fa fa-eraser"></i>&nbsp;&nbsp;Empty Logs',
+        'button_request_logs' => '<i class="fa fa-globe"></i>&nbsp;&nbsp;Request Logs',
     ],
 
     'themes' => [
@@ -534,11 +551,11 @@ return [
         'label_type_layout' => 'Layouts',
         'label_type_content' => 'Contents',
 
-        'button_browse' => '<i class="fa fa-globe"></i>  Browse more Themes',
-        'button_source' => '<i class="fa fa-file"></i>  Edit Template Files',
-        'button_check' => '<i class="fa fa-refresh"></i>  Updates',
-        'button_customize' => '<i class="fa fa-paint-brush"></i>  Customize',
-        'button_child' => '<i class="fa fa-child"></i>  Create Child Theme',
+        'button_browse' => '<i class="fa fa-globe"></i>&nbsp;&nbsp;Browse more themes',
+        'button_source' => '<i class="fa fa-file"></i>&nbsp;&nbsp;Edit template files',
+        'button_check' => '<i class="fa fa-refresh"></i>&nbsp;&nbsp;Updates',
+        'button_customize' => '<i class="fa fa-paint-brush"></i>&nbsp;&nbsp;Customize',
+        'button_child' => '<i class="fa fa-child"></i>&nbsp;&nbsp;Create child theme',
         'button_new_source' => 'New %s',
         'button_rename_source' => 'Rename %s',
         'button_delete_source' => 'Delete %s',
@@ -597,11 +614,11 @@ return [
         'progress_enable_maintenance' => 'Enabling Maintenance mode&#8230;',
         'progress_disable_maintenance' => 'Restoring/Disabling Maintenance mode&#8230;',
 
-        'button_browse' => '<i class="fa fa-globe"></i> Browse %s',
-        'button_carte' => '<i class="fa fa-key"></i> Carté',
-        'button_check' => '<i class="fa fa-refresh"></i> Check Again',
-        'button_updates' => '<i class="fa fa-refresh"></i> Updates',
-        'button_update' => '<i class="fa fa-check"></i> Update',
+        'button_browse' => '<i class="fa fa-globe"></i>&nbsp;&nbsp;Browse %s',
+        'button_carte' => '<i class="fa fa-key"></i>&nbsp;&nbsp;Carté',
+        'button_check' => '<i class="fa fa-refresh"></i>&nbsp;&nbsp;Check Again',
+        'button_updates' => '<i class="fa fa-refresh"></i>&nbsp;&nbsp;Updates',
+        'button_update' => '<i class="fa fa-check"></i>&nbsp;&nbsp;Update',
 
         'help_carte_key' => 'A Carte key is required to add/update item from the TastyIgniter Marketplace. Get one by creating a site from your <a href="%s" target="_blank">TastyIgniter Account</a>, if you haven\'t already.',
     ],

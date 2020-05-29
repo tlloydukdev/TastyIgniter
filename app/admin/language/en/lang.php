@@ -64,19 +64,19 @@ return [
     'text_back_link' => 'Go back to the previous page',
     'text_admin_link' => 'Return to the admin panel',
 
-    'button_new' => '<i class="fa fa-plus"></i> New',
-    'button_delete' => '<i class="fa fa-trash-o"></i> Delete',
+    'button_new' => '<i class="fa fa-plus"></i>&nbsp;&nbsp;New',
+    'button_delete' => '<i class="fa fa-trash-o"></i>&nbsp;&nbsp;Delete',
     'button_add' => 'Add',
     'button_edit' => 'Edit',
     'button_continue' => 'Continue',
     'button_filter' => 'Filter',
-    'button_save' => '<i class="fa fa-save"></i> Save',
-    'button_save_close' => '<i class="fa fa-save"></i> Save & Close',
+    'button_save' => '<i class="fa fa-save"></i>&nbsp;&nbsp;Save',
+    'button_save_close' => '<i class="fa fa-save"></i>&nbsp;&nbsp;Save & Close',
     'button_icon_back' => '<i class="fa fa-angle-double-left px-0"></i>',
     'button_icon_filter' => '<i class="fa fa-filter"></i>',
     'button_icon_delete' => '<i class="fa fa-trash-o"></i>',
     'button_close' => 'Close',
-    'button_refresh' => '<i class="fa fa-refresh"></i> Refresh',
+    'button_refresh' => '<i class="fa fa-refresh"></i>&nbsp;&nbsp;Refresh',
 
     'alert_success' => '%s successfully.',
     'alert_error' => 'An error occurred, %s.',
@@ -132,11 +132,12 @@ return [
         'updates' => 'Updates',
         'storefront' => 'Storefront',
         'page' => 'Static Pages',
-        'error_log' => 'System Logs',
+        'system_logs' => 'System Logs',
         'setting' => 'Settings',
         'dashboard' => 'Dashboard',
         'menu' => 'Menu Items',
         'category' => 'Categories',
+        'table' => 'Tables',
         'sale' => 'Sales',
         'order' => 'Orders',
         'reservation' => 'Reservations',
@@ -456,7 +457,6 @@ return [
         'text_tab_general' => 'Location',
         'text_tab_data' => 'Settings',
         'text_tab_opening_hours' => 'Opening Hours',
-        'text_tab_tables' => 'Tables',
         'text_tab_order' => 'Accepting Orders',
         'text_tab_reservation' => 'Accepting Reservations',
         'text_tab_delivery' => 'Delivery',
@@ -513,7 +513,6 @@ return [
         'label_future_delivery_days' => 'Future Delivery Order Days In Advance',
         'label_future_collection_days' => 'Future Pick-up Order Days In Advance',
         'label_payments' => 'Payments',
-        'label_tables' => 'Reservable Tables',
         'label_offer_reservation' => 'Offer Reservations',
         'label_reservation_time_interval' => 'Time Interval',
         'label_reservation_stay_time' => 'Stay Time',
@@ -560,7 +559,6 @@ return [
         'help_no_payments' => 'No enabled payment was found.',
         'help_reservation_time_interval' => 'Set the number of minutes between each reservation time',
         'help_reservation_stay_time' => 'Set in minutes the average time a guest will stay at a table',
-        'help_tables' => 'Select a table to attach to this location.',
         'help_delivery_areas' => 'Set delivery conditions to specific geographical area/boundaries. Delivery areas are applied in the order in which they appear. Every location must have at least one delivery area to accept delivery orders.',
         'help_delivery_condition' => 'Use the table below to set different delivery charge conditions. Conditions/Rules are applied in the order in which they appear. For free delivery set charge to 0 or -1 to make delivery unavailable. When an \'all\' rule is present, no other condition will be applied.',
         'help_delivery_components' => 'All rules must be VALID to apply this delivery area, each rule is matched against the user\'s address component. Values can contain Regular Expressions.',
@@ -676,7 +674,7 @@ return [
 
         'help_image' => 'Select a file to update menu image, otherwise leave blank.',
         'help_mealtime' => 'Set what time of day your customers can order this menu. Mealtimes can be managed under Kitchen > Mealtimes',
-        'help_stock_qty' => 'Enter the amount of stock available. This amount can be set to zero to represent unlimited stock quantity.',
+        'help_stock_qty' => 'Enter the amount of stock available. This amount can be set to zero to represent unlimited stock quantity or a negative number to represent out of stock.',
         'help_minimum_qty' => 'Enter the minimum quantity that can be ordered by customers.',
         'help_subtract_stock' => 'Select Yes for the ordered menu and options quantity to be subtracted from their original stock quantity.',
         'help_menu_option' => 'Choose from the dropdown to add an option to this menu item.',
@@ -755,8 +753,10 @@ return [
         'label_payment_method' => 'Payment Method',
         'label_total_items' => 'Total Items',
 
-        'activity_event_log' => ' updated order (#:properties.order_id) status to ',
-        'activity_event_log_assigned' => ' assigned order (#:properties.order_id) to ',
+        'activity_event_log_title' => 'Order status updated',
+        'activity_event_log_assigned_title' => 'Order assigned',
+        'activity_event_log' => 'updated order (#:properties.order_id) status to <b>:properties.status_name</b>',
+        'activity_event_log_assigned' => 'assigned order (#:properties.order_id) to',
     ],
 
     'payments' => [
@@ -795,6 +795,7 @@ return [
         'staff_groups' => 'Manage staff groups',
         'staffs' => 'Create, edit and delete staffs',
         'statuses' => 'Manage orders and reservations statuses',
+        'tables' => 'Create, edit and delete reservations tables',
         'mealtimes' => 'Create, edit and delete mealtimes',
     ],
 
@@ -860,8 +861,10 @@ return [
 
         'help_reservation_duration' => 'Stay time in minutes. Leave blank to use the default stay time',
 
+        'activity_event_log_title' => 'Reservation status updated',
+        'activity_event_log_assigned_title' => 'Reservation assigned',
         'activity_event_log' => 'updated reservation (#:properties.reservation_id) status to <b>:properties.status_name</b>',
-        'activity_event_log_assigned' => '<b>:causer.staff_name</b> assigned reservation (#:properties.reservation_id) to <b>:properties.assignee_name</b>',
+        'activity_event_log_assigned' => 'assigned reservation (#:properties.reservation_id) to',
     ],
 
     'reviews' => [
@@ -1015,6 +1018,8 @@ return [
 
         'label_min_capacity' => 'Minimum',
         'label_capacity' => 'Capacity',
+
+        'help_tables' => 'Select a table to attach to this location.',
 
         'error_capacity' => 'The Maximum capacity value must be greater than minimum capacity value.',
     ],

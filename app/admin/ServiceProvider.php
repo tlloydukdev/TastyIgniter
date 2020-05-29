@@ -12,6 +12,7 @@ use AdminLocation;
 use AdminMenu;
 use Igniter\Flame\ActivityLog\Models\Activity;
 use Igniter\Flame\Foundation\Providers\AppServiceProvider;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Event;
 use System\Classes\MailManager;
@@ -204,11 +205,6 @@ class ServiceProvider extends AppServiceProvider
                 'code' => 'richeditor',
             ]);
 
-            $manager->registerFormWidget('Admin\FormWidgets\SeatMap', [
-                'label' => 'Seat Map',
-                'code' => 'seatmap',
-            ]);
-
             $manager->registerFormWidget('Admin\FormWidgets\StatusEditor', [
                 'label' => 'Status Editor',
                 'code' => 'statuseditor',
@@ -318,12 +314,12 @@ class ServiceProvider extends AppServiceProvider
                             'title' => lang('admin::lang.side_menu.mealtimes'),
                             'permission' => 'Admin.Mealtimes',
                         ],
-                        'reviews' => [
+                        'tables' => [
                             'priority' => 50,
-                            'class' => 'reviews',
-                            'href' => admin_url('reviews'),
-                            'title' => lang('admin::lang.side_menu.review'),
-                            'permission' => 'Admin.Reviews',
+                            'class' => 'tables',
+                            'href' => admin_url('tables'),
+                            'title' => lang('admin::lang.side_menu.table'),
+                            'permission' => 'Admin.Tables',
                         ],
                     ],
                 ],
@@ -347,15 +343,22 @@ class ServiceProvider extends AppServiceProvider
                             'title' => lang('admin::lang.side_menu.reservation'),
                             'permission' => 'Admin.Reservations',
                         ],
-                        'statuses' => [
+                        'reviews' => [
                             'priority' => 30,
+                            'class' => 'reviews',
+                            'href' => admin_url('reviews'),
+                            'title' => lang('admin::lang.side_menu.review'),
+                            'permission' => 'Admin.Reviews',
+                        ],
+                        'statuses' => [
+                            'priority' => 40,
                             'class' => 'statuses',
                             'href' => admin_url('statuses'),
                             'title' => lang('admin::lang.side_menu.status'),
                             'permission' => 'Admin.Statuses',
                         ],
                         'payments' => [
-                            'priority' => 40,
+                            'priority' => 50,
                             'class' => 'payments',
                             'href' => admin_url('payments'),
                             'title' => lang('admin::lang.side_menu.payment'),
@@ -493,12 +496,12 @@ class ServiceProvider extends AppServiceProvider
                             'title' => lang('admin::lang.side_menu.updates'),
                             'permission' => 'Site.Updates',
                         ],
-                        'error_logs' => [
+                        'system_logs' => [
                             'priority' => 50,
-                            'class' => 'error_logs',
-                            'href' => admin_url('error_logs'),
-                            'title' => lang('admin::lang.side_menu.error_log'),
-                            'permission' => 'Admin.ErrorLogs',
+                            'class' => 'system_logs',
+                            'href' => admin_url('system_logs'),
+                            'title' => lang('admin::lang.side_menu.system_logs'),
+                            'permission' => 'Admin.SystemLogs',
                         ],
                     ],
                 ],
@@ -535,6 +538,7 @@ class ServiceProvider extends AppServiceProvider
     {
         Relation::morphMap([
             'addresses' => 'Admin\Models\Addresses_model',
+            'assignable_logs' => 'Admin\Models\Assignable_logs_model',
             'categories' => 'Admin\Models\Categories_model',
             'coupons_history' => 'Admin\Models\Coupons_history_model',
             'coupons' => 'Admin\Models\Coupons_model',
@@ -632,10 +636,14 @@ class ServiceProvider extends AppServiceProvider
     {
         Activity::registerCallback(function (Activity $manager) {
             $manager->registerActivityTypes([
-                ActivityTypes\OrderAssigned::class,
-                ActivityTypes\OrderStatusUpdated::class,
-                ActivityTypes\ReservationAssigned::class,
-                ActivityTypes\ReservationStatusUpdated::class,
+                ActivityTypes\AssigneeUpdated::class => [
+                    ActivityTypes\AssigneeUpdated::ORDER_ASSIGNED_TYPE,
+                    ActivityTypes\AssigneeUpdated::RESERVATION_ASSIGNED_TYPE,
+                ],
+                ActivityTypes\StatusUpdated::class => [
+                    ActivityTypes\StatusUpdated::ORDER_UPDATED_TYPE,
+                    ActivityTypes\StatusUpdated::RESERVATION_UPDATED_TYPE,
+                ],
             ]);
         });
     }
@@ -661,6 +669,9 @@ class ServiceProvider extends AppServiceProvider
                 ],
                 'Admin.Locations' => [
                     'label' => 'admin::lang.permissions.locations', 'group' => 'admin::lang.permissions.name',
+                ],
+                'Admin.Tables' => [
+                    'label' => 'admin::lang.permissions.tables', 'group' => 'admin::lang.permissions.name',
                 ],
                 'Admin.Orders' => [
                     'label' => 'admin::lang.permissions.orders', 'group' => 'admin::lang.permissions.name',
@@ -704,10 +715,10 @@ class ServiceProvider extends AppServiceProvider
 
     protected function registerAllocatorSchedule()
     {
-        Event::listen('console.schedule', function ($schedule) {
+        Event::listen('console.schedule', function (Schedule $schedule) {
             // Check for assignables to assign every minute
             $schedule->call(function () {
-                Classes\Allocator::instance()->allocate();
+                Classes\Allocator::allocate();
             })->everyMinute();
         });
     }
