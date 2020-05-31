@@ -1,1 +1,12 @@
-!.gitignore
+igniter/cart/
+igniter/demo/
+igniter/frontend/
+igniter/importexport/
+igniter/local/
+igniter/pages/
+igniter/payregister
+igniter/reservation
+igniter/socialite
+igniter/user
+igniter/orderdashboard/vendor
+.gitignore

@@ -1,0 +1,5 @@
+/* Order Dashboard Overrides */
+
+a.nav-link.reservations {
+    display: none!important;
+}

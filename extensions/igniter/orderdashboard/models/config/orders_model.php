@@ -94,6 +94,16 @@ $config['list']['columns'] = [
             'role' => 'button'
         ],
     ],
+    'print_order' => [
+        'type' => 'button',
+        'iconCssClass' => 'fa fa-print',
+        'attributes' => [
+            'class' => 'btn btn-print-order',         
+            'href' => 'igniter/orderdashboard/overview/print/{order_id}',
+            'target' => '_blank',
+            'role' => 'button'
+        ],
+    ],
     'order_id' => [
         'label' => 'lang:admin::lang.column_id',
         'searchable' => TRUE,

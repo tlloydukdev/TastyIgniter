@@ -1,8 +1,11 @@
 <?php namespace Igniter\OrderDashboard\Controllers;
 
 use AdminMenu;
+use PDF;
+
 use Igniter\Flame\Exception\ApplicationException;
 use Igniter\OrderDashboard\Models\Orders_model as OrderDashboardModel;
+
 
 class Overview extends \Admin\Classes\AdminController
 {
@@ -53,6 +56,17 @@ class Overview extends \Admin\Classes\AdminController
         parent::__construct();
 
         AdminMenu::setContext('overview', 'sales');            
+        
+    }
+
+    public function print($context, $recordId = null)
+    {
+        $this->suppressLayout = TRUE;
+        $data['model'] = $this->formFindModelObject($recordId);        
+        
+        $pdf = PDF::loadView('pdf_view', $data);  
+        return $pdf->download('order' . $recordId . '.pdf');
+
         
     }
 

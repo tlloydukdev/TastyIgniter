@@ -120,7 +120,7 @@ return [
     */
 
     'providers' => array_merge(include(app_path('system/providers.php')), [
-        System\ServiceProvider::class,
+        System\ServiceProvider::class
     ]),
 
     /*

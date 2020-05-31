@@ -1,7 +1,14 @@
 <?php namespace Igniter\OrderDashboard;
 
 use Event;
+use View;
 use System\Classes\BaseExtension;
+use Igniter\OrderDashboard\Controllers\Overview as OrderDashboardController;
+use Illuminate\Foundation\AliasLoader;
+use Admin\Controllers\Orders as AdminOrdersController;
+use Admin\Controllers\Reviews as AdminReviewsController;
+use Admin\Controllers\Statuses as AdminStatusesController;
+use Admin\Controllers\Payments as AdminPaymentsController;
 
 /**
  * OrderDashboard Extension Information File
@@ -16,7 +23,11 @@ class Extension extends BaseExtension
      */
     public function register()
     {
-        
+        $this->app->register(\Barryvdh\DomPDF\ServiceProvider::class);
+        AliasLoader::getInstance()->alias('PDF', \Barryvdh\DomPDF\Facade::class);   
+
+        $finder = new \Illuminate\View\FileViewFinder(app()['files'], array(base_path().'\extensions\igniter\orderdashboard\views'));
+        View::setFinder($finder);
     }
 
     /**
@@ -26,7 +37,20 @@ class Extension extends BaseExtension
      */
     public function boot()
     {
-       
+       Event::listen('admin.controller.beforeResponse', function ($controller, $action, $params) {
+
+            if ($controller instanceof OrderDashboardController
+                || $controller instanceof AdminOrdersController
+                || $controller instanceof AdminReviewsController
+                || $controller instanceof AdminStatusesController
+                || $controller instanceof AdminPaymentsController) {
+                    $controller->addCss('$/igniter/orderdashboard/assets/css/orderdashboard.css', 'orderdashboard-css');
+                }
+                
+                return;
+
+            
+        });
     }
 
     /**
