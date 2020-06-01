@@ -1,7 +1,7 @@
 <?php namespace Igniter\OrderDashboard\Controllers;
 
 use AdminMenu;
-use PDF;
+use PDF; // https://packagist.org/packages/barryvdh/laravel-dompdf
 
 use Igniter\Flame\Exception\ApplicationException;
 use Igniter\OrderDashboard\Models\Orders_model as OrderDashboardModel;
@@ -23,8 +23,9 @@ class Overview extends \Admin\Classes\AdminController
     public $listConfig = [
         'list' => [
             'model' => 'Igniter\OrderDashboard\Models\Orders_model',
-            'title' => 'lang:admin::lang.orders.text_title',
+            'title' => 'Order Overview',
             'emptyMessage' => 'lang:admin::lang.orders.text_empty',
+            'showCheckboxes' => FALSE,
             'defaultSort' => ['order_id', 'DESC'],
             'configFile' => 'orders_model',
         ],

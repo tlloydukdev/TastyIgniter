@@ -1,5 +1,5 @@
 <?php
-$config['list']['filter'] = [
+$config['groupedlist']['filter'] = [
     'search' => [
         'prompt' => 'lang:admin::lang.orders.text_filter_search',
         'mode' => 'all',
@@ -56,7 +56,7 @@ $config['list']['filter'] = [
     ],
 ];
 
-$config['list']['toolbar'] = [
+$config['groupedlist']['toolbar'] = [
     'buttons' => [
         // 'delete' => [
         //     'label' => 'lang:admin::lang.button_delete',
@@ -71,7 +71,7 @@ $config['list']['toolbar'] = [
     ],
 ];
 
-$config['list']['columns'] = [
+$config['groupedlist']['columns'] = [
     'edit' => [
         'type' => 'button',
         'iconCssClass' => 'fa fa-pencil',

@@ -23,11 +23,20 @@ class Extension extends BaseExtension
      */
     public function register()
     {
-        $this->app->register(\Barryvdh\DomPDF\ServiceProvider::class);
+        // https://packagist.org/packages/barryvdh/laravel-dompdf
+        $this->app->register(\Barryvdh\DomPDF\ServiceProvider::class); 
         AliasLoader::getInstance()->alias('PDF', \Barryvdh\DomPDF\Facade::class);   
 
-        $finder = new \Illuminate\View\FileViewFinder(app()['files'], array(base_path().'\extensions\igniter\orderdashboard\views'));
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $extensionViewPath = '\extensions\igniter\orderdashboard\views';
+        } else {
+            $extensionViewPath = '/extensions/igniter/orderdashboard/views';
+        }
+        
+        $finder = new \Illuminate\View\FileViewFinder(app()['files'], array(base_path().$extensionViewPath));        
         View::setFinder($finder);
+        
+        
     }
 
     /**
@@ -39,14 +48,14 @@ class Extension extends BaseExtension
     {
        Event::listen('admin.controller.beforeResponse', function ($controller, $action, $params) {
 
-            if ($controller instanceof OrderDashboardController
-                || $controller instanceof AdminOrdersController
-                || $controller instanceof AdminReviewsController
-                || $controller instanceof AdminStatusesController
-                || $controller instanceof AdminPaymentsController) {
-                    $controller->addCss('$/igniter/orderdashboard/assets/css/orderdashboard.css', 'orderdashboard-css');
-                }
-                
+            // if ($controller instanceof OrderDashboardController
+            //     || $controller instanceof AdminOrdersController
+            //     || $controller instanceof AdminReviewsController
+            //     || $controller instanceof AdminStatusesController
+            //     || $controller instanceof AdminPaymentsController) {
+            //         $controller->addCss('$/igniter/orderdashboard/assets/css/orderdashboard.css', 'orderdashboard-css');
+            //     }
+                $controller->addCss('$/igniter/orderdashboard/assets/css/orderdashboard.css', 'orderdashboard-css');
                 return;
 
             
@@ -97,8 +106,16 @@ class Extension extends BaseExtension
                         'class' => 'overview',
                         'title' => 'Overview',
                         'permission' => 'Igniter.OrderDashboard',
+                    ],
+                    'grouped' => [
+                        'priority' => 6,
+                        'href' => admin_url('igniter/orderdashboard/groupedorders'),
+                        'class' => 'grouped',
+                        'title' => 'Grouped',
+                        'permission' => 'Igniter.OrderDashboard',
                     ]
                 ],
+                
             ],
         ];
     }
