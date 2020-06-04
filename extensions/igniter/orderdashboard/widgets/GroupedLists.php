@@ -9,10 +9,13 @@ use Carbon\Carbon;
 use DB;
 use Exception;
 use Html;
+use AdminLocation;
 use Igniter\Flame\Exception\ApplicationException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Igniter\Local\Classes\Location as LocationClass;
+
 use Model;
 
 class GroupedLists extends BaseWidget
@@ -50,7 +53,7 @@ class GroupedLists extends BaseWidget
     /**
      * @var bool|string Display pagination when limiting records per page.
      */
-    public $showPagination = 'auto';
+    public $showPagination = false; //'auto';
 
     /**
      * @var bool Display a drag handle next to each record row.
@@ -89,6 +92,11 @@ class GroupedLists extends BaseWidget
      * @var array Model data collection.
      */
     protected $records;
+
+    /**
+     * @var array Location time slots
+     */
+    protected $locationTimeSlots;
 
     /**
      * @var int Current page number.
@@ -387,7 +395,62 @@ class GroupedLists extends BaseWidget
             $records = $model->get();
         }
 
+        /* TimL */
+
+        $columns = $this->getColumns();
+        $locationTimeSlots = [];
+        $locationId = AdminLocation::getId();
+                
+        if(is_null($locationId)) {
+            // Super Admin
+            // We are dealing with multiple locations so need to build a list from the orders
+            foreach($records as $record) {
+
+                foreach ($columns as $key => $column) {
+                    if ($column->type == 'button') continue;
+
+                    if($column->columnName == 'location') {
+                        $locationId = $record->attributes['location_id'];
+                        $locationName = $this->getColumnValue($record, $column); // e.g. Taunton, Weston         
+                        continue;   
+                    }
+
+                }
+                if(!array_key_exists($locationName, $locationTimeSlots)) {
+                    // Get delivery and collection schedules for location   
+                    $locationTimeSlots[$locationName] = $this->getTimeSchedulesForLocationId($locationId);
+                }
+                
+            }
+        } else {
+
+            // Admin user belongs to a location
+            $adminLocation = AdminLocation::getLocation();
+            if(!isset($adminLocation->attributes['location_name']))
+               throw new Exception('Unable to understand the location context');
+            
+            $locationName = $adminLocation->attributes['location_name'];
+            $locationTimeSlots[$locationName] = $this->getTimeSchedulesForLocationId($locationId);
+        }
+
+        // Now we have all the delivery and collection start/end times for each day of the week
+
+        // Now we need the available slots for today, as shown to the user
+        
+        $records->locationTimeSlots = $locationTimeSlots;
+
         return $this->records = $records;
+    }
+
+    protected function getTimeSchedulesForLocationId($locationId) {
+        $lc = new LocationClass();
+        $locationModel = $lc->getModel()::find($locationId);
+        $lc->setModel($locationModel);
+
+        return array(
+                    'deliverySchedule' => $lc->deliverySchedule(), 
+                    'collectionSchedule' => $lc->collectionSchedule()
+                );
     }
 
     /**
@@ -1074,7 +1137,7 @@ class GroupedLists extends BaseWidget
 
         $setupContentId = '#'.$this->getId().'-setup-modal-content';
 
-        return [$setupContentId => $this->makePartial('lists/list_setup_form')];
+        return [$setupContentId => $this->makePartial('$/igniter/orderdashboard/widgets/groupedlists/list_setup_form')];
     }
 
     /**

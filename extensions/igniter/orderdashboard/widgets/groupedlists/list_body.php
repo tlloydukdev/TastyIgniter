@@ -1,3 +1,28 @@
+<?php 
+// $records->locationTimeSlots injected from OrderDashboard/Widgets/GroupedLists.php
+$today = "2020-06-03"; // TODO: make dynamic
+foreach ($records->locationTimeSlots as $key => $locationTimes) { 
+?>
+<tr class="groupedLocationHeader">
+    <td colspan=999>
+        <span class="title"><?=$key?></span>
+    </td>
+</tr>
+<?php
+print "<pre>";
+foreach($locationTimes as $timeSlot) {
+dd($timeSlot->getPeriods());
+?>
+<tr class="groupedTimeSlotHeader">
+    <td colspan=999>Time Slot</td>
+</tr>
+<?php
+}
+?>
+<?php
+}
+?>
+
 <?php foreach ($records as $record) { 
     ?>
     <tr>

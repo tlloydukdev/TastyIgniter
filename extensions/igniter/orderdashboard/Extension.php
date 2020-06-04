@@ -88,10 +88,10 @@ class Extension extends BaseExtension
     {
 // Remove this line and uncomment block to activate
         return [
-//            'Igniter.OrderDashboard.SomePermission' => [
-//                'description' => 'Some permission',
-//                'group' => 'module',
-//            ],
+        //    'Igniter.OrderDashboard.SomePermission' => [
+        //        'description' => 'Some permission',
+        // //        'group' => 'module',
+        //    ],
         ];
     }
 
@@ -105,14 +105,14 @@ class Extension extends BaseExtension
                         'href' => admin_url('igniter/orderdashboard/overview'),
                         'class' => 'overview',
                         'title' => 'Overview',
-                        'permission' => 'Igniter.OrderDashboard',
+                        //'permission' => 'Igniter.OrderDashboard',
                     ],
                     'grouped' => [
                         'priority' => 6,
                         'href' => admin_url('igniter/orderdashboard/groupedorders'),
                         'class' => 'grouped',
                         'title' => 'Grouped',
-                        'permission' => 'Igniter.OrderDashboard',
+                        //'permission' => 'Igniter.OrderDashboard',
                     ]
                 ],
                 

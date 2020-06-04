@@ -21,7 +21,6 @@ class Working_hours_model extends AbstractWorkingHour
     public function getHoursByLocation($id)
     {
         $collection = [];
-
         foreach (self::where('location_id', $id)->get() as $row) {
             $row = $this->parseRecord($row);
             $collection[$row['type']][$row['weekday']] = $this->parseRecord($row);

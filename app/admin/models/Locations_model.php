@@ -309,6 +309,7 @@ class Locations_model extends AbstractLocation
      */
     public static function updateDefault($locationId)
     {
+        
         if ($model = self::find($locationId)) {
             $model->makeDefault();
 
