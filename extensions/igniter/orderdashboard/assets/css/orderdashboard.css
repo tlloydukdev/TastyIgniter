@@ -10,7 +10,8 @@ tr.groupedLocationHeader td {
     background-color: #333; 
     font-weight: bold;   
 }
-tr.groupedLocationHeader td span.title {
+tr.groupedLocationHeader td span.title, 
+.groupedTimeSlotHeader td span.title {
     margin-left: 10px;
 }
 tr.groupedTimeSlotHeader {
@@ -19,4 +20,4 @@ tr.groupedTimeSlotHeader {
 tr.groupedTimeSlotHeader td {
     background-color: #888; 
     font-weight: bold;   
-}
+ }

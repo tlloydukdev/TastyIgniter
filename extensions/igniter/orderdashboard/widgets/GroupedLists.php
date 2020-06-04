@@ -10,6 +10,7 @@ use DB;
 use Exception;
 use Html;
 use AdminLocation;
+use DateTime;
 use Igniter\Flame\Exception\ApplicationException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -141,6 +142,11 @@ class GroupedLists extends BaseWidget
      */
     protected $sortDirection;
 
+    protected $openingTimeFormat = 'ddd hh:mm a';
+
+    protected $timePickerDateFormat = 'ddd DD';
+
+    
     public function initialize()
     {
         $this->fillFromConfig([
@@ -436,7 +442,6 @@ class GroupedLists extends BaseWidget
         // Now we have all the delivery and collection start/end times for each day of the week
 
         // Now we need the available slots for today, as shown to the user
-        
         $records->locationTimeSlots = $locationTimeSlots;
 
         return $this->records = $records;
@@ -447,10 +452,34 @@ class GroupedLists extends BaseWidget
         $locationModel = $lc->getModel()::find($locationId);
         $lc->setModel($locationModel);
 
-        return array(
-                    'deliverySchedule' => $lc->deliverySchedule(), 
-                    'collectionSchedule' => $lc->collectionSchedule()
-                );
+        $timeSlots = $this->parseTimeslot($lc->scheduleTimeslot());
+        
+        return $timeSlots;
+
+        // return array(
+        //             'deliverySchedule' => $lc->deliverySchedule(), 
+        //             'collectionSchedule' => $lc->collectionSchedule()
+        //         );
+    }
+
+    protected function parseTimeslot(Collection $timeslot)
+    {
+        $parsed = ['dates' => [], 'hours' => []];
+
+        $timeslot->collapse()->each(function (DateTime $slot) use (&$parsed) {
+            $dateKey = $slot->format('Y-m-d');
+            $hourKey = $slot->format('H:i:s');
+
+            $dateValue = make_carbon($slot)->isoFormat($this->timePickerDateFormat);
+            $hourValue = make_carbon($slot)->isoFormat($this->openingTimeFormat);
+
+            $parsed['dates'][$dateKey] = $dateValue;
+            $parsed['hours'][$dateKey][$hourKey] = $hourValue;
+        });
+
+        ksort($parsed['dates']);
+        ksort($parsed['hours']);
+        return $parsed;
     }
 
     /**
