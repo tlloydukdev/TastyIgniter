@@ -73,26 +73,32 @@ class Overview extends \Admin\Classes\AdminController
 
     public function index_onLoadPopup()
     {
+
         $context = post('context');
         $orderId = (int)post('orderId');
+        //$this->suppressLayout = TRUE;
+        return ['#previewModalContent' => $this->previewModalContent($context, $orderId)];
+    }
 
-         if (!in_array($context, ['orderPreview']))
+    public function previewModalContent($context, $orderId) {
+
+        if (!in_array($context, ['orderPreview']))
              throw new ApplicationException('Invalid type specified');
 
          if(!isset($orderId) || !is_int($orderId))
             throw new ApplicationException('Invalid or missing OrderId');
 
-         $this->vars['context'] = $context;
-         $this->vars['orderId'] = $orderId;
+        $this->vars['context'] = $context;
+        $this->vars['orderId'] = $orderId;
 
         // $ordersModel = new OrderDashboardModel();
         // $data = $ordersModel->where('order_id', '=', $orderId)->first();
 
         $model = $this->formFindModelObject($orderId);
 
-        $this->vars['model'] = $model;
-
-        return ['#previewModalContent' => $this->makePartial('preview_popup')];
+        $this->vars['model'] = $model;                
+        $html = $this->makePartial('preview_popup');
+        return $html;
     }
 
     public function invoice($context, $recordId = null)

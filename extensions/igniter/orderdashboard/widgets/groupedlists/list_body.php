@@ -13,8 +13,14 @@ foreach ($records->locationTimeSlots as $key => $locationTimes) {
 
 foreach($locationTimes['hours'] as $date => $hourSlots) {
     if($date == $today) {
-        krsort($hourSlots);
         foreach($hourSlots as $hour => $hourFormatted) {  
+            $ordersInSlot = false;
+            foreach($records as $record) {
+                if($record->attributes['order_date'] == $today && $record->attributes['order_time']== $hour) {
+                    $ordersInSlot = true;
+                }
+            }
+            if($ordersInSlot) {
     ?>
     <tr class="groupedTimeSlotHeader">
         <td colspan=999><span class="title"><?=$hour?></span></td>
@@ -22,9 +28,10 @@ foreach($locationTimes['hours'] as $date => $hourSlots) {
     <?php
         // Orders in time slots
             $ordersFound = 0;
-            foreach($records as $record) {
+            foreach($records as &$record) {
                 if($record->attributes['order_date'] == $today && $record->attributes['order_time']== $hour) {
                     $ordersFound++;
+                    $record->orderInSlot = true;
                     ?>
                     <tr class="grouped-order-item">
                         <?php if ($showDragHandle) { ?>
@@ -77,9 +84,6 @@ foreach($locationTimes['hours'] as $date => $hourSlots) {
                     </tr>
                     <?php
                 }
-    ?>
-
-    <?php
             }
             if($ordersFound == 0) {
                 ?>
@@ -91,10 +95,22 @@ foreach($locationTimes['hours'] as $date => $hourSlots) {
         }
     }
 }
-}
-?>
 
-<?php foreach ($records as $record) {  ?>
+}
+}
+
+
+?>
+<tr class="groupedLocationHeader">
+    <td colspan=999>
+        <span class="title">ASAP</span>
+    </td>
+</tr>
+<?php foreach ($records as $record) {  
+    if($record->orderInSlot) {
+        continue;
+    }
+    ?>
     <tr>
         <?php if ($showDragHandle) { ?>
             <td class="list-action">

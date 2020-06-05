@@ -1,7 +1,9 @@
 <?php
+
 $menuItems = $model->getOrderMenus();
 $menuItemsOptions = $model->getOrderMenuOptions();
 $orderTotals = $model->getOrderTotals();
+
 ?>
 
 <div class="orderdashboard-preview-content">

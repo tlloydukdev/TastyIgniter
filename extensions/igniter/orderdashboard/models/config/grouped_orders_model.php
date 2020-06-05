@@ -90,7 +90,7 @@ $config['groupedlist']['columns'] = [
             'data-request'=>"onLoadPopup",
             'data-request-data'=>"context: 'orderPreview', orderId: {order_id}",            
             'href' => '#',
-            'data-target' => '#previewModal',
+            'data-target' => '#previewModal2',
             'role' => 'button'
         ],
     ],

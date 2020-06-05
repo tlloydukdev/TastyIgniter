@@ -4,7 +4,7 @@ use AdminMenu;
 use Admin\Traits\ListExtendable;
 use Igniter\Flame\Exception\ApplicationException;
 use Igniter\OrderDashboard\Models\Orders_model as OrderDashboardModel;
-
+use Igniter\OrderDashboard\Controllers\Overview as OverviewController;
 
 class GroupedOrders extends \Admin\Classes\AdminController
 {
@@ -94,7 +94,15 @@ class GroupedOrders extends \Admin\Classes\AdminController
         
     // }
 
-    // public function index_onLoadPopup()
+    public function index_onLoadPopup() {
+        $context = post('context');
+        $orderId = (int)post('orderId');
+        
+        $oc = new OverviewController();
+
+        return ['#previewModalContent2' => $oc->previewModalContent($context, $orderId)];
+
+    }
     // {
     //     $context = post('context');
     //     $orderId = (int)post('orderId');
