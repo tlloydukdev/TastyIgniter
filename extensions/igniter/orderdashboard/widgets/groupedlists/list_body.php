@@ -1,6 +1,6 @@
 <?php 
 // $records->locationTimeSlots injected from OrderDashboard/Widgets/GroupedLists.php
-$today = "2020-06-05"; // TODO: make dynamic
+$today = date('Y-m-d'); // TODO: make dynamic
 
 foreach ($records->locationTimeSlots as $key => $locationTimes) {     
 ?>

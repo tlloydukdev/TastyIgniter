@@ -18,7 +18,9 @@ class GroupedOrders extends \Admin\Classes\AdminController
     ];
 
     public $implement = [
-       'Igniter\OrderDashboard\Actions\GroupedListController'
+        'Admin\Actions\ListController',
+       'Admin\Actions\LocationAwareController',
+        'Igniter\OrderDashboard\Actions\GroupedListController'       
     ];
 
     public $listConfig = [
@@ -39,11 +41,11 @@ class GroupedOrders extends \Admin\Classes\AdminController
         parent::__construct();
         $alias = $this->primaryAlias;
 
-        $listConfig = $this->getListConfig();
+        ///$listConfig = $this->getListConfig();
 
-        $modelClass = $listConfig['model'];
-        $model = new $modelClass;
-        unset($listConfig['model']);
+        // $modelClass = $listConfig['model'];
+        // $model = new $modelClass;
+        // unset($listConfig['model']);
         //$model = $this->listExtendModel($model, $alias);
 
         // Prep the list widget config
