@@ -1,6 +1,7 @@
 <?php namespace Igniter\OrderDashboard\Controllers;
 
 use AdminMenu;
+use Event;
 use Admin\Traits\ListExtendable;
 use Igniter\Flame\Exception\ApplicationException;
 use Igniter\OrderDashboard\Models\Orders_model as OrderDashboardModel;
@@ -59,6 +60,10 @@ class GroupedOrders extends \Admin\Classes\AdminController
 
 
         // $widget = $this->makeWidget('Igniter\OrderDashboard\Widgets\GroupedLists', array_merge($columnConfig, $listConfig));
+
+        Event::listen('admin.list.extendQueryBefore', function($widget, $query) {
+           $query->where('status_id', '<>', 5); // not equal to completed
+        });
 
         AdminMenu::setContext('grouped', 'sales');            
         
