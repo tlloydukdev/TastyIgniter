@@ -68,12 +68,6 @@ $config['list']['toolbar'] = [
             'data-request-data' => "_method:'DELETE'",
             'data-request-confirm' => 'lang:admin::lang.alert_warning_confirm',
         ],
-        'assigned' => [
-            'label' => 'lang:admin::lang.text_switch_to_assigned',
-            'class' => 'btn btn-default',
-            'href' => 'orders/assigned',
-            'context' => 'index',
-        ],
     ],
 ];
 
@@ -151,7 +145,7 @@ $config['list']['columns'] = [
         'type' => 'currency',
     ],
     'date_added' => [
-        'label' => 'lang:admin::lang.orders.column_date_added',
+        'label' => 'lang:admin::lang.column_date_added',
         'type' => 'timesince',
         'invisible' => TRUE,
     ],

@@ -97,7 +97,7 @@ $input-border-color: $gray-300 !default;
 
 $input-border-radius: 3px !default;
 $input-box-shadow: none !default;
-$custom-control-indicator-size: 1.25rem !default;
+$custom-control-indicator-size: 1.5rem !default;
 
 // Navs
 //
@@ -144,3 +144,9 @@ $list-group-bg: $gray-100 !default;
 $list-group-hover-bg: $gray-200 !default;
 $list-group-action-color: $body-color !default;
 $list-group-border-color: $input-border-color !default;
+
+// Modals
+$modal-xl: 1140px !default;
+$modal-lg: 800px !default;
+$modal-md: 600px !default;
+$modal-sm: 400px !default;

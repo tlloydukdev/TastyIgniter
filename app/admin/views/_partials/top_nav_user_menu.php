@@ -13,7 +13,7 @@ $staffState = \Admin\Classes\UserState::forUser();
 <li class="nav-item dropdown">
     <a href="#" class="nav-link" data-toggle="dropdown">
         <img
-            class="rounded-circle<?= (!$isSingleMode AND $staffLocationId) ? ' icon-border border-info' : '' ?>"
+            class="rounded-circle"
             src="<?= '//www.gravatar.com/avatar/'.$staffAvatar.'.png?s=64&d=mm'; ?>"
         >
     </a>
@@ -32,7 +32,7 @@ $staffState = \Admin\Classes\UserState::forUser();
                 <form method="POST" accept-charset="UTF-8">
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <div class="input-group-text<?= $staffLocationId ? ' text-info' : '' ?>">
+                            <div class="input-group-text<?= $staffLocationId ? ' text-info' : ' text-muted' ?>">
                                 <i class="fa fa-map-marker fa-fw"></i>
                             </div>
                         </div>
@@ -41,7 +41,9 @@ $staffState = \Admin\Classes\UserState::forUser();
                             class="form-control"
                             data-request="<?= $this->getEventHandler('onChooseLocation') ?>"
                         >
-                            <option value="0"><?= e(lang('admin::lang.text_select_location')) ?></option>
+                            <?php if (AdminAuth::isSuperUser()) { ?>
+                                <option value="0"><?= e(lang('admin::lang.text_all_locations')) ?></option>
+                            <?php } ?>
                             <?php foreach ($staffLocations as $key => $value) { ?>
                                 <option
                                     value="<?= $key ?>"
