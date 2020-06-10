@@ -59,8 +59,8 @@ class DropMoreUnusedColumns extends Migration
                 'reservation_time_interval' => $model->reservation_time_interval,
                 'reservation_lead_time' => $model->reservation_stay_time,
                 'future_orders' => [
-                    'enable_delivery' => $model->future_orders,
-                    'enable_collection' => $model->future_orders,
+                    'enable_delivery' => 1, //$model->future_orders,
+                    'enable_collection' => 1, //$model->future_orders,
                     'delivery_days' => $model->future_order_days['delivery'] ?? 0,
                     'collection_days' => $model->future_order_days['collection'] ?? 0,
                 ],

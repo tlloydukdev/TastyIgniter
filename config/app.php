@@ -136,5 +136,6 @@ return [
 
     'aliases' => array_merge(include(app_path('system/aliases.php')), [
         // Example
+        'Str' => Illuminate\Support\Str::class
     ]),
 ];

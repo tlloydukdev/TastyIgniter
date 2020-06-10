@@ -406,7 +406,7 @@ class GroupedLists extends BaseWidget
         $columns = $this->getColumns();
         $locationTimeSlots = [];
         $locationId = AdminLocation::getId();
-                
+             
         if(is_null($locationId)) {
             // Super Admin
             // We are dealing with multiple locations so need to build a list from the orders
@@ -416,7 +416,7 @@ class GroupedLists extends BaseWidget
                     if ($column->type == 'button') continue;
 
                     if($column->columnName == 'location') {
-                        $locationId = $record->attributes['location_id'];
+                        $locationId = $record->attributes['location_id'];                        
                         $locationName = $this->getColumnValue($record, $column); // e.g. Taunton, Weston         
                         continue;   
                     }
@@ -448,12 +448,14 @@ class GroupedLists extends BaseWidget
     }
 
     protected function getTimeSchedulesForLocationId($locationId) {
+                                
         $lc = new LocationClass();
+        
         $locationModel = $lc->getModel()::find($locationId);
         $lc->setModel($locationModel);
 
         $timeSlots = $this->parseTimeslot($lc->scheduleTimeslot());
-        
+
         return $timeSlots;
 
         // return array(

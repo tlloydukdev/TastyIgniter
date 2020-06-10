@@ -62,7 +62,7 @@ class GroupedOrders extends \Admin\Classes\AdminController
         // $widget = $this->makeWidget('Igniter\OrderDashboard\Widgets\GroupedLists', array_merge($columnConfig, $listConfig));
 
         Event::listen('admin.list.extendQueryBefore', function($widget, $query) {
-           $query->where('status_id', '<>', 5); // not equal to completed
+         //  $query->where('status_id', '<>', 5); // not equal to completed
         });
 
         AdminMenu::setContext('grouped', 'sales');            

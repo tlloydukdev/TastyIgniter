@@ -1,7 +1,6 @@
 <?php
 
 return [
-    '_text_title' => 'Local',
     'text_tab_general' => 'General',
     'text_tab_texts' => 'Text',
     'text_info_heading' => 'More info about %s local restaurant',
@@ -24,7 +23,6 @@ return [
     'text_delivery_time_info' => 'Delivery %s',
     'text_collection_time_info' => 'Pick-up %s',
     'text_collection_time' => 'Pick-up Time',
-    'text_last_order_time' => 'Last Order Time',
     'text_payments' => 'Payments',
     'text_offer' => 'Service Offered',
     'text_delivery_only' => 'Delivery only',
@@ -35,13 +33,15 @@ return [
     'text_single' => 'Single',
     'text_multi' => 'Multi',
     'text_at' => 'at ',
-    'text_starts' => '<span class="text-danger"> starts %s</span>',
+    'text_starts' => ' starts %s',
     'text_condition_all_orders' => '{amount} on all orders',
     'text_condition_above_total' => '{amount} above {total}',
     'text_condition_below_total' => '{amount} below {total}',
     'text_delivery_areas' => 'Delivery Areas',
     'text_delivery_map' => 'Delivery Map',
     'text_working_hour' => '(%s - %s)',
+    'text_min_total' => 'Min. Order Amount',
+    'text_no_min_total' => 'No Min. Order Amount',
 
     'text_categories' => 'Categories',
     'text_view_categories' => 'View categories',
@@ -72,6 +72,7 @@ return [
     'button_enter_location' => 'Enter Location',
     'button_view_menu' => 'View Menu',
 
+    'label_default_order_type' => 'Set the default selected order type',
     'label_location_search_mode' => 'Hide Location Search',
     'label_hide_min_order_amount' => 'Hide Min. Order Amount',
     'label_lang' => 'Language Line',
@@ -117,6 +118,7 @@ return [
     'text_asap' => 'ASAP',
     'text_later' => 'Schedule Order',
     'text_none' => 'None',
+    'text_in_min' => 'in %s min',
     'text_in_minutes' => 'in <b>%s</b> minutes',
     'text_after_opening' => '<b>%s</b> minutes after we open',
     'text_same_as_opening_hours' => 'Same as opening hours',
