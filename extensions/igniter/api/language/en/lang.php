@@ -7,6 +7,7 @@ return [
         'alert_success_signup' => 'Thanks for Signing Up.',
         'alert_success_signin' => 'You\'ve successfully signed in.',
         'alert_signup_failed' => 'Signing up faield. Please try again.',
+        'alert_useredit_failed' => 'Editing User Info faield. Please try again.',
         'alert_token_expired' => 'Your access token is expired.',
         'alert_status_disabled' => 'Your account is disabled, please contact us.',
     ],

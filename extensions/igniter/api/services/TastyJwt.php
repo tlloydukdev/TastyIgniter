@@ -33,11 +33,16 @@ class TastyJwt {
         if ($request->bearerToken()) {
             $userModelClass = 'Admin\Models\Customers_model';
             $userModel = new $userModelClass;
-            if ($userModel->where('remember_token', $request->bearerToken())->first())
-                return true;
-            return false;
+            $user = $userModel->where('remember_token', $request->bearerToken())->first();
+            if ($user) {
+                if ($user->status == true)
+                    return 1;
+                else
+                    return -1;
+            }
+            return 0;
         } else {
-            return false;
+            return 0;
         }
     }
 }
