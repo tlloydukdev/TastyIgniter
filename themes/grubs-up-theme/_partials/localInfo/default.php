@@ -36,12 +36,12 @@
                 <?php } ?>
             </div>
         <?php } ?>
-        <?php if ($locationCurrent->hasDelivery()) { ?>
-            <div class="list-group-item">
-                <?= lang('igniter.local::default.text_last_order_time'); ?>&nbsp;
-                <?= $location->lastOrderTime()->isoFormat($lastOrderTimeFormat); ?>
-            </div>
-        <?php } ?>
+        <?php // TL: see https://github.com/tastyigniter/ti-ext-local/issues/7 if ($locationCurrent->hasDelivery()) { ?>
+            <!-- <div class="list-group-item"> -->
+                <!-- <?php //echo lang('igniter.local::default.text_last_order_time'); ?>&nbsp; -->
+                <?php //echo  $location->lastOrderTime()->isoFormat($lastOrderTimeFormat); ?>
+            <!-- </div> -->
+        <?php // } ?>
         <?php if ($localPayments->isNotEmpty()) { ?>
             <div class="list-group-item">
                 <i class="fa fa-paypal fa-fw"></i>&nbsp;<b><?= lang('igniter.local::default.text_payments'); ?></b><br/>

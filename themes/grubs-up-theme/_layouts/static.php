@@ -21,6 +21,7 @@ description: Static layout for static pages
 <html xmlns="http://www.w3.org/1999/xhtml" lang="<?= App::getLocale(); ?>">
 <head>
     <?= partial('head'); ?>
+    <meta name="csrf-token" content="<?= csrf_token() ?>">
 </head>
 <body class="<?= $this->page->bodyClass; ?>">
 
