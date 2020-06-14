@@ -2,7 +2,7 @@
 title: 'main::lang.home.title'
 permalink: /
 description: ''
-layout: default
+layout: home
 
 '[slider]':
     code: home-slider
