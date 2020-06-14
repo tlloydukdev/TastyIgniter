@@ -18,7 +18,7 @@ description: Default layout
     <?= partial('head'); ?>
     <meta name="csrf-token" content="<?= csrf_token() ?>">
 </head>
-<body class="<?= $this->page->bodyClass; ?>" style="background-color: #ed561a;">
+<body class="<?= $this->page->bodyClass; ?>" style="background-color: #FC6C35;">
 
     <header class="header">
         <?= partial('header'); ?>

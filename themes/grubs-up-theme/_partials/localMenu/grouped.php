@@ -27,7 +27,7 @@
                     </div>
                     <div
                         id="<?= $menuCategoryAlias; ?>-collapse"
-                        class="collapse <?= $index < 5 ? 'show' : ''; ?>"
+                        class="collapse <?= $index < 20 ? 'show' : ''; ?>"
                         role="tabpanel" aria-labelledby="<?= $menuCategoryAlias; ?>"
                     >
                         <div class="menu-category">

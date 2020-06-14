@@ -12300,6 +12300,10 @@ body > main {
 .the-intro {
   min-height: 100vh; }
 
+@media (max-width: 768px) {
+  .carousel-item, .item {
+    margin-top: 20px; } }
+
 .page-login .page-wrapper {
   margin-left: 0;
   padding: 25px; }

@@ -42,7 +42,7 @@
         <?= partial('@buttons'); ?>
     <?php } else if (!$pageIsCart) { ?>
         <a
-            class="btn btn-primary btn-block btn-lg radius-none cart-toggle text-nowrap"
+            class="btn btn-primary btn-block pb-3 btn-lg radius-none cart-toggle text-nowrap"
             href="<?= site_url('cart') ?>"
         >
             <?= lang('igniter.cart::default.text_heading'); ?>:
