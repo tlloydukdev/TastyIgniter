@@ -1,6 +1,6 @@
-<div class="footer pt-5 pb-5">
+<div class="footer pt-md-5 pb-md-5">
     <div class="container">
-        <div class="row">
+        <div class="row" style="margin-top: 5px;">
             <?php foreach ($footerMenu->menuItems() as $navItem) { ?>
                 <div class="col">
                     <div class="footer-links">
