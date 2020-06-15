@@ -164,6 +164,7 @@ class LocalBox extends \System\Classes\BaseComponent
 
     public function onSetOrderTime()
     {
+
         try {
             if (!is_numeric($timeIsAsap = post('asap')))
                 throw new ApplicationException('Please select a slot type.');
