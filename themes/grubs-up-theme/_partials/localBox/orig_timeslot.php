@@ -1,60 +1,64 @@
 <?php
 $orderDateTime = $location->orderDateTime();
-$orderTimeIsAsap = false; // Disable ASAP time $location->orderTimeIsAsap();
-$deliveryInterval = $locationCurrent->getDeliveryTimeAttribute('blah');
-$collectionInterval = $locationCurrent->getCollectionTimeAttribute('blah');
-if($location->orderTypeIsDelivery()) {
-    $intervalMinutes = $deliveryInterval;
-} else {
-    $intervalMinutes = $collectionInterval;
-}
-$intervalEndHour = Carbon\Carbon::parse($orderDateTime)->addMinutes($intervalMinutes);
-
+$orderTimeIsAsap = $location->orderTimeIsAsap();
 ?>
-<button
-        class="btn btn-light btn-timepicker btn-block text-truncate"
+<div
+    class="dropdown"
+>
+    <button
+        class="btn btn-light btn-timepicker btn-block dropdown-toggle text-truncate"
         type="button"
         id="orderTimePicker"
-        data-toggle="collapse"
-        data-target="#timepickerBox"
+        data-toggle="dropdown"
+        data-boundary="viewport"
+        aria-haspopup="true"
+        aria-expanded="false"
     >
         <i class="fa fa-clock-o"></i>&nbsp;&nbsp;
         <b><?=
             ($orderTimeIsAsap)
                 ? lang('igniter.local::default.text_asap')
-                : $orderDateTime->isoFormat('ddd h:mma') . ' - ' . $intervalEndHour->isoFormat('h:mma');
+                : $orderDateTime->isoFormat($timePickerDateTimeFormat);
             ?></b>
     </button>
 
-    <div id="timepickerBox" class="collapse" aria-labelledby="orderTimePicker">
+    <div class="dropdown-menu" aria-labelledby="orderTimePicker">
+        <button
+            type="button"
+            class="dropdown-item py-2"
+            data-timepicker-option="asap"
+        ><i class="fa fa-clock-o"></i>&nbsp;&nbsp;<?= lang('igniter.local::default.text_asap'); ?></button>
+        <button
+            type="button"
+            class="dropdown-item py-2"
+            data-timepicker-option="later"
+        ><i class="fa fa-calendar"></i>&nbsp;&nbsp;<?= lang('igniter.local::default.text_later'); ?></button>
 
         <form
-            class="pt-3"
+            class="dropdown-content px-4 py-3 hide"
             role="form"
             data-request="<?= $timeSlotEventHandler; ?>"
         >
             <input type="hidden" data-timepicker-control="type" value="<?= $orderTimeIsAsap ? 'asap' : 'later' ?>">
-            <div class="form-group row no-gutters">
-                <div class="col-sm-6 col-xs-6 pr-md-1 ">
+            <div class="form-group">
                 <select
                     class="form-control"
                     data-timepicker-control="date"
                     data-timepicker-label="<?= lang('igniter.local::default.label_date'); ?>"
                     data-timepicker-selected="<?= $orderDateTime ? $orderDateTime->format('Y-m-d') : '' ?>"
                 ></select>
-                </div>
-                <div class="col-sm-6 col-xs-6 pl-md-1">
+            </div>
+            <div class="form-group">
                 <select
-                    class="form-control mt-2 mt-md-0"
+                    class="form-control"
                     data-timepicker-control="time"
-                    data-timepicker-interval="45"
                     data-timepicker-label="<?= lang('igniter.local::default.label_time'); ?>"
                     data-timepicker-selected="<?= $orderDateTime ? $orderDateTime->format('H:i') : '' ?>"
                 ></select>
             </div>
             <button
                 type="button"
-                class="btn btn-primary text-nowrap mx-auto mt-2"
+                class="btn btn-primary text-nowrap"
                 data-timepicker-submit
                 data-attach-loading
             >
@@ -64,5 +68,5 @@ $intervalEndHour = Carbon\Carbon::parse($orderDateTime)->addMinutes($intervalMin
                 ?>
             </button>
         </form>
-   </div>
+    </div>
 </div>

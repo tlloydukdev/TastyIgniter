@@ -91,7 +91,8 @@ class LocalBox extends \System\Classes\BaseComponent
                 'label' => 'Time format for the opening later time',
                 'type' => 'text',
                 'span' => 'left',
-                'default' => 'ddd hh:mm a',
+                'default' => 'h:mma',
+                //'default' => 'ddd hh:mm a',
             ],
             'timePickerDateFormat' => [
                 'label' => 'Date format for the timepicker',
@@ -233,15 +234,24 @@ class LocalBox extends \System\Classes\BaseComponent
     protected function parseTimeslot(Collection $timeslot)
     {
         $parsed = ['dates' => [], 'hours' => []];
-
-        $timeslot->collapse()->each(function (DateTime $slot) use (&$parsed) {
+        
+        $locationCurrent = $this->location->current();
+        $deliveryInterval = $locationCurrent->getDeliveryTimeAttribute('blah');
+        $collectionInterval = $locationCurrent->getCollectionTimeAttribute('blah');
+        if($this->location->orderTypeIsDelivery()) {
+            $intervalMinutes = $deliveryInterval;
+        } else {
+            $intervalMinutes = $collectionInterval;
+        }
+        $timeslot->collapse()->each(function (DateTime $slot) use (&$parsed, $intervalMinutes) {
             $dateKey = $slot->format('Y-m-d');
             $hourKey = $slot->format('H:i');
             $dateValue = make_carbon($slot)->isoFormat($this->property('timePickerDateFormat'));
             $hourValue = make_carbon($slot)->isoFormat($this->property('openingTimeFormat'));
+            $intervalEndHour = make_carbon($slot)->addMinutes($intervalMinutes)->isoFormat($this->property('openingTimeFormat'));
 
             $parsed['dates'][$dateKey] = $dateValue;
-            $parsed['hours'][$dateKey][$hourKey] = $hourValue;
+            $parsed['hours'][$dateKey][$hourKey] = $hourValue . ' - ' . $intervalEndHour;
         });
 
         ksort($parsed['dates']);

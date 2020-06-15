@@ -1,4 +1,6 @@
-<?php if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
+<?php
+
+if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
     <?php
     $deliveryTime = Carbon\Carbon::parse($location->deliverySchedule()->getOpenTime());
     $collectionTime = Carbon\Carbon::parse($location->collectionSchedule()->getOpenTime());
@@ -6,7 +8,7 @@
     <div class="btn-group btn-group-toggle w-100 text-center order-type" data-toggle="buttons">
         <?php if ($locationCurrent->hasDelivery()) { ?>
             <label
-                class="btn btn-light <?= $location->orderTypeIsDelivery() ? 'active' : ''; ?>">
+                class="btn btn-<?= $location->orderTypeIsDelivery() ? 'primary' : 'light'; ?> <?= $location->orderTypeIsDelivery() ? 'active' : ''; ?>" style="<?= $location->orderTypeIsDelivery() ? 'background-color: #FC6C35!important;' : ''; ?>">
                 <input
                     type="radio"
                     name="order_type"
@@ -30,7 +32,7 @@
         <?php } ?>
         <?php if ($locationCurrent->hasCollection()) { ?>
             <label
-                class="btn btn-light <?= ($location->orderType() == 'collection') ? 'active' : ''; ?>">
+                class="btn btn-<?= ($location->orderType() == 'collection') ? 'primary' : 'light'; ?> <?= ($location->orderType() == 'collection') ? 'active' : ''; ?>" style="<?= $location->orderType() == 'collection' ? 'background-color: #FC6C35!important;' : ''; ?>">
                 <input
                     type="radio"
                     name="order_type"
@@ -52,6 +54,15 @@
                     </span>
             </label>
         <?php } ?>
+    </div>    
+    <div class="col-sm-12 mb-3 mb-sm-3 pr-0 pl-0">
+        <div
+            id="local-timeslot"
+            data-control="timepicker"
+            data-time-slot="<?= e(json_encode($locationTimeslot)); ?>"
+        >
+            <?= partial('@timeslot'); ?>
+        </div>
     </div>
     <?php if ($location->orderTypeIsDelivery()) { ?>
         <p class="text-muted text-center">

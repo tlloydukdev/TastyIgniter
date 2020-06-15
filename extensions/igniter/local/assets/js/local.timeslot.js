@@ -81,13 +81,13 @@
             selectedHour = this.$el.find(this.timeSelector).data('timepicker-selected'),
             selectedDate = this.$el.find(this.dateSelector).val()
 
-        if (!this.options.timeSlot.hours.hasOwnProperty(selectedDate))
+            if (!this.options.timeSlot.hours.hasOwnProperty(selectedDate))
             return
 
         this.$el.find(this.timeSelector).html('<option value="">' + controlLabel + '</option>')
         $.each(this.options.timeSlot.hours[selectedDate], function (index, hour) {
             self.$el.find(self.timeSelector).append('<option value="' + index + '"' + (
-                selectedHour === hour ? 'selected="selected"' : ''
+                selectedHour === index ? 'selected="selected"' : ''
             ) + '>' + hour + '</option>')
         });
 

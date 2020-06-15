@@ -1,4 +1,7 @@
-<?php if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
+<?php
+// Does not appear to be used
+// cartBox/control.php seems to be in use
+if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
     <?php
     $deliveryTime = Carbon\Carbon::parse($location->deliverySchedule()->getOpenTime());
     $collectionTime = Carbon\Carbon::parse($location->collectionSchedule()->getOpenTime());
