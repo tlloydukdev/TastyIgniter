@@ -8,19 +8,23 @@ $menuPrice = $specialActive ? $special->getMenuPrice($menuItem->menu_price) : $m
 ?>
 <div id="menu<?= $menuItem->menu_id; ?>" class="menu-item">
     <div class="d-flex flex-row">
-        <?php if ($showMenuImages == 1 AND $menuItem->hasMedia('thumb')) { ?>
+        <?php
+         if ($showMenuImages == 1 AND $menuItem->hasMedia('thumb')) { ?>
             <div
-                class="menu-thumb align-self-center mr-3"
-                style="width: <?= $menuImageWidth ?>px"
+                class="menu-thumb align-self-start mr-3"
+                style="width: <?= $menuImageWidth ?>px;"
             >
+            <a href="<?php echo $menuItem->menu_image_url;?>" data-toggle="lightbox">
                 <img
-                    class="img-responsive img-rounded"
+                    class="img-rounded"
                     alt="<?= $menuItem->menu_name; ?>"
                     src="<?= $menuItem->getThumb([
                         'width' => $menuImageWidth,
                         'height' => $menuImageHeight,
+                        'fit' => 'crop'
                     ]); ?>"
                 >
+                    </a>
             </div>
         <?php } ?>
 

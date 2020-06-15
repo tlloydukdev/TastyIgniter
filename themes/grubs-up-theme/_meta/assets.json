@@ -22,6 +22,10 @@
     {
       "path": "grubs-up-theme/assets/css/app.css",
       "name": "app-css"
+    },
+    {
+      "path": "grubs-up-theme/assets/css/ekko-lightbox.css",
+      "name": "ekko-css"
     }
   ],
   "script": [
@@ -43,6 +47,7 @@
         "~/themes/grubs-up-theme/assets/src/js/vendor/affix.js",
         "~/themes/grubs-up-theme/assets/src/js/vendor/select2.min.js",
         "~/themes/grubs-up-theme/assets/src/js/vendor/jquery.raty.js",
+        "~/themes/grubs-up-theme/assets/src/js/vendor/ekko-lightbox.min.js",
         "~/themes/grubs-up-theme/assets/src/js/app.js"
       ],
       "destination": "~/themes/grubs-up-theme/assets/js/app.js"

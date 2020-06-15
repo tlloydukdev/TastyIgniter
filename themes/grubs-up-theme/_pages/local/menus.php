@@ -7,8 +7,8 @@ layout: local
 '[localMenu]':
     isGrouped: 1
     menusPerPage: 200
-    showMenuImages: 0
-    menuImageWidth: 95
+    showMenuImages: 1
+    menuImageWidth: 80
     menuImageHeight: 80
 
 ---

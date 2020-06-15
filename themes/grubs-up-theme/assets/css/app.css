@@ -12344,6 +12344,12 @@ body > main {
   color: #FC6C35;
   font-weight: 600; }
 
+@media (max-width: 768px) {
+  .menu-thumb {
+    width: 65px !important; }
+  .menu-thumb img {
+    width: 65px !important; } }
+
 .menu-group {
   display: flex;
   flex-direction: column;
