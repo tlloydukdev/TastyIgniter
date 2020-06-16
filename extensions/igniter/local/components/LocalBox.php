@@ -146,7 +146,7 @@ class LocalBox extends \System\Classes\BaseComponent
             if (!$this->location->checkOrderType($orderType = post('type')))
                 throw new ApplicationException(lang('igniter.local::default.alert_'.$orderType.'_unavailable'));
 
-            $this->location->updateOrderType($orderType);
+            $this->location->updateOrderType($orderType);                       
 
             $this->controller->pageCycle();
 
@@ -270,13 +270,17 @@ class LocalBox extends \System\Classes\BaseComponent
 
     protected function updateCurrentOrderType()
     {
+    
         if (!$locationCurrent = $this->location->current())
             return;
+
+        if (!strlen(post('time')))
+          $this->location->updateScheduleTimeSlot(null, null);
 
         // Makes sure the current active order type is offered by the location.
         if (in_array($this->location->orderType(), $locationCurrent->availableOrderTypes()))
             return;
-
+               
         $this->location->updateOrderType(
             $this->property('defaultOrderType', Locations_model::DELIVERY)
         );
