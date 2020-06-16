@@ -32,3 +32,14 @@
     color: #ED561A;
   }
 }
+.mobile-banner {
+        display: none;
+    }
+@media (max-width: 768px) {
+    .carousel-item  {
+        margin-top: 20px;
+    }
+    .mobile-banner {
+        display: block;
+    }
+}

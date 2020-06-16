@@ -12294,6 +12294,15 @@ a.close.disabled {
   margin-right: 5px;
   color: #ED561A; }
 
+.mobile-banner {
+  display: none; }
+
+@media (max-width: 768px) {
+  .carousel-item, .item {
+    margin-top: 20px; }
+  .mobile-banner {
+    display: block; } }
+
 body > main {
   padding-top: 50px; }
 

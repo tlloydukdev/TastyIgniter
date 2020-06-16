@@ -1,4 +1,7 @@
 <div class="footer pt-md-5 pb-md-5">
+    
+    <?= partial('mobile_banner'); ?>
+
     <div class="container">
         <div class="row" style="margin-top: 5px;">
             <?php foreach ($footerMenu->menuItems() as $navItem) { ?>
@@ -37,14 +40,14 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <hr class="mb-3">
+                <hr class="mb-1">
             </div>
         </div>
     </div>
 
     <div class="container">
-        <div class="row">
-            <div class="col p-2">
+        <div class="row pb-2">
+            <div class="col p-2 text-center">
                 <?= sprintf(
                     lang('main::lang.site_copyright'),
                     date('Y'),

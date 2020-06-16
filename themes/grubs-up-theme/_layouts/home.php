@@ -33,6 +33,7 @@ description: Default layout
     <footer class="pt-5">
         <?= partial('footer'); ?>
     </footer>
+
     <div id="notification">
         <?= partial('flash'); ?>
     </div>

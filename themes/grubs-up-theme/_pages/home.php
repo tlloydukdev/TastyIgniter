@@ -17,6 +17,7 @@ layout: home
     itemsPerRow: 3
     itemWidth: 400
     itemHeight: 300
+
 ---
 <?= component('slider'); ?>
 
