@@ -7,16 +7,17 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-4 offset-2">
+            <div class="col-6">
                 <a href="#">
                     <img
+                    style="float:right;"
                     alt="On the App Store"
                     src="<?= uploads_url('app_store_badge.svg') ?>"
                     width=120
                     >
                 </a>
             </div>
-            <div class="col-4">
+            <div class="col-6">
                 <a href="#">
                     <img
                     alt="Android app on Google Play"
