@@ -35,10 +35,7 @@ class TastyJwt {
             $userModel = new $userModelClass;
             $user = $userModel->where('remember_token', $request->bearerToken())->first();
             if ($user) {
-                if ($user->status == true)
-                    return 1;
-                else
-                    return -1;
+                return 1;
             }
             return 0;
         } else {

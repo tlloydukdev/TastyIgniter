@@ -23,4 +23,6 @@ Route::prefix('api/v1/home')->group(function () {
     Route::post('getOrders', 'Igniter\\Api\\Controllers\\Infos@getOrders');
     Route::post('addFavorites', 'Igniter\\Api\\Controllers\\Infos@addFavorites');
     Route::post('getFavorites', 'Igniter\\Api\\Controllers\\Infos@getFavorites');
+    Route::get('getPolicy', 'Igniter\\Api\\Controllers\\Infos@getPolicy');
+    Route::get('getTerms', 'Igniter\\Api\\Controllers\\Infos@getTerms');
 });

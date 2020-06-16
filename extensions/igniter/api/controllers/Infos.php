@@ -35,6 +35,8 @@ class Infos extends \Admin\Classes\AdminController {
         'order' => 'Admin\Models\Orders_model',
         'status' => 'Admin\Models\Statuses_model',
         'favorite' => 'Igniter\Api\Models\Favourite',
+        'page' => 'Igniter\Api\Models\Page',
+        'customerSetting' => 'Igniter\Api\Models\CustomerSetting',
     ];
 
     private $userModel;
@@ -50,6 +52,9 @@ class Infos extends \Admin\Classes\AdminController {
     private $orderModel;
     private $statusModel;
     private $favoriteModel;
+    private $pageModel;
+    private $customerSettingModel;
+
     private $weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     private $stripe;
 
@@ -68,31 +73,26 @@ class Infos extends \Admin\Classes\AdminController {
         $this->orderModel = new $this->modelConfig['order'];
         $this->statusModel = new $this->modelConfig['status'];
         $this->favoriteModel = new $this->modelConfig['favorite'];
+        $this->pageModel = new $this->modelConfig['page'];
+        $this->customerSettingModel = new $this->modelConfig['customerSetting'];
 
         $this->stripe = new \Stripe\StripeClient(config('api.stripe_key_test_secret'));
     }
 
     public function menu(Request $request) {
-
-        if (TastyJwt::instance()->validateToken($request) === -1)
-        {
-            abort(400, lang('igniter.api::lang.auth.alert_status_disabled'));
-        }
-        if (TastyJwt::instance()->validateToken($request) === 0)
-            abort(400, lang('igniter.api::lang.auth.alert_token_expired'));
-
         try {
             $currentWeekDay = ((int)date('w') + 7 - 1) % 7;
             $locationArea = $this->locationAreaModel->where('area_id', $request['user']['areaId'])->first();
-            Log::debug($locationArea);
-            $location = $this->locationModel->where('location_id', $locationArea->location_id)->first();
+            $location = $this->locationModel->where('location_id', $request['user']['locationId'])->first();
             if($locationArea->conditions[0]['amount'] == '0.00' && $locationArea->conditions[0]['total'] == '0.00') {
                 $delivery = 'Free on all orders';
             } else {
-                $delivery = '£' . $locationArea->conditions[0]['amount'] . ' below ' . '£' . $locationArea->conditions[0]['total'];
+                if($locationArea->conditions[0]['total'] == '0.00') {
+                    $delivery = '£' . $locationArea->conditions[0]['amount'] . ' on all orders';
+                } else {
+                    $delivery = '£' . $locationArea->conditions[0]['amount'] . ' below ' . '£' . $locationArea->conditions[0]['total'];
+                }
             }
-            // if($location->options['hours']['opening']['flexible'][$weekDay]['status'] == '1') {
-            //     $openTime = $location->options['hours']['opening']['open'] . '-' . $location->options['hours']['opening']['close'];
 
             $openingTimes = $location['options']['hours']['opening']['flexible'];
             for ($i = $currentWeekDay; $i < $currentWeekDay + count($openingTimes); $i++) {
@@ -128,12 +128,10 @@ class Infos extends \Admin\Classes\AdminController {
 
             $customSpecials = $this->menuCategoryModel::with('menu')->where('category_id', $specailsCategoryId)->get();
             $specials = array();
-            if ($this->locationableModel->where('location_id', $location->location_id)->where('locationable_type', 'categories')->where('locationable_id', $specailsCategoryId)->first()) {
-                foreach ($customSpecials as $special) {
-                    if ($this->locationableModel->where('locationable_type', 'menus')->where('locationable_id', $special->menu_id)->first()) {
-                        array_push($specials, $special);
-                    }
-                }    
+            foreach ($customSpecials as $special) {
+                if ($this->locationableModel->where('locationable_type', 'menus')->where('locationable_id', $special->menu_id)->where('location_id', $request['user']['locationId'])->first()) {
+                    array_push($specials, $special);
+                }
             }
 
             $categories = $this->categoryModel->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();
@@ -169,13 +167,6 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function menuDetail(Request $request) {
-        if (TastyJwt::instance()->validateToken($request) === -1)
-        {
-            abort(400, lang('igniter.api::lang.auth.alert_status_disabled'));
-        }
-        if (TastyJwt::instance()->validateToken($request) === 0)
-            abort(400, lang('igniter.api::lang.auth.alert_token_expired'));
-
         try {
             $response['menu'] = $this->menuModel->where('menu_id', $request->id)->first();
             $favorite = $this->favoriteModel->where('customer_id', $request['userId'])->where('menu_id', $request['id'])->first();
@@ -192,14 +183,8 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function getCheckOutTime(Request $request) {
-        if (TastyJwt::instance()->validateToken($request) === -1)
-        {
-            abort(400, lang('igniter.api::lang.auth.alert_status_disabled'));
-        }
-        if (TastyJwt::instance()->validateToken($request) === 0)
-            abort(400, lang('igniter.api::lang.auth.alert_token_expired'));
         try {
-            $stripe_customer_id = $this->userModel->where('customer_id', $request['user']['id'])->first()->security_answer;
+            $stripe_customer_id = $this->customerSettingModel->where('customer_id', $request['user']['id'])->first()->stripe_customer_id;
             \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
             $response['savedCards'] = \Stripe\PaymentMethod::all([
               'customer' => $stripe_customer_id,
@@ -334,7 +319,6 @@ class Infos extends \Admin\Classes\AdminController {
                     } else {
                         $closeHour += 1;
                     }
-
                     
 
                     for ($j = $currentHour; $j < $closeHour; $j += 0.25) {
@@ -374,15 +358,8 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function getSavedCard(Request $request) {
-        if (TastyJwt::instance()->validateToken($request) === -1)
-        {
-            abort(400, lang('igniter.api::lang.auth.alert_status_disabled'));
-        }
-        if (TastyJwt::instance()->validateToken($request) === 0)
-            abort(400, lang('igniter.api::lang.auth.alert_token_expired'));
-
         try {
-            $stripe_customer_id = $this->userModel->where('customer_id', $request['user']['id'])->first()->security_answer;
+            $stripe_customer_id = $this->customerSettingModel->where('customer_id', $request['user']['id'])->first()->stripe_customer_id;
             \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
             $response = \Stripe\PaymentMethod::all([
               'customer' => $stripe_customer_id,
@@ -396,18 +373,12 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function deleteCard(Request $request) {
-        if (TastyJwt::instance()->validateToken($request) === -1)
-        {
-            abort(400, lang('igniter.api::lang.auth.alert_status_disabled'));
-        }
-        if (TastyJwt::instance()->validateToken($request) === 0)
-            abort(400, lang('igniter.api::lang.auth.alert_token_expired'));
         try {
             $this->stripe->paymentMethods->detach(
               $request['paymentMethodId'],
               []
             );
-            $stripe_customer_id = $this->userModel->where('customer_id', $request['user']['id'])->first()->security_answer;
+            $stripe_customer_id = $this->customerSettingModel->where('customer_id', $request['user']['id'])->first()->stripe_customer_id;
             \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
             $response = \Stripe\PaymentMethod::all([
               'customer' => $stripe_customer_id,
@@ -421,9 +392,9 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function makePaymentIntent(Request $request) {
-        $payment_intent = null;
         try {
-            $stripe_customer_id = $this->userModel->where('customer_id', $request['user']['id'])->first()->security_answer;
+            $payment_intent = null;
+            $stripe_customer_id = $this->customerSettingModel->where('customer_id', $request['user']['id'])->first()->stripe_customer_id;
             \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
             \Stripe\PaymentIntent::create([
                 'amount' => $request['amount'],
@@ -443,6 +414,10 @@ class Infos extends \Admin\Classes\AdminController {
 
     public function verifyPayment(Request $request) {
         $user = $this->userModel->where('customer_id', $request['customer_id'])->first();
+        $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
+        $areaId = $customerSetting ? $customerSetting->area_id : '';
+        $locationArea = $this->locationAreaModel->where('area_id', $areaId)->first();
+        $locationId = $locationArea ? $locationArea->location_id : '';
         $order = [
             'customer_id' => $request->customer_id,
             'total_items' => $request->total_items,
@@ -457,12 +432,10 @@ class Infos extends \Admin\Classes\AdminController {
             'last_name' => $user->last_name,
             'telephone' => $user->telephone,
             'email' => $user->email,
-            'telephone' => $user->telephone,
             'address_id' => $user->addresses[0]->address_id,
-            'location_id' => $this->locationAreaModel->where('area_id', $user->activation_code)->first()->location_id,
+            'location_id' => $locationId,
             'date_added' => new DateTime(),
             'date_modified' => new DateTime(),
-
         ];
         if ($this->orderModel->insertOrIgnore($order)) {
             return 'true';
@@ -471,16 +444,10 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function getOrders(Request $request) {
-        if (TastyJwt::instance()->validateToken($request) === -1)
-        {
-            abort(400, lang('igniter.api::lang.auth.alert_status_disabled'));
-        }
-        if (TastyJwt::instance()->validateToken($request) === 0)
-            abort(400, lang('igniter.api::lang.auth.alert_token_expired'));
-
         try {
             $orders = $this->orderModel->where('customer_id', $request['user']['id'])->orderBy('date_added', 'DESC')->limit(5)->get();
             foreach ($orders as $order) {
+                $order['status_name'] = $this->statusModel->where('status_id', $order->status_id)->first()->status_name;
                 $order['date'] = date('m/d/Y', strtotime($order->date_added));
             }
             $response['orders'] = $orders;
@@ -492,13 +459,6 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function addFavorites(Request $request) {
-        if (TastyJwt::instance()->validateToken($request) === -1)
-        {
-            abort(400, lang('igniter.api::lang.auth.alert_status_disabled'));
-        }
-        if (TastyJwt::instance()->validateToken($request) === 0)
-            abort(400, lang('igniter.api::lang.auth.alert_token_expired'));
-
         try {
             $favorite = $this->favoriteModel->where('customer_id', $request['userId'])->where('menu_id', $request['id'])->first();
             if (!$favorite) {
@@ -522,13 +482,6 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function getFavorites(Request $request) {
-        if (TastyJwt::instance()->validateToken($request) === -1)
-        {
-            abort(400, lang('igniter.api::lang.auth.alert_status_disabled'));
-        }
-        if (TastyJwt::instance()->validateToken($request) === 0)
-            abort(400, lang('igniter.api::lang.auth.alert_token_expired'));
-
         try {
             $favoriteIds = $this->favoriteModel->where('customer_id', $request['user']['id'])->get();
             $favorites = array();
@@ -543,6 +496,16 @@ class Infos extends \Admin\Classes\AdminController {
             abort(500, lang('igniter.api::lang.server.internal_error'));
         }
         return array();
+    }
+
+    public function getPolicy(Request $Request) {
+        $response['content'] = $this->pageModel->where('permalink_slug', 'policy')->first()->content;
+        return $response;
+    }
+
+    public function getTerms(Request $Request) {
+        $response['content'] = $this->pageModel->where('permalink_slug', 'terms-and-conditions')->first()->content;
+        return $response;
     }
 }
  

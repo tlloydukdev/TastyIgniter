@@ -29,12 +29,14 @@ class Users extends \Admin\Classes\AdminController {
         'address' => 'Admin\Models\Addresses_model',
         'customerGroup' => 'Admin\Models\Customer_groups_model',
         'locationArea' => 'Admin\Models\Location_areas_model',
+        'customerSetting' => 'Igniter\Api\Models\CustomerSetting',
     ];
 
     private $userModel;
     private $locationModel;
     private $customerGroupModel;
     private $locationAreaModel;
+    private $customerSettingModel;
     private $stripeConfig;
     private $stripe;
 
@@ -43,6 +45,7 @@ class Users extends \Admin\Classes\AdminController {
         $this->userModel = new $this->modelConfig['user'];
         $this->locationModel =  new $this->modelConfig['location'];
         $this->locationAreaModel = new $this->modelConfig['locationArea'];
+        $this->customerSettingModel = new $this->modelConfig['customerSetting'];
         $this->customerGroupModel = new $this->modelConfig['customerGroup'];
         if ($this->customerGroupModel->where('group_name', 'App User')->get()->count() == 0) {
             $this->customerGroupModel->insertOrIgnore([
@@ -59,21 +62,24 @@ class Users extends \Admin\Classes\AdminController {
         $deliveryAddress = '';
         if (count($user->addresses) > 0)
             $deliveryAddress = $user->addresses[0]->address_1 . ', ' . $user->addresses[0]->postcode;
-        $locationArea = $this->locationAreaModel->where('area_id', $user->activation_code)->first();
-        $locationId = '';
-        if($locationArea)
-            $locationId = $locationArea->location_id;
+        $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
+        $areaId = $customerSetting ? $customerSetting->area_id : '';
+        $stripeCustomerId = $customerSetting ? $customerSetting->stripeCustomerId : '';
+
+        $locationArea = $this->locationAreaModel->where('area_id', $areaId)->first();
+        $locationId = $locationArea ? $locationArea->location_id : '';
+        
         $response['user'] = [
             'id' => $user->customer_id,
             'email' => $user->email,
             'firstName' => $user->first_name,
             'lastName' => $user->last_name,
             'telephone' => $user->telephone,
-            'areaId' => $user->activation_code,
+            'areaId' => $areaId,
             'locationId' => $locationId,
             'deliveryAddress' => $deliveryAddress,
-            'stripeCustomerId' => $user->security_answer,
-            'isFacebook' => ($user->isFacebook === true) ? true : false,
+            'stripeCustomerId' => $stripeCustomerId,
+            'isFacebook' => ($user->isFacebook == true) ? true : false,
         ];
         return $response;
     }
@@ -83,52 +89,28 @@ class Users extends \Admin\Classes\AdminController {
         $request['password'] = TastyJwt::instance()->makeHashPassword($request['password']);
         
         $customerGroupId = $this->customerGroupModel->where('group_name', 'App User')->first()->customer_group_id;
-        if ($request['userId'] != '') {
+        if ($request['userId']) {
             $user = $this->userModel->where('customer_id', $request['userId'])->first();
-        } else {
-            $user = $this->userModel->where('email', $request['email'])->first();
+            $token = TastyJwt::instance()->makeToken($user);
+            $requestUser = [
+                'first_name' => $request['firstName'],
+                'last_name' => $request['lastName'],
+                'telephone' => $request['telephone'],
+                'email' => $request['email'],
+                'remember_token' => $token,
+                'password' => $request['password'],
+                'date_added' => new DateTime(),
+                'status' => 1,
+            ];
+            if ($this->userModel->where('customer_id', $request['userId'])->update($requestUser))
+            {
+                $user = $this->userModel->where('customer_id', $request['userId'])->first();
+                return $this->makeUserResponse($user);
+            }
         }
 
-        if($request['isFacebook'] !== true) {
-            if ($user) {
-                if ($request['userId'] !== '') {
-                    $token = TastyJwt::instance()->makeToken($user);
-                    $requestUser = [
-                        'first_name' => $request['firstName'],
-                        'last_name' => $request['lastName'],
-                        'telephone' => $request['telephone'],
-                        'email' => $request['email'],
-                        'password' => $request['password'],
-                        'date_added' => new DateTime(),
-                        'remember_token' => $token,
-                        'status' => 1,
-                    ];
-                    if ($this->userModel->where('customer_id', $request['userId'])->update($requestUser))
-                    {
-                        $user = $this->userModel->where('customer_id', $request['userId'])->first();
-                        return $this->makeUserResponse($user);
-                    }
-                }
-                abort(400, lang('igniter.api::lang.auth.alert_user_duplicated'));
-            } else {
-                $stripe_customer = $this->stripe->customers->create([
-                    'name' => $request['firstName'] . ' ' . $request['lastName'],
-                    'email' => $request['email'],
-                ]);
-                // Convert fieldNmae for database
-                $requestUser = [
-                    'first_name' => $request['firstName'],
-                    'last_name' => $request['lastName'],
-                    'telephone' => $request['telephone'],
-                    'email' => $request['email'],
-                    'password' => $request['password'],
-                    'date_added' => new DateTime(),
-                    'customer_group_id' => $customerGroupId,
-                    'security_answer' => $stripe_customer->id,
-                    'status' => 1,
-                ];
-            }
-        } else {
+        $user = $this->userModel->where('email', $request['email'])->first();
+        if($request['isFacebook']) {
             $stripe_customer = $this->stripe->customers->create([
                 'name' => $request['firstName'],
                 'email' => $request['email'],
@@ -140,13 +122,34 @@ class Users extends \Admin\Classes\AdminController {
                 'email' => $request['email'],
                 'date_added' => new DateTime(),
                 'customer_group_id' => $customerGroupId,
-                'security_answer' => $stripe_customer->id,
+                'status' => 1,
+            ];
+        } else {
+            $stripe_customer = $this->stripe->customers->create([
+                'name' => $request['firstName'] . ' ' . $request['lastName'],
+                'email' => $request['email'],
+            ]);
+            $requestUser = [
+                'first_name' => $request['firstName'],
+                'last_name' => $request['lastName'],
+                'telephone' => $request['telephone'],
+                'email' => $request['email'],
+                'password' => $request['password'],
+                'date_added' => new DateTime(),
+                'customer_group_id' => $customerGroupId,
                 'status' => 1,
             ];
         }
         if (!$user) {
             if ($this->userModel->insertOrIgnore($requestUser)) {
                 $user = $this->userModel->where('email', $request['email'])->first();
+                $setting = [
+                    'customer_id' => $user->customer_id,
+                    'stripe_customer_id' => $stripe_customer->id,
+                    'area_id' => null,
+                    'push_status' => 0
+                ];
+                $this->customerSettingModel->insertOrIgnore($setting);
             }
         }
         $token = TastyJwt::instance()->makeToken($user);
@@ -210,7 +213,10 @@ class Users extends \Admin\Classes\AdminController {
         } catch (Exception $ex) {
             abort(400, lang('igniter.api::lang.location.alert_invalid_search_query'));
         }
-        $this->userModel->where('customer_id', $request->user['id'])->update(['activation_code' => $areaId]);
+
+        if($this->customerSettingModel->where('customer_id', $request->user['id'])->first()) {
+            $this->customerSettingModel->where('customer_id', $request->user['id'])->update(['area_id' => $areaId]);
+        }
         
         $user = $this->userModel->where('customer_id', $request->user['id'])->first();
         // Convert fieldNmae for database
@@ -224,7 +230,11 @@ class Users extends \Admin\Classes\AdminController {
             'state' => $request->address['state'],
         ];
 
-        $user->addresses()->update($address);
+        if (count($user->addresses) == 0) {
+            $user->addresses()->insertOrIgnore($address);
+        } else {
+            $user->addresses()->update($address);
+        }
 
         $response = $this->makeUserResponse($user);
         return $response;
