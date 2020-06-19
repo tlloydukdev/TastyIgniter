@@ -15,7 +15,7 @@ foreach ($thumb as $item) {
     if ($firstOnly) {
         if ($item instanceof Igniter\Flame\Database\Attach\Media) {
             $baseUrl = $item->getPublicPath(); // Config::get('system.assets.attachment.path');
-            $menuItemUrl = $baseUrl . '/' . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
+            $menuItemUrl = $baseUrl . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
             $firstOnly = false;
         }        
     }

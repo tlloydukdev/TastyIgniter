@@ -28,7 +28,7 @@ class Infos extends \Admin\Classes\AdminController {
         'address' => 'Admin\Models\Addresses_model',
         'category' => 'Admin\Models\Categories_model',
         'menuCategory' => 'Admin\Models\Menu_categories_model',
-        'menu' => 'Admin\Models\Menus_model',
+        'menu' => 'Igniter\Api\Models\Api_model',
         'locationArea' => 'Admin\Models\Location_areas_model',
         'menuOption' => 'Admin\Models\Menu_item_options_model',
         'coupon' => 'Admin\Models\Coupons_model',
@@ -134,8 +134,26 @@ class Infos extends \Admin\Classes\AdminController {
                 }
             }
 
-            $categories = $this->categoryModel->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();
-            $categoryDetails = $this->categoryModel::with('menus')->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();
+            $categories = $this->categoryModel->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();            
+            $categoryDetails = $this->categoryModel::with('menus')->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();            
+            foreach($categoryDetails as $detail) {
+                foreach($detail['menus'] as $menu) {
+                    $thumb=$menu->getMedia('thumb');
+                    $firstOnly = true;
+                    $menuItemUrl = '#';
+                    foreach ($thumb as $item) {
+                        if ($firstOnly) {
+                                $baseUrl = $item->getPublicPath(); // Config::get('system.assets.attachment.path');
+                                $menuItemUrl = $baseUrl . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
+                                $firstOnly = false;
+                        }
+                    }
+                    
+                    $menu->menu_image_url = $menuItemUrl;
+                    
+                }
+            }
+
             $allCoupons = $this->couponModel->get();
             $coupons = array();
             foreach ($allCoupons as $value) {
