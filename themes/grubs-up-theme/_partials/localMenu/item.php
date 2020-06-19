@@ -5,6 +5,22 @@ $mealtimeNotAvailable = ($mealtime AND !$mealtime->isAvailableNow());
 $specialActive = ($special AND $special->active());
 $menuHasOptions = $menuItem->hasOptions();
 $menuPrice = $specialActive ? $special->getMenuPrice($menuItem->menu_price) : $menuItem->menu_price;
+// Get the large image associated with the thumbnail
+// e.g. /assets/media/attachments/public/5ee/c90/8bb/5eec908bbc863647113446.jpg
+$thumb = $menuItem->getMedia('thumb');
+$firstOnly = true;
+ 
+$menuItemUrl = '#';
+foreach ($thumb as $item) {
+    if ($firstOnly) {
+        if ($item instanceof Igniter\Flame\Database\Attach\Media) {
+            $baseUrl = $item->getPublicPath(); // Config::get('system.assets.attachment.path');
+            $menuItemUrl = $baseUrl . '/' . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
+            $firstOnly = false;
+        }        
+    }
+}
+
 ?>
 <div id="menu<?= $menuItem->menu_id; ?>" class="menu-item">
     <div class="d-flex flex-row">
@@ -14,7 +30,7 @@ $menuPrice = $specialActive ? $special->getMenuPrice($menuItem->menu_price) : $m
                 class="menu-thumb align-self-start mr-3"
                 style="width: <?= $menuImageWidth ?>px;"
             >
-            <a href="<?php echo $menuItem->menu_image_url;?>" data-toggle="lightbox">
+            <a href="<?php echo $menuItemUrl; //$menuItem->menu_image_url;?>" data-toggle="lightbox">
                 <img
                     class="img-rounded"
                     alt="<?= $menuItem->menu_name; ?>"
