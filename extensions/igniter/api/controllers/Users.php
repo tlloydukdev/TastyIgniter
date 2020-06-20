@@ -10,14 +10,13 @@ use Igniter\Api\Services\TastyJwt;
 
 // Libary Import
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use ApplicationException;
 use Exception;
 use Geocoder;
 use Location;
 use DateTime;
 
-require_once(__DIR__ . '/../vendor/stripe-php-7.36.1/init.php');
+require_once(__DIR__ . '/../vendor/stripe/init.php');
 /**
  * Users Controller
  */
@@ -61,7 +60,7 @@ class Users extends \Admin\Classes\AdminController {
         $response['token'] = $user->remember_token;
         $deliveryAddress = '';
         if (count($user->addresses) > 0)
-            $deliveryAddress = $user->addresses[0]->address_1 . ', ' . $user->addresses[0]->postcode;
+            $deliveryAddress = $user->addresses[0]->address_1 . ' ' . $user->addresses[0]->address_2 . ', ' . $user->addresses[0]->postcode;
         $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
         $areaId = $customerSetting ? $customerSetting->area_id : '';
         $stripeCustomerId = $customerSetting ? $customerSetting->stripeCustomerId : '';
@@ -194,7 +193,7 @@ class Users extends \Admin\Classes\AdminController {
 
     public function setLocation(Request $request) {
         try {
-            $userLocation = $this->geocodeSearchQuery($request->address['address1']);
+            $userLocation = $this->geocodeSearchQuery($request->address['postcode']);
             $areaId = "";
             $nearByLocation = Location::searchByCoordinates($userLocation->getCoordinates())->first(function ($location) use ($userLocation) {
                 if ($area = $location->searchDeliveryArea($userLocation->getCoordinates())) {
@@ -202,42 +201,42 @@ class Users extends \Admin\Classes\AdminController {
                     return $area;
                 }
             });
-
             if (!$nearByLocation) {
                 abort(400, lang('igniter.api::lang.location.alert_not_correct_location'));
             }
-
-            if (count($nearByLocation->delivery_areas) > 0) {
-                $areaId = $nearByLocation->delivery_areas[0]['area_id'];
+            if ($nearByLocation->searchDeliveryArea($userLocation->getCoordinates())) {
+                $areaId = $nearByLocation->searchDeliveryArea($userLocation->getCoordinates())->area_id;
             }
+            if($this->customerSettingModel->where('customer_id', $request->user['id'])->first()) {
+                $this->customerSettingModel->where('customer_id', $request->user['id'])->update(['area_id' => $areaId]);
+            }
+            
+            $user = $this->userModel->where('customer_id', $request->user['id'])->first();
+            // Convert fieldNmae for database
+            $address = [
+                'customer_id' => $request->user['id'],
+                'address_1' => $request->address['address1'],
+                'address_2' => $request->address['address2'],
+                'city' => $request->address['city'],
+                'country_id' => $request->address['countryId'],
+                'postcode' => $request->address['postcode'],
+                'state' => $request->address['state'],
+            ];
+
+            if (count($user->addresses) == 0) {
+                $user->addresses()->insertOrIgnore($address);
+            } else {
+                $user->addresses()->update($address);
+            }
+
+            $user = $this->userModel->where('customer_id', $request->user['id'])->first();
+
+            $response = $this->makeUserResponse($user);
+            return $response;
+    
         } catch (Exception $ex) {
             abort(400, lang('igniter.api::lang.location.alert_invalid_search_query'));
         }
-
-        if($this->customerSettingModel->where('customer_id', $request->user['id'])->first()) {
-            $this->customerSettingModel->where('customer_id', $request->user['id'])->update(['area_id' => $areaId]);
-        }
-        
-        $user = $this->userModel->where('customer_id', $request->user['id'])->first();
-        // Convert fieldNmae for database
-        $address = [
-            'customer_id' => $request->user['id'],
-            'address_1' => $request->address['address1'],
-            'address_2' => $request->address['address2'],
-            'city' => $request->address['city'],
-            'country_id' => $request->address['countryId'],
-            'postcode' => $request->address['postcode'],
-            'state' => $request->address['state'],
-        ];
-
-        if (count($user->addresses) == 0) {
-            $user->addresses()->insertOrIgnore($address);
-        } else {
-            $user->addresses()->update($address);
-        }
-
-        $response = $this->makeUserResponse($user);
-        return $response;
     }
 
     public function geocodeSearchQuery($searchQuery)

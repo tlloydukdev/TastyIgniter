@@ -176,6 +176,8 @@ class GroupedLists extends BaseWidget
     public function loadAssets()
     {
         $this->addJs('/app/admin/formwidgets/repeater/assets/js/jquery-sortable.js', 'jquery-sortable-js');
+        $this->addJs('$/igniter/orderdashboard/assets/js/recordeditor.modal.js', 'recordeditor-modal-js');
+        $this->addJs('$/igniter/orderdashboard/widgets/statuseditor/assets/js/statuseditor.js', 'statuseditor-js');
         $this->addJs('$/igniter/orderdashboard/widgets/groupedlists/assets/js/lists.js', 'lists-js');
     }
 

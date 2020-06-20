@@ -3,6 +3,7 @@
 use AdminMenu;
 use Event;
 use Admin\Traits\ListExtendable;
+
 use Igniter\Flame\Exception\ApplicationException;
 use Igniter\OrderDashboard\Models\Orders_model as OrderDashboardModel;
 use Igniter\OrderDashboard\Controllers\Overview as OverviewController;
@@ -20,10 +21,10 @@ class GroupedOrders extends \Admin\Classes\AdminController
 
     public $implement = [
         'Admin\Actions\ListController',
-       'Admin\Actions\LocationAwareController',
+        'Admin\Actions\LocationAwareController',
         'Igniter\OrderDashboard\Actions\GroupedListController'       
     ];
-
+     
     public $listConfig = [
         'groupedlist' => [
             'model' => 'Igniter\OrderDashboard\Models\Orders_model',
@@ -59,7 +60,7 @@ class GroupedOrders extends \Admin\Classes\AdminController
         // $columnConfig['alias'] = $alias;
 
 
-        // $widget = $this->makeWidget('Igniter\OrderDashboard\Widgets\GroupedLists', array_merge($columnConfig, $listConfig));
+        //$widget = $this->makeWidget('Admin\formwidgets\StatusEditor', array());
 
         Event::listen('admin.list.extendQueryBefore', function($widget, $query) {
            $query->where('status_id', '<>', 5); // not equal to completed
@@ -104,66 +105,14 @@ class GroupedOrders extends \Admin\Classes\AdminController
     public function index_onLoadPopup() {
         $context = post('context');
         $orderId = (int)post('orderId');
-        
+
+        if (!in_array($context, ['orderPreview']))
+             throw new ApplicationException('Invalid type specified - must be orderPreview');
+
         $oc = new OverviewController();
 
-        return ['#previewModalContent2' => $oc->previewModalContent($context, $orderId)];
-
+        return ['#previewModalContentGrouped' => $oc->previewModalContent($context, $orderId)];
+         
     }
-    // {
-    //     $context = post('context');
-    //     $orderId = (int)post('orderId');
 
-    //      if (!in_array($context, ['orderPreview']))
-    //          throw new ApplicationException('Invalid type specified');
-
-    //      if(!isset($orderId) || !is_int($orderId))
-    //         throw new ApplicationException('Invalid or missing OrderId');
-
-    //      $this->vars['context'] = $context;
-    //      $this->vars['orderId'] = $orderId;
-
-    //     // $ordersModel = new OrderDashboardModel();
-    //     // $data = $ordersModel->where('order_id', '=', $orderId)->first();
-
-    //     $model = $this->formFindModelObject($orderId);
-
-    //     $this->vars['model'] = $model;
-
-    //     return ['#previewModalContent' => $this->makePartial('preview_popup')];
-    // }
-
-    // public function invoice($context, $recordId = null)
-    // {
-    //     $model = $this->formFindModelObject($recordId);
-
-    //     if (!$model->hasInvoice())
-    //         throw new ApplicationException('Invoice has not yet been generated');
-
-    //     $this->vars['model'] = $model;
-
-    //     $this->suppressLayout = TRUE;
-    // }
-
-    // public function formExtendFieldsBefore($form)
-    // {
-    //     if (!array_key_exists('invoice_number', $form->tabs['fields']))
-    //         return;
-
-    //     if (!$form->model->hasInvoice()) {
-    //         array_pull($form->tabs['fields']['invoice_number'], 'addonRight');
-    //     }
-    //     else {
-    //         $form->tabs['fields']['invoice_number']['addonRight']['attributes']['href'] = admin_url('orders/invoice/'.$form->model->getKey());
-    //     }
-    // }
-
-    // public function formExtendQuery($query)
-    // {
-    //     $query->with([
-    //         'status_history' => function ($q) {
-    //             $q->orderBy('date_added', 'desc');
-    //         },
-    //     ]);
-    // }
 }

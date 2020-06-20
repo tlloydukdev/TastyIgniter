@@ -245,7 +245,7 @@ if (window.jQuery.request !== undefined)
         }
 
         $(window).trigger('ajaxBeforeSend', [context])
-        $el.trigger('ajaxPromise', [context])
+        $el.trigger('ajaxPromise', [context])    
         return $.ajax(requestOptions)
             .fail(function (jqXHR, textStatus, errorThrown) {
                 if (!isRedirect) {

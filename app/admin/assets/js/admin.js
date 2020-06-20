@@ -312,6 +312,7 @@ if (window.jQuery.request !== undefined)
         context.success = requestOptions.success
         context.error = requestOptions.error
         context.complete = requestOptions.complete
+
         requestOptions = $.extend(requestOptions, options)
         requestOptions.data = requestData
 
@@ -329,6 +330,9 @@ if (window.jQuery.request !== undefined)
 
         $(window).trigger('ajaxBeforeSend', [context])
         $el.trigger('ajaxPromise', [context])
+
+        //requestOptions.url = '/admin/orders/edit/10';
+
         return $.ajax(requestOptions)
             .fail(function (jqXHR, textStatus, errorThrown) {
                 if (!isRedirect) {

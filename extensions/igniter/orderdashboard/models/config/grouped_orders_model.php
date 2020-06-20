@@ -90,7 +90,7 @@ $config['groupedlist']['columns'] = [
             'data-request'=>"onLoadPopup",
             'data-request-data'=>"context: 'orderPreview', orderId: {order_id}",            
             'href' => '#',
-            'data-target' => '#previewModal2',
+            'data-target' => '#previewModalGrouped',
             'role' => 'button'
         ],
     ],
@@ -139,7 +139,7 @@ $config['groupedlist']['columns'] = [
         'relation' => 'status',
         'select' => 'status_name',
         'type' => 'partial',
-        'path' => 'orders/status_column',
+        'path' => '$/igniter/orderdashboard/views/groupedorders/status_column',
     ],
     'payment' => [
         'label' => 'lang:admin::lang.orders.column_payment',

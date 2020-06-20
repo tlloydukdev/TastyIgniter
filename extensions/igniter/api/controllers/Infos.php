@@ -7,14 +7,14 @@ use AdminMenu;
 // Local Import
 use Igniter\Api\Services\TastyJwt;
 use Igniter\Api\Services\TastyJson;
-
+use Igniter\Api\Vendor\Stripe\StripeInfo;
 
 // Libary Import
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use DateTime;
 
-require_once(__DIR__ . '/../vendor/stripe-php-7.36.1/init.php');
+require_once(__DIR__ . '/../vendor/stripe/init.php');
 /**
  * Infos Admin Controller
  */
@@ -28,11 +28,14 @@ class Infos extends \Admin\Classes\AdminController {
         'address' => 'Admin\Models\Addresses_model',
         'category' => 'Admin\Models\Categories_model',
         'menuCategory' => 'Admin\Models\Menu_categories_model',
-        'menu' => 'Igniter\Api\Models\Api_model',
+        'menu' => 'Admin\Models\Menus_model',
         'locationArea' => 'Admin\Models\Location_areas_model',
         'menuOption' => 'Admin\Models\Menu_item_options_model',
         'coupon' => 'Admin\Models\Coupons_model',
         'order' => 'Admin\Models\Orders_model',
+        'orderTotal' => 'Igniter\Api\Models\OrderTotal',
+        'orderMenu' => 'Igniter\Api\Models\OrderMenu',
+        'orderMenuOption' => 'Igniter\Api\Models\OrderMenuOption',
         'status' => 'Admin\Models\Statuses_model',
         'favorite' => 'Igniter\Api\Models\Favourite',
         'page' => 'Igniter\Api\Models\Page',
@@ -50,6 +53,9 @@ class Infos extends \Admin\Classes\AdminController {
     private $couponModel;
     private $locationableModel;
     private $orderModel;
+    private $orderTotalModel;
+    private $orderMenuModel;
+    private $orderMenuOptionModel;
     private $statusModel;
     private $favoriteModel;
     private $pageModel;
@@ -71,6 +77,9 @@ class Infos extends \Admin\Classes\AdminController {
         $this->couponModel = new $this->modelConfig['coupon'];
         $this->locationableModel = new $this->modelConfig['locationable'];
         $this->orderModel = new $this->modelConfig['order'];
+        $this->orderTotalModel = new $this->modelConfig['orderTotal'];
+        $this->orderMenuModel = new $this->modelConfig['orderMenu'];
+        $this->orderMenuOptionModel = new $this->modelConfig['orderMenuOption'];
         $this->statusModel = new $this->modelConfig['status'];
         $this->favoriteModel = new $this->modelConfig['favorite'];
         $this->pageModel = new $this->modelConfig['page'];
@@ -80,8 +89,12 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function menu(Request $request) {
+        if (TastyJwt::instance()->validateToken($request) == 0) {
+            abort(401, lang('igniter.api::lang.auth.alert_token_expired'));
+        }
         try {
             $currentWeekDay = ((int)date('w') + 7 - 1) % 7;
+            $currentTime = date('H:i');
             $locationArea = $this->locationAreaModel->where('area_id', $request['user']['areaId'])->first();
             $location = $this->locationModel->where('location_id', $request['user']['locationId'])->first();
             if($locationArea->conditions[0]['amount'] == '0.00' && $locationArea->conditions[0]['total'] == '0.00') {
@@ -98,28 +111,41 @@ class Infos extends \Admin\Classes\AdminController {
             for ($i = $currentWeekDay; $i < $currentWeekDay + count($openingTimes); $i++) {
                 if($openingTimes[$i % 7]['status'] != 0) {
                     if ($i == $currentWeekDay) {
+                        if ($currentTime >= $openingTimes[$i % 7]['open'] && $currentTime <= $openingTimes[$i % 7]['close']) {
+                            $hour = (int)explode(':', $openingTimes[$i % 7]['open'])[0];
+                            $minute = (int)explode(':', $openingTimes[$i % 7]['open'])[1];
+                            $titleOpenTime = "We're Open";
+                            $titleOpenTimeColor = "green";
+                            $openTime = (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '') . ' - ';
+                            $hour = (int)explode(':', $openingTimes[$i % 7]['close'])[0];
+                            $minute = (int)explode(':', $openingTimes[$i % 7]['close'])[1];
+                            $openTime = $openTime . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
+                            break;
+                        } else if($currentTime <= $openingTimes[$i % 7]['open']) {
+                            $hour = (int)explode(':', $openingTimes[$i % 7]['open'])[0];
+                            $minute = (int)explode(':', $openingTimes[$i % 7]['open'])[1];
+                            $titleOpenTime = "Opening Today";
+                            $titleOpenTimeColor = "green";
+                            $openTime = (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '') . ' - ';
+                            $hour = (int)explode(':', $openingTimes[$i % 7]['close'])[0];
+                            $minute = (int)explode(':', $openingTimes[$i % 7]['close'])[1];
+                            $openTime = $openTime . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
+                            break;
+                        } else if($currentTime >= $openingTimes[$i % 7]['close']) {
+                            continue;
+                            break;
+                        }
+                    } else {
                         $hour = (int)explode(':', $openingTimes[$i % 7]['open'])[0];
                         $minute = (int)explode(':', $openingTimes[$i % 7]['open'])[1];
-                        $titleOpenTime = "Opening Today " . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
-                        $hour = (int)explode(':', $openingTimes[$i % 7]['open'])[0];
-                        $minute = (int)explode(':', $openingTimes[$i % 7]['open'])[1];
+                        $titleOpenTime = "Opening " . $this->weekDays[$i % 7] . " " . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
+                        $titleOpenTimeColor = "red";
                         $openTime = (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '') . ' - ';
                         $hour = (int)explode(':', $openingTimes[$i % 7]['close'])[0];
                         $minute = (int)explode(':', $openingTimes[$i % 7]['close'])[1];
                         $openTime = $openTime . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
                         break;
                     }
-
-                    $hour = (int)explode(':', $openingTimes[$i % 7]['open'])[0];
-                    $minute = (int)explode(':', $openingTimes[$i % 7]['open'])[1];
-                    $titleOpenTime = "Opening " . $this->weekDays[$i % 7] . " " . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
-                    $hour = (int)explode(':', $openingTimes[$i % 7]['open'])[0];
-                    $minute = (int)explode(':', $openingTimes[$i % 7]['open'])[1];
-                    $openTime = (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '') . ' - ';
-                    $hour = (int)explode(':', $openingTimes[$i % 7]['close'])[0];
-                    $minute = (int)explode(':', $openingTimes[$i % 7]['close'])[1];
-                    $openTime = $openTime . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
-                    break;
                 }
             }
 
@@ -134,26 +160,8 @@ class Infos extends \Admin\Classes\AdminController {
                 }
             }
 
-            $categories = $this->categoryModel->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();            
-            $categoryDetails = $this->categoryModel::with('menus')->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();            
-            foreach($categoryDetails as $detail) {
-                foreach($detail['menus'] as $menu) {
-                    $thumb=$menu->getMedia('thumb');
-                    $firstOnly = true;
-                    $menuItemUrl = '#';
-                    foreach ($thumb as $item) {
-                        if ($firstOnly) {
-                                $baseUrl = $item->getPublicPath(); // Config::get('system.assets.attachment.path');
-                                $menuItemUrl = $baseUrl . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
-                                $firstOnly = false;
-                        }
-                    }
-                    
-                    $menu->menu_image_url = $menuItemUrl;
-                    
-                }
-            }
-
+            $categories = $this->categoryModel->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();
+            $categoryDetails = $this->categoryModel::with('menus')->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();
             $allCoupons = $this->couponModel->get();
             $coupons = array();
             foreach ($allCoupons as $value) {
@@ -170,6 +178,7 @@ class Infos extends \Admin\Classes\AdminController {
                 'locationName' => $location->location_name,
                 'delivery' => $delivery ,
                 'titleOpenTime' => $titleOpenTime,
+                'titleOpenTimeColor' => $titleOpenTimeColor,
                 'openTime' => $openTime,
                 'specials' => $specials,
                 'categories' => $categories,
@@ -185,6 +194,9 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function menuDetail(Request $request) {
+        if (TastyJwt::instance()->validateToken($request) == 0) {
+            abort(401, lang('igniter.api::lang.auth.alert_token_expired'));
+        }
         try {
             $response['menu'] = $this->menuModel->where('menu_id', $request->id)->first();
             $favorite = $this->favoriteModel->where('customer_id', $request['userId'])->where('menu_id', $request['id'])->first();
@@ -201,7 +213,11 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function getCheckOutTime(Request $request) {
+        if (TastyJwt::instance()->validateToken($request) == 0) {
+            abort(401, lang('igniter.api::lang.auth.alert_token_expired'));
+        }
         try {
+            
             $stripe_customer_id = $this->customerSettingModel->where('customer_id', $request['user']['id'])->first()->stripe_customer_id;
             \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
             $response['savedCards'] = \Stripe\PaymentMethod::all([
@@ -214,9 +230,21 @@ class Infos extends \Admin\Classes\AdminController {
             $locationArea = $this->locationAreaModel->where('area_id', $request['user']['areaId'])->first();
             $location = $this->locationModel->where('location_id', $locationArea->location_id)->first();
 
-            $currentDate = date('Y-m-d');
-            $currentTime = date('H:i');
-            $currentWeekDay = ((int)date('w') + 7 - 1) % 7;
+            $deliveryTimeInterval = $location['options']['delivery_time_interval'];
+            $collectionTimeInterval = $location['options']['collection_time_interval'];
+
+            $deliveryLeadTime = $location['options']['delivery_lead_time'];
+            $collectionLeadTime = $location['options']['collection_lead_time'];
+
+            $deliveryTimeInterval = 30;
+            $collectionTimeInterval = 20;
+
+            $deliveryLeadTime = 30;
+            $collectionLeadTime = 20;
+
+            $currentDate = date('Y-m-d', strtotime("+" . $deliveryLeadTime . " minutes"));
+            $currentTime = date('H:i', strtotime("+" . $deliveryLeadTime . " minutes"));
+            $currentWeekDay = ((int)date('w', strtotime("+" . $deliveryLeadTime . " minutes")) + 7 - 1) % 7;
 
             $response['clientSecret'] = $intent->client_secret;
             $response['delivery'] = array();
@@ -225,6 +253,7 @@ class Infos extends \Admin\Classes\AdminController {
             $pickUpTimes = $location['options']['hours']['collection']['flexible'];
             $currentHour = (float)explode(':', $currentTime)[0];
             $currentMinute = (float)explode(':', $currentTime)[1];
+
             for ($i = $currentWeekDay; $i < $currentWeekDay + count($deliveryTimes); $i++) {
                 if($deliveryTimes[$i % 7]['status'] != 0) {
                     $date = [
@@ -245,40 +274,61 @@ class Infos extends \Admin\Classes\AdminController {
                         if ($currentTime <= $deliveryTimes[$i % 7]['open']) {
                             $currentHour = $openHour;
                             $currentMinute = $openMinute;
+                        } else {
+                            for($j = 0; $j <= 60; $j += $deliveryTimeInterval)
+                            {
+                                if($currentMinute < $j)
+                                {
+                                    $currentMinute = ($j >= 60) ? '00' : $j;
+                                    if ($j >= 60)
+                                        $currentHour += 1;
+                                    break;
+                                }
+                            }
                         }
                     } else {
                         $currentHour = $openHour;
                         $currentMinute = $openMinute;
                     }
-                        
-                    if ($currentMinute <= 15) {
-                        $currentHour += 0;
-                    } else if($currentMinute > 15 && $currentMinute < 45) {
-                        $currentHour += 0.5;
-                    } else {
-                        $currentHour += 1;
-                    }
 
-                    if ($closeMinute <= 15) {
-                        $closeHour += 0;
-                    } else if($closeMinute > 15 && $closeMinute < 45) {
-                        $closeHour += 0.5;
-                    } else {
-                        $closeHour += 1;
-                    }
-                    for ($j = $currentHour; $j < $closeHour; $j += 0.5) {
-                        $delta = (int)(($j - (int)$j) * 60);
-                        if ( $delta == 0) {
-                            $temp = [
-                                'orderTime' => (int)$j . ':00:00',
-                                'showTime' => (int)$j . ':00-' . (int)$j . ':30',
-                            ];
-                        } else {
-                            $temp = [
-                                'orderTime' => (int)$j . ':30:00',
-                                'showTime' => (int)$j . ':30-' . ((int)$j + 1) . ':00',
-                            ];
+                    $currentHour += ($currentMinute / 60);
+                    $closeHour += ($closeMinute / 60);
+
+                    $hourDelta = $deliveryTimeInterval / 60;
+                    for ($j = $currentHour; $j < $closeHour; $j += $hourDelta) {
+
+                        $orderMin = (int)(($j - (int)$j) * 60);
+                        $orderHour = $j;
+                        if($orderMin % 5 != 0)
+                        {
+                            $orderMin += (5 - ($orderMin % 5));
                         }
+                        if($orderMin >= 60)
+                        {
+                            $orderMin = 0;
+                            $orderHour += 1;
+                        }
+                        $k = $j + $hourDelta;
+                        $showMin = (int)(($k - (int)$k) * 60);
+                        $showHour = $k;
+                        if($showMin % 5 != 0)
+                        {
+                            $showMin += (5 - ($showMin % 5));
+                        }
+                        if($showMin >= 60)
+                        {
+                            $showMin = 0;
+                            $showHour += 1;
+                        }
+                        if (((int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin)) >= $deliveryTimes[$i % 7]['close'])
+                        {
+                            break;
+                        }
+
+                        $temp = [
+                            'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ':00',
+                            'showTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ':00' . ' - ' .(int)$showHour . ':' . (($showMin < 10) ? ('0' . $showMin) : $showMin) . ':00',
+                        ];
                         array_push($date['times'], $temp);
                     }
 
@@ -286,6 +336,10 @@ class Infos extends \Admin\Classes\AdminController {
                         array_push($response['delivery'], $date);
                 }
             }
+
+            $currentDate = date('Y-m-d', strtotime("+" . $collectionLeadTime . " minutes"));
+            $currentTime = date('H:i', strtotime("+" . $collectionLeadTime . " minutes"));
+            $currentWeekDay = ((int)date('w', strtotime("+" . $collectionLeadTime . " minutes")) + 7 - 1) % 7;
 
             $currentHour = (float)explode(':', $currentTime)[0];
             $currentMinute = (float)explode(':', $currentTime)[1];
@@ -298,7 +352,7 @@ class Infos extends \Admin\Classes\AdminController {
                         'weekDay' => $this->weekDays[$i % 7],
                         'times' => array()
                     ];
-                   
+
                     $openHour = (float)explode(':', $pickUpTimes[$i % 7]['open'])[0];
                     $openMinute = (float)explode(':', $pickUpTimes[$i % 7]['open'])[1];
 
@@ -309,59 +363,61 @@ class Infos extends \Admin\Classes\AdminController {
                         if ($currentTime <= $pickUpTimes[$i % 7]['open']) {
                             $currentHour = $openHour;
                             $currentMinute = $openMinute;
+                        } else {
+                            for($j = 0; $j <= 60; $j += $collectionTimeInterval)
+                            {
+                                if($currentMinute < $j)
+                                {
+                                    $currentMinute = ($j >= 60) ? '00' : $j;
+                                    if ($j >= 60)
+                                        $currentHour += 1;
+                                    break;
+                                }
+                            }
                         }
                     } else {
                         $currentHour = $openHour;
                         $currentMinute = $openMinute;
                     }
-                    if ($currentMinute <= 7) {
-                        $currentHour += 0;
-                    } else if($currentMinute > 7 && $currentMinute <= 22) {
-                        $currentHour += 0.25;
-                    } else if($currentMinute > 22 && $currentMinute <= 37) {
-                        $currentHour += 0.5;
-                    } else if($currentMinute > 37 && $currentMinute <= 52) {
-                        $currentHour += 0.75;
-                    } else {
-                        $currentHour += 1;
-                    }
 
-                    if ($closeMinute <= 7) {
-                        $closeHour += 0;
-                    } else if($closeMinute > 7 && $closeMinute <= 22) {
-                        $closeHour += 0.25;
-                    } else if($closeMinute > 22 && $closeMinute <= 37) {
-                        $closeHour += 0.5;
-                    } else if($closeMinute > 37 && $closeMinute <= 52) {
-                        $closeHour += 0.75;
-                    } else {
-                        $closeHour += 1;
-                    }
-                    
+                    $currentHour += ($currentMinute / 60);
+                    $closeHour += ($closeMinute / 60);
 
-                    for ($j = $currentHour; $j < $closeHour; $j += 0.25) {
-                        $delta = (int)(($j - (int)$j) * 60);
-                        if ( $delta == 0) {
-                            $temp = [
-                                'orderTime' => (int)$j . ':00:00',
-                                'showTime' => (int)$j . ':00-' . (int)$j . ':15',
-                            ];
-                        } else if ( $delta == 15) {
-                            $temp = [
-                                'orderTime' => (int)$j . ':15:00',
-                                'showTime' => (int)$j . ':15-' . (int)$j . ':30',
-                            ];
-                        } else if ( $delta == 30) {
-                            $temp = [
-                                'orderTime' => (int)$j . ':30:00',
-                                'showTime' => (int)$j . ':30-' . (int)$j . ':45',
-                            ];
-                        } else {
-                            $temp = [
-                                'orderTime' => (int)$j . ':45:00',
-                                'showTime' => (int)$j . ':45-' . ((int)$j + 1) . ':00',
-                            ];
+                    $hourDelta = $collectionTimeInterval / 60;
+                    for ($j = $currentHour; $j < $closeHour; $j += $hourDelta) {
+
+                        $orderMin = (int)(($j - (int)$j) * 60);
+                        $orderHour = $j;
+                        if($orderMin % 5 != 0)
+                        {
+                            $orderMin += (5 - ($orderMin % 5));
                         }
+                        if($orderMin >= 60)
+                        {
+                            $orderMin = 0;
+                            $orderHour += 1;
+                        }
+                        $k = $j + $hourDelta;
+                        $showMin = (int)(($k - (int)$k) * 60);
+                        $showHour = $k;
+                        if($showMin % 5 != 0)
+                        {
+                            $showMin += (5 - ($showMin % 5));
+                        }
+                        if($showMin >= 60)
+                        {
+                            $showMin = 0;
+                            $showHour += 1;
+                        }
+                        if (((int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin)) >= $pickUpTimes[$i % 7]['close'])
+                        {
+                            break;
+                        }
+
+                        $temp = [
+                            'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ':00',
+                            'showTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ':00' . ' - ' .(int)$showHour . ':' . (($showMin < 10) ? ('0' . $showMin) : $showMin) . ':00',
+                        ];
                         array_push($date['times'], $temp);
                     }
 
@@ -431,37 +487,97 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function verifyPayment(Request $request) {
-        $user = $this->userModel->where('customer_id', $request['customer_id'])->first();
-        $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
-        $areaId = $customerSetting ? $customerSetting->area_id : '';
-        $locationArea = $this->locationAreaModel->where('area_id', $areaId)->first();
-        $locationId = $locationArea ? $locationArea->location_id : '';
-        $order = [
-            'customer_id' => $request->customer_id,
-            'total_items' => $request->total_items,
-            'payment' => $request->payment,
-            'comment' => $request->comment,
-            'order_type' => $request->order_type,
-            'status_id' => $request->status_id,
-            'order_time' => $request->order_time,
-            'order_date' => $request->order_date,
-            'order_total' => $request->order_total,
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'telephone' => $user->telephone,
-            'email' => $user->email,
-            'address_id' => $user->addresses[0]->address_id,
-            'location_id' => $locationId,
-            'date_added' => new DateTime(),
-            'date_modified' => new DateTime(),
-        ];
-        if ($this->orderModel->insertOrIgnore($order)) {
-            return 'true';
+        try {
+            $user = $this->userModel->where('customer_id', $request['customer_id'])->first();
+            $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
+            $areaId = $customerSetting ? $customerSetting->area_id : '';
+            $locationArea = $this->locationAreaModel->where('area_id', $areaId)->first();
+            $locationId = $locationArea ? $locationArea->location_id : '';
+            $order = [
+                'customer_id' => $request->customer_id,
+                'total_items' => $request->total_items,
+                'payment' => $request->payment,
+                'comment' => $request->comment,
+                'order_type' => $request->order_type,
+                'status_id' => $request->status_id,
+                'order_time' => $request->order_time,
+                'order_date' => $request->order_date,
+                'order_total' => $request->order_total,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'telephone' => $user->telephone,
+                'email' => $user->email,
+                'address_id' => $user->addresses[0]->address_id,
+                'location_id' => $locationId,
+                'date_added' => new DateTime(),
+                'date_modified' => new DateTime(),
+            ];
+            if ($this->orderModel->insertOrIgnore($order)) {
+                $currentOrder = $this->orderModel->where('customer_id', $request->customer_id)->orderBy('order_id', 'desc')->first();
+                $orderTotalData = [
+                    'order_id' => $currentOrder->order_id,
+                    'code' => 'delivery',
+                    'title' => 'Delivery',
+                    'value' => $request['order']['delivery'],
+                    'priority' => 1
+                ];
+                $this->orderTotalModel->insertOrIgnore($orderTotalData);
+                $orderTotalData = [
+                    'order_id' => $currentOrder->order_id,
+                    'code' => 'subtotal',
+                    'title' => 'Sub Total',
+                    'value' => $request['order']['total_price'],
+                    'priority' => 0
+                ];
+                $this->orderTotalModel->insertOrIgnore($orderTotalData);
+                $orderTotalData = [
+                    'order_id' => $currentOrder->order_id,
+                    'code' => 'total',
+                    'title' => 'Order Total',
+                    'value' => $request['order']['current_price'],
+                    'priority' => 127
+                ];
+                $this->orderTotalModel->insertOrIgnore($orderTotalData);
+
+                foreach ($request['order']['items'] as $menu) {
+                    $orderMenuData = [
+                        'order_id' => $currentOrder->order_id,
+                        'menu_id' => $menu['menu_id'],
+                        'name' => $menu['name'],
+                        'quantity' => $menu['quantity'],
+                        'price' => $menu['price'],
+                        'subtotal' => $menu['subtotal'],
+                        'comment' => $menu['comment'],
+                    ];
+                    if ($this->orderMenuModel->insertOrIgnore($orderMenuData)) {
+                        $currentOrderMenu = $this->orderMenuModel->where('order_id', $currentOrder->order_id)->orderBy('order_menu_id', 'desc')->first();
+                        foreach ($menu['extras'] as $extra) {
+                            $optionData = [
+                                'order_id' => $currentOrder->order_id,
+                                'menu_id' => $extra['menu_id'],
+                                'order_option_name' => $extra['order_option_name'],
+                                'order_option_price' => $extra['order_option_price'],
+                                'order_menu_id' => $currentOrderMenu->order_menu_id,
+                                'order_menu_option_id' => $extra['order_menu_option_id'],
+                                'menu_option_value_id' => $extra['menu_option_value_id'],
+                                'quantity' => $extra['quantity']
+                            ];
+                            $this->orderMenuOptionModel->insertOrIgnore($optionData);
+                        }
+                    }
+                }
+                return 'true';
+            }
+        } catch (Exception $ex) {
+            abort(500, lang('igniter.api::lang.server.internal_error'));
         }
         return 'false';
     }
 
     public function getOrders(Request $request) {
+        if (TastyJwt::instance()->validateToken($request) == 0) {
+            abort(401, lang('igniter.api::lang.auth.alert_token_expired'));
+        }
         try {
             $orders = $this->orderModel->where('customer_id', $request['user']['id'])->orderBy('date_added', 'DESC')->limit(5)->get();
             foreach ($orders as $order) {
@@ -500,6 +616,9 @@ class Infos extends \Admin\Classes\AdminController {
     }
 
     public function getFavorites(Request $request) {
+        if (TastyJwt::instance()->validateToken($request) == 0) {
+            abort(401, lang('igniter.api::lang.auth.alert_token_expired'));
+        }
         try {
             $favoriteIds = $this->favoriteModel->where('customer_id', $request['user']['id'])->get();
             $favorites = array();
@@ -524,6 +643,10 @@ class Infos extends \Admin\Classes\AdminController {
     public function getTerms(Request $Request) {
         $response['content'] = $this->pageModel->where('permalink_slug', 'terms-and-conditions')->first()->content;
         return $response;
+    }
+
+    public function getStripeInfo(Request $Request) {
+        StripeInfo::instance()->getInfo();
     }
 }
  
