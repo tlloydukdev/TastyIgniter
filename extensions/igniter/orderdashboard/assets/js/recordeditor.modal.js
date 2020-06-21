@@ -45,6 +45,15 @@
     }
 
     RecordEditorModal.prototype.handleFormSetup = function (event, context) {
+        context.options.url = this.options.overrideUrl // TL - grubs up
+        context.options.success = function(data, textStatus, jqXHR) {
+            
+            var $el = $(data["#statuseditor-formstatusid-status-id"])
+            context.options.statusStr =  $el.find('h3:first').text();
+            context.options.statusColor = $el.find('h3:first').css('color')
+            
+        };
+
         if (this.options.onFail !== undefined)
             this.options.onFail.call(this, context)
     }
@@ -94,7 +103,7 @@
 
         $.request(handler, {
             data: {recordId: this.options.recordId},
-            url: this.options.overrideUrl
+            url: this.options.overrideUrl // TL - grubs up
         }).done($.proxy(this.onRecordLoaded, this)).fail(function () {
             self.$modalElement.modal('hide')
         }).always(function () {
@@ -110,7 +119,7 @@
         onSubmit: undefined,
         onSave: undefined,
         onFail: undefined,
-        onClose: undefined,
+        onClose: undefined,        
         attributes: {
             id: 'record-editor-modal',
             class: 'record-modal modal fade',

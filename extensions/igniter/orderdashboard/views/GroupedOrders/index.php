@@ -8,7 +8,12 @@
 <!-- All Orders -->
 
 <div class="row-fluid">    
-    <?php echo $this->renderList(); ?>
+    <div class="control-statuseditor"
+        data-control="status-editor"
+        data-alias="formStatusId"
+        >
+        <?php echo $this->renderList(); ?>
+    </div>
 </div>
 
 <div class="modal slideInDown fade"

@@ -100,18 +100,18 @@ class Extension extends BaseExtension
         return [
             'sales' => [
                 'child' => [
-                    'overview' => [
-                        'priority' => 5,
-                        'href' => admin_url('igniter/orderdashboard/overview'),
-                        'class' => 'overview',
-                        'title' => 'Overview',
-                        //'permission' => 'Igniter.OrderDashboard',
-                    ],
+                    // 'overview' => [
+                    //     'priority' => 5,
+                    //     'href' => admin_url('igniter/orderdashboard/overview'),
+                    //     'class' => 'overview',
+                    //     'title' => 'Overview',
+                    //     //'permission' => 'Igniter.OrderDashboard',
+                    // ],
                     'grouped' => [
                         'priority' => 6,
                         'href' => admin_url('igniter/orderdashboard/groupedorders'),
                         'class' => 'grouped',
-                        'title' => 'Grouped',
+                        'title' => 'Grouped Orders',
                         //'permission' => 'Igniter.OrderDashboard',
                     ]
                 ],

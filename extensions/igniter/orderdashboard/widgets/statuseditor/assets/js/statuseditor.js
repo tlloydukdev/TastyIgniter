@@ -25,12 +25,16 @@
 
     StatusEditor.prototype.loadRecordForm = function (event) {
         var $button = $(event.currentTarget)
+
         StatusEditor.DEFAULTS.recordId = $button.data('record-id')
         this.editorModal = new $.ti.recordEditor.modal({
             alias: this.options.alias,
             recordId: $button.data('editor-control'),
             overrideUrl: '/admin/orders/edit/' + StatusEditor.DEFAULTS.recordId,
-            onSave: function () {
+            onSave: function (data) {
+                // Update the original element with the new status string and colour from the RecordEditor - TL grubs up
+                $button.html(data.options.statusStr)
+                $button.parent('span').css('background-color', data.options.statusColor)
                 this.hide()
             }
         })
@@ -63,11 +67,7 @@
 
         switch (control) {
             case 'load-status':
-            case 'load-assignee':
                 this.loadRecordForm(event)
-                break;
-            case 'load-assigndee':
-                this.loadAssigneeForm(event)
                 break;
         }
     }
@@ -86,19 +86,6 @@
             self.propFormFields($form, false)
         }).done(function (json) {
             self.updateFormFields($form, json)
-        })
-    }
-
-    StatusEditor.prototype.onAssignGroupChanged = function (event) {
-        var self = this,
-            $el = $(event.currentTarget),
-            $form = $el.closest('form')
-
-        self.propFormFields($form, true)
-        $.request(this.options.alias + '::onLoadAssigneeList', {
-            data: {groupId: $el.val()}
-        }).always(function () {
-            self.propFormFields($form, false)
         })
     }
 
@@ -140,6 +127,6 @@
     // StatusEditor DATA-API
     // ===============
     $(document).render(function () {
-        $('[data-control^="status-editor-popup-"]').statusEditor()
+        $('[data-control^="status-editor"]').statusEditor()
     })
 }(window.jQuery);
