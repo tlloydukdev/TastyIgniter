@@ -13,7 +13,7 @@
 <div class="purchase-invoice" style='font-family: arial; font-size: 10pt; width: 76mm; max-width: 80mm; margin: 2mm'>
   <div class="header-info">
       <div align="center">
-          <img style="width: 250px;" src="<?php echo 'http://grubsupdev.com/assets/logo/gu-logo.png'; // uploads_url(setting('site_logo')); ?>"/>
+          <img style="width: 250px;" src="<?php echo 'https://grubsupdev.com/assets/logo/gu-logo.png'; // uploads_url(setting('site_logo')); ?>"/>
       </div>
       <div class="customer-info">
           <p style="margin-top: 0; margin-bottom: 0; text-align: center; font-size: 12pt;">Order : #<b><?= $model->order_id; ?></b></p>

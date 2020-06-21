@@ -1,7 +1,7 @@
 <div class="row-fluid">
     <h4 class="pl-2 pt-0 mt-0">Grouped Orders by Time Slot</h4>
 </div>
-
+<div style="display: none;" class="print-display-area" id="print-display-area"></div>
 
 <!-- All Orders -->
 

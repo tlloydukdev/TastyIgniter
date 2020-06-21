@@ -99,8 +99,8 @@ $config['groupedlist']['columns'] = [
         'iconCssClass' => 'fa fa-print',
         'attributes' => [
             'class' => 'btn btn-print-order',         
-            'href' => 'igniter/orderdashboard/overview/print/{order_id}',
-            'target' => '_blank',
+            'href' => 'igniter/orderdashboard/groupedorders/print/{order_id}',
+            // 'target' => '_blank',
             'role' => 'button'
         ],
     ],

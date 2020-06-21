@@ -65,8 +65,9 @@ class Overview extends \Admin\Classes\AdminController
         $this->suppressLayout = TRUE;
         $data['model'] = $this->formFindModelObject($recordId);        
         
-        $pdf = PDF::loadView('pdf_view', $data);  
-        return $pdf->download('order' . $recordId . '.pdf');
+        return view('pdf_view', $data);
+        // $pdf = PDF::loadView('pdf_view', $data);  
+        // return $pdf->download('order' . $recordId . '.pdf');
 
         
     }

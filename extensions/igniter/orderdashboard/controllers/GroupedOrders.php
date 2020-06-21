@@ -21,6 +21,7 @@ class GroupedOrders extends \Admin\Classes\AdminController
 
     public $implement = [
         'Admin\Actions\ListController',
+        'Admin\Actions\FormController',
         'Admin\Actions\LocationAwareController',
         'Igniter\OrderDashboard\Actions\GroupedListController'       
     ];
@@ -34,6 +35,25 @@ class GroupedOrders extends \Admin\Classes\AdminController
             'defaultSort' => ['order_id', 'DESC'],
             'configFile' => 'grouped_orders_model',
         ],
+    ];
+
+    public $formConfig = [
+        'name' => 'lang:admin::lang.orders.text_form_name',
+        'model' => 'Igniter\OrderDashboard\Models\Orders_model',
+        'request' => 'Admin\Requests\Order',
+        'edit' => [
+            'title' => 'lang:admin::lang.form.edit_title',
+            'redirect' => 'orders/edit/{order_id}',
+            'redirectClose' => 'orders',
+        ],
+        'preview' => [
+            'title' => 'lang:admin::lang.form.preview_title',
+            'redirect' => 'orders',
+        ],
+        'delete' => [
+            'redirect' => 'orders',
+        ],
+        'configFile' => 'orders_model',
     ];
 
     protected $requiredPermissions = ['Admin.Orders', 'Admin.AssignOrders'];
@@ -113,6 +133,18 @@ class GroupedOrders extends \Admin\Classes\AdminController
 
         return ['#previewModalContentGrouped' => $oc->previewModalContent($context, $orderId)];
          
+    }
+
+    public function print($context, $recordId = null)
+    {
+        $this->suppressLayout = TRUE;
+        $data['model'] = $this->formFindModelObject($recordId);        
+        
+        return view('pdf_view', $data);
+        // $pdf = PDF::loadView('pdf_view', $data);  
+        // return $pdf->download('order' . $recordId . '.pdf');
+
+        
     }
 
 }
