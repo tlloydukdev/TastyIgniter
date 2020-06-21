@@ -47,7 +47,7 @@
     RecordEditorModal.prototype.handleFormSetup = function (event, context) {
         context.options.url = this.options.overrideUrl // TL - grubs up
         context.options.success = function(data, textStatus, jqXHR) {
-            
+            // TL grubs up
             var $el = $(data["#statuseditor-formstatusid-status-id"])
             context.options.statusStr =  $el.find('h3:first').text();
             context.options.statusColor = $el.find('h3:first').css('color')
@@ -107,6 +107,7 @@
         }).done($.proxy(this.onRecordLoaded, this)).fail(function () {
             self.$modalElement.modal('hide')
         }).always(function () {
+            self.$modalElement.find('h4').html("Update Status") // TL - grubs up
             self.$modalElement.modal('handleUpdate')
         })
     }
