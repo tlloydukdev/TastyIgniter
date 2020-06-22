@@ -10,6 +10,7 @@ use Igniter\Api\Services\TastyJwt;
 
 // Libary Import
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use ApplicationException;
 use Exception;
 use Geocoder;
@@ -29,6 +30,7 @@ class Users extends \Admin\Classes\AdminController {
         'customerGroup' => 'Admin\Models\Customer_groups_model',
         'locationArea' => 'Admin\Models\Location_areas_model',
         'customerSetting' => 'Igniter\Api\Models\CustomerSetting',
+        'customerPush' => 'Igniter\Api\Models\CustomerPush',
     ];
 
     private $userModel;
@@ -36,6 +38,7 @@ class Users extends \Admin\Classes\AdminController {
     private $customerGroupModel;
     private $locationAreaModel;
     private $customerSettingModel;
+    private $customerPushModel;
     private $stripeConfig;
     private $stripe;
 
@@ -46,6 +49,7 @@ class Users extends \Admin\Classes\AdminController {
         $this->locationAreaModel = new $this->modelConfig['locationArea'];
         $this->customerSettingModel = new $this->modelConfig['customerSetting'];
         $this->customerGroupModel = new $this->modelConfig['customerGroup'];
+        $this->customerPushModel = new $this->modelConfig['customerPush'];
         if ($this->customerGroupModel->where('group_name', 'App User')->get()->count() == 0) {
             $this->customerGroupModel->insertOrIgnore([
                 'group_name' => 'App User',
@@ -59,6 +63,12 @@ class Users extends \Admin\Classes\AdminController {
     public function makeUserResponse($user) {
         $response['token'] = $user->remember_token;
         $deliveryAddress = '';
+        $isPush = 0;
+        $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
+        if ($customerSetting) {
+            $isPush = $customerSetting->push_status;
+        }
+
         if (count($user->addresses) > 0)
             $deliveryAddress = $user->addresses[0]->address_1 . ' ' . $user->addresses[0]->address_2 . ', ' . $user->addresses[0]->postcode;
         $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
@@ -79,6 +89,7 @@ class Users extends \Admin\Classes\AdminController {
             'deliveryAddress' => $deliveryAddress,
             'stripeCustomerId' => $stripeCustomerId,
             'isFacebook' => ($user->isFacebook == true) ? true : false,
+            'isPush' => ($isPush == 0) ? false : true
         ];
         return $response;
     }
@@ -149,6 +160,16 @@ class Users extends \Admin\Classes\AdminController {
                     'push_status' => 0
                 ];
                 $this->customerSettingModel->insertOrIgnore($setting);
+                if ($request['fcmToken'])
+                {
+                    Log::debug("fcmToken");
+                    $setting = [
+                        'customer_id' => $user->customer_id,
+                        'device_token' => $request['fcmToken'],
+                        'device_type' => $request['deviceType'],
+                    ];
+                    $this->customerPushModel->insertOrIgnore($setting);
+                }
             }
         }
         $token = TastyJwt::instance()->makeToken($user);
@@ -253,5 +274,18 @@ class Users extends \Admin\Classes\AdminController {
 
         Location::updateUserPosition($userLocation);
         return $userLocation;
+    }
+
+    public function pushStatus(Request $request) {
+        try {
+            if($this->customerSettingModel->where('customer_id', $request->user['id'])->first()) {
+                $this->customerSettingModel->where('customer_id', $request->user['id'])->update(['push_status' => $request->isPush]);
+                return 'true';
+            }
+
+        } catch (Exception $ex) {
+            abort(500, lang('igniter.api::lang.server.internal_error'));
+        }
+        return 'false';
     }
 }

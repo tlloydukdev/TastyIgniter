@@ -10,6 +10,8 @@ Route::prefix('api/v1/auth')->group(function () {
     Route::post('validateToken', 'Igniter\\Api\\Controllers\\Users@validateToken');
 
     Route::post('forgotPassword', 'Igniter\\Api\\Controllers\\Users@forgotPassword');
+
+    Route::post('pushStatus', 'Igniter\\Api\\Controllers\\Users@pushStatus');
 });
 
 Route::prefix('api/v1/home')->group(function () {

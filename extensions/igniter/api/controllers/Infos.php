@@ -326,8 +326,8 @@ class Infos extends \Admin\Classes\AdminController {
                         }
 
                         $temp = [
-                            'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ':00',
-                            'showTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ':00' . ' - ' .(int)$showHour . ':' . (($showMin < 10) ? ('0' . $showMin) : $showMin) . ':00',
+                            'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin),
+                            'showTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ' - ' .(int)$showHour . ':' . (($showMin < 10) ? ('0' . $showMin) : $showMin),
                         ];
                         array_push($date['times'], $temp);
                     }
@@ -415,8 +415,8 @@ class Infos extends \Admin\Classes\AdminController {
                         }
 
                         $temp = [
-                            'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ':00',
-                            'showTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ':00' . ' - ' .(int)$showHour . ':' . (($showMin < 10) ? ('0' . $showMin) : $showMin) . ':00',
+                            'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin),
+                            'showTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ' - ' .(int)$showHour . ':' . (($showMin < 10) ? ('0' . $showMin) : $showMin),
                         ];
                         array_push($date['times'], $temp);
                     }
