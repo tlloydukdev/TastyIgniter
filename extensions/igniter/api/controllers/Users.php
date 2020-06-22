@@ -112,8 +112,24 @@ class Users extends \Admin\Classes\AdminController {
                 'date_added' => new DateTime(),
                 'status' => 1,
             ];
+
             if ($this->userModel->where('customer_id', $request['userId'])->update($requestUser))
             {
+                if ($request['fcmToken'])
+                {
+                    $push = $this->customerPushModel->where('customer_id', $user->customer_id)->where('device_type', $request['deviceType'])->first();
+                    if ($push) {
+                        $this->customerPushModel->where('customer_id', $user->customer_id)->where('device_type', $request['deviceType'])->update(['device_token' => $request['fcmToken']]);
+                    } else
+                    {
+                        $setting = [
+                            'customer_id' => $user->customer_id,
+                            'device_token' => $request['fcmToken'],
+                            'device_type' => $request['deviceType'],
+                        ];
+                        $this->customerPushModel->insertOrIgnore($setting);
+                    }
+                }
                 $user = $this->userModel->where('customer_id', $request['userId'])->first();
                 return $this->makeUserResponse($user);
             }
@@ -162,7 +178,6 @@ class Users extends \Admin\Classes\AdminController {
                 $this->customerSettingModel->insertOrIgnore($setting);
                 if ($request['fcmToken'])
                 {
-                    Log::debug("fcmToken");
                     $setting = [
                         'customer_id' => $user->customer_id,
                         'device_token' => $request['fcmToken'],
@@ -190,6 +205,21 @@ class Users extends \Admin\Classes\AdminController {
                 $newToken = TastyJwt::instance()->makeToken($user);
                 if ($this->userModel->where('email', $request['email'])->update(['remember_token' => $newToken])) {
                     $user = $this->userModel->where('email', $request['email'])->first();
+                    if ($request['fcmToken'])
+                    {
+                        $push = $this->customerPushModel->where('customer_id', $user->customer_id)->where('device_type', $request['deviceType'])->first();
+                        if ($push) {
+                            $this->customerPushModel->where('customer_id', $user->customer_id)->where('device_type', $request['deviceType'])->update(['device_token' => $request['fcmToken']]);
+                        } else
+                        {
+                            $setting = [
+                                'customer_id' => $user->customer_id,
+                                'device_token' => $request['fcmToken'],
+                                'device_type' => $request['deviceType'],
+                            ];
+                            $this->customerPushModel->insertOrIgnore($setting);
+                        }
+                    }
                     if ($user->status == 0) {
                         abort(400, lang('igniter.api::lang.auth.alert_status_disabled'));
                     }
