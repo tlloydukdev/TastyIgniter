@@ -7,10 +7,6 @@ layout: home
 '[slider]':
     code: home-slider
 
-'[localSearch]':
-    hideSearch: 0
-    menusPage: local/menus
-
 '[featuredItems]':
     items: ['6', '7', '8', '9']
     limit: 3
@@ -21,6 +17,6 @@ layout: home
 ---
 <?= component('slider'); ?>
 
-<?= component('localSearch'); ?>
+<?= partial('holdingMessage'); //component('localSearch'); ?>
 
 <?= component('featuredItems'); ?>

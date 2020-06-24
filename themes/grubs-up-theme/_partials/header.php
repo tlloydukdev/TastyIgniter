@@ -12,7 +12,11 @@
         ><span class="navbar-toggler-icon"></span></button>
 
         <div class="justify-content-end collapse navbar-collapse" id="navbarMainHeader">
-            <?= partial('nav/main_menu', ['items' => $mainMenu->menuItems()]); ?>
+            <?php
+            if(!isset($hideNav)) {
+                echo partial('nav/main_menu', ['items' => $mainMenu->menuItems()]);
+            }
+            ?>
         </div>
     </div>
 </nav>

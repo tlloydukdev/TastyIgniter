@@ -7,10 +7,6 @@ description: Default layout
 '[staticMenu mainMenu]':
     code: main-menu
 
-'[staticMenu footerMenu]':
-    code: footer-menu
-
-'[newsletter]': {  }
 ---
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="<?= App::getLocale(); ?>">
@@ -21,7 +17,7 @@ description: Default layout
 <body class="<?= $this->page->bodyClass; ?>" style="background-color: #FC6C35;">
 
     <header class="header">
-        <?= partial('header'); ?>
+        <?= partial('header', [ 'hideNav' => true]); ?>
     </header>
 
     <main role="main">
@@ -29,10 +25,6 @@ description: Default layout
             <?= page(); ?>
         </div>
     </main>
-
-    <footer class="pt-5">
-        <?= partial('footer'); ?>
-    </footer>
 
     <div id="notification">
         <?= partial('flash'); ?>
