@@ -579,6 +579,7 @@ return [
         'button_login' => 'Login',
         'button_reset_password' => 'Reset Password',
 
+        'label_reset_code' => 'Reset code',
         'label_username' => 'Username',
         'label_password' => 'Password',
         'label_password_confirm' => 'Confirm Password',
@@ -617,6 +618,7 @@ return [
         'text_select' => 'Select',
         'text_radio' => 'Radio',
         'text_checkbox' => 'Checkbox',
+        'text_quantity' => 'Quantity',
         'is_required' => 'is required',
         'is_not_required' => 'is not required',
         'text_option' => 'Option',
