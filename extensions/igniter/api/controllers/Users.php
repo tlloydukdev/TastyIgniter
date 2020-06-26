@@ -173,7 +173,7 @@ class Users extends \Admin\Classes\AdminController {
                     'customer_id' => $user->customer_id,
                     'stripe_customer_id' => $stripe_customer->id,
                     'area_id' => null,
-                    'push_status' => 0
+                    'push_status' => 1
                 ];
                 $this->customerSettingModel->insertOrIgnore($setting);
                 if ($request['fcmToken'])

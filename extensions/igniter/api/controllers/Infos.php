@@ -582,7 +582,7 @@ class Infos extends \Admin\Classes\AdminController {
             $orders = $this->orderModel->where('customer_id', $request['user']['id'])->orderBy('date_added', 'DESC')->limit(5)->get();
             foreach ($orders as $order) {
                 $order['status_name'] = $this->statusModel->where('status_id', $order->status_id)->first()->status_name;
-                $order['date'] = date('m/d/Y', strtotime($order->date_added));
+                $order['date'] = date('d/m/y', strtotime($order->date_added));
             }
             $response['orders'] = $orders;
 
