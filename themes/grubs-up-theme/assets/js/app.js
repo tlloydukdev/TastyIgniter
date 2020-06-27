@@ -2114,6 +2114,18 @@ $.fn.tabs = function () {
     $(this).first().click()
 }
 
+/*
+ * Ensure the CSRF token is added to all AJAX requests.
+ */
+$.ajaxPrefilter(function(options) {
+    var token = $('meta[name="csrf-token"]').attr('content')
+
+    if (token) {
+        if (!options.headers) options.headers = {}
+        options.headers['X-CSRF-TOKEN'] = token
+    }
+})
+
 $(function () {
     $(window).on('ajaxErrorMessage', function (event, message) {
         event.preventDefault()
@@ -2182,16 +2194,4 @@ $(function () {
     function eraseCookie(name) {
         createCookie(name, "", -1);
     }
-
-    /*
-     * Ensure the CSRF token is added to all AJAX requests.
-     */
-    $.ajaxPrefilter(function (options) {
-        var token = $('meta[name="csrf-token"]').attr('content')
-
-        if (token) {
-            if (!options.headers) options.headers = {}
-            options.headers['X-CSRF-TOKEN'] = token
-        }
-    })
 })

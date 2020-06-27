@@ -123,7 +123,6 @@ class LocalBox extends \System\Classes\BaseComponent
 
         if ($redirect = $this->redirectForceCurrent()) {
             flash()->error(lang('igniter.local::default.alert_location_required'));
-
             return $redirect;
         }
 
@@ -144,9 +143,19 @@ class LocalBox extends \System\Classes\BaseComponent
                 throw new ApplicationException(lang('igniter.local::default.alert_location_required'));
 
             if (!$this->location->checkOrderType($orderType = post('type')))
-                throw new ApplicationException(lang('igniter.local::default.alert_'.$orderType.'_unavailable'));
+                throw new ApplicationException(lang('igniter.local::default.alert_'.$orderType.'_unavailable'));            
 
-            $this->location->updateOrderType($orderType);                       
+            $this->location->updateOrderType($orderType);
+            // TL Grubs - make sure the currently selected slot is available when changing order types
+            // If not, select the first available slot on the soonest day
+            // Pass true to checkOrderTime to take into account lead time when checking time            
+            if (!$this->location->checkOrderTime(
+                $this->location->getSession('order-timeslot.dateTime'), 
+                $orderType, 
+                $this->parseTimeslot($this->location->scheduleTimeslot())
+                )) {
+                $this->location->updateScheduleTimeSlot($this->location->scheduleTimeslot()->sortKeys()->first()->first(), FALSE);
+            }
 
             $this->controller->pageCycle();
 
@@ -165,16 +174,15 @@ class LocalBox extends \System\Classes\BaseComponent
 
     public function onSetOrderTime()
     {
-
         try {
             if (!is_numeric($timeIsAsap = post('asap')))
-                throw new ApplicationException('Please select a slot type.');
+                throw new ApplicationException(lang('igniter.local::default.alert_slot_type_required'));
 
-            if (!strlen($timeSlotDate = post('date')))
-                throw new ApplicationException('Please select a slot date.');
+            if (!strlen($timeSlotDate = post('date')) AND !$timeIsAsap)
+                throw new ApplicationException(lang('igniter.local::default.alert_slot_date_required'));
 
             if (!strlen($timeSlotTime = post('time')) AND !$timeIsAsap)
-                throw new ApplicationException('Please select a slot time.');
+                throw new ApplicationException(lang('igniter.local::default.alert_slot_time_required'));
 
             if (!$location = $this->location->current())
                 throw new ApplicationException(lang('igniter.local::default.alert_location_required'));
@@ -234,15 +242,16 @@ class LocalBox extends \System\Classes\BaseComponent
     protected function parseTimeslot(Collection $timeslot)
     {
         $parsed = ['dates' => [], 'hours' => []];
-        
+
         $locationCurrent = $this->location->current();
-        $deliveryInterval = $locationCurrent->getDeliveryTimeAttribute('blah');
+        $deliveryInterval = $locationCurrent->getDeliveryTimeAttribute('blah'); // TL grubs until ksort below
         $collectionInterval = $locationCurrent->getCollectionTimeAttribute('blah');
         if($this->location->orderTypeIsDelivery()) {
             $intervalMinutes = $deliveryInterval;
         } else {
             $intervalMinutes = $collectionInterval;
         }
+ 
         $timeslot->collapse()->each(function (DateTime $slot) use (&$parsed, $intervalMinutes) {
             $dateKey = $slot->format('Y-m-d');
             $hourKey = $slot->format('H:i');
@@ -270,17 +279,14 @@ class LocalBox extends \System\Classes\BaseComponent
 
     protected function updateCurrentOrderType()
     {
-    
         if (!$locationCurrent = $this->location->current())
             return;
 
-        if (!strlen(post('time')))
-          $this->location->updateScheduleTimeSlot(null, null);
-
         // Makes sure the current active order type is offered by the location.
-        if (in_array($this->location->orderType(), $locationCurrent->availableOrderTypes()))
+        if (in_array($this->location->orderType(), $locationCurrent->availableOrderTypes())) {
             return;
-               
+        }
+
         $this->location->updateOrderType(
             $this->property('defaultOrderType', Locations_model::DELIVERY)
         );

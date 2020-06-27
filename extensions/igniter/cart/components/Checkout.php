@@ -72,13 +72,16 @@ class Checkout extends BaseComponent
                 'options' => [static::class, 'getThemePageOptions'],
                 'default' => 'checkout/success',
             ],
+            'cartBoxAlias' => [
+                'label' => 'Specify the CartBox component alias used to refresh the cart after a payment is selected',
+                'type' => 'text',
+                'default' => 'cartBox',
+            ],
         ];
     }
 
     public function onRun()
     {
-        $this->addJs('js/checkout.js', 'checkout-js');
-
         if ($redirect = $this->isOrderMarkedAsProcessed())
             return $redirect;
 
@@ -86,6 +89,15 @@ class Checkout extends BaseComponent
             return Redirect::to(restaurant_url($this->property('menusPage')));
 
         $this->prepareVars();
+    }
+
+    public function onRender()
+    {
+        foreach ($this->getPaymentGateways() as $paymentGateway) {
+            $paymentGateway->beforeRenderPaymentForm($paymentGateway, $this->controller);
+        }
+
+        $this->addJs('js/checkout.js', 'checkout-js');
     }
 
     protected function prepareVars()
@@ -97,10 +109,20 @@ class Checkout extends BaseComponent
         $this->page['successPage'] = $this->property('successPage');
 
         $this->page['choosePaymentEventHandler'] = $this->getEventHandler('onChoosePayment');
+        $this->page['deletePaymentEventHandler'] = $this->getEventHandler('onDeletePaymentProfile');
         $this->page['confirmCheckoutEventHandler'] = $this->getEventHandler('onConfirm');
 
         $this->page['order'] = $this->getOrder();
         $this->page['paymentGateways'] = $this->getPaymentGateways();
+    }
+
+    public function fetchPartials()
+    {
+        $this->prepareVars();
+
+        return [
+            '[data-partial="checkoutPayments"]' => $this->renderPartial('@payments'),
+        ];
     }
 
     public function getOrder()
@@ -121,7 +143,7 @@ class Checkout extends BaseComponent
         $order = $this->getOrder();
 
         return $order->order_total > 0
-            ? $this->orderManager->getPaymentGateways() : null;
+            ? $this->orderManager->getPaymentGateways() : [];
     }
 
     public function onChoosePayment()
@@ -131,19 +153,17 @@ class Checkout extends BaseComponent
         if (!$payment = $this->orderManager->getPayment($paymentCode))
             throw new ApplicationException(lang('igniter.cart::default.checkout.error_invalid_payment'));
 
-        $this->orderManager->setCurrentPaymentCode($payment->code);
+        $this->orderManager->applyCurrentPaymentFee($payment->code);
 
-        $this->cartManager->applyCondition('paymentFee', [
-            'code' => $payment->code,
-        ]);
+        $this->controller->pageCycle();
 
-        if ($cartBox = $this->controller->findComponentByAlias('cartBox')) {
-            $cartBox->onRun();
+        $result = $this->fetchPartials();
 
-            return [
-                '#cart-totals' => $cartBox->renderPartial('@totals'),
-            ];
+        if ($cartBox = $this->controller->findComponentByAlias($this->property('cartBoxAlias'))) {
+            $result = array_merge($result, $cartBox->fetchPartials());
         }
+
+        return $result;
     }
 
     public function onConfirm()
@@ -155,6 +175,8 @@ class Checkout extends BaseComponent
         $data['cancelPage'] = $this->property('redirectPage');
         $data['successPage'] = $this->property('successPage');
 
+        $data = $this->processDeliveryAddress($data);
+
         $this->validateCheckoutSecurity();
 
         try {
@@ -162,8 +184,7 @@ class Checkout extends BaseComponent
 
             $order = $this->getOrder();
 
-            if ($order->isDeliveryType() AND Location::requiresUserPosition()) {
-                $data = $this->processDeliveryAddress($data);
+            if ($order->isDeliveryType()) {
                 $this->orderManager->validateDeliveryAddress(array_get($data, 'address', []));
             }
 
@@ -183,6 +204,27 @@ class Checkout extends BaseComponent
 
             return Redirect::back()->withInput();
         }
+    }
+
+    public function onDeletePaymentProfile()
+    {
+        $customer = Auth::customer();
+        $payment = $this->orderManager->getPayment(post('code'));
+
+        if (!$payment OR !$payment->paymentProfileExists($customer))
+            throw new ApplicationException(lang('igniter.cart::default.checkout.error_invalid_payment'));
+
+        $payment->deletePaymentProfile($customer);
+
+        $this->controller->pageCycle();
+
+        $result = $this->fetchPartials();
+
+        if ($cartBox = $this->controller->findComponentByAlias($this->property('cartBoxAlias'))) {
+            $result = array_merge($result, $cartBox->fetchPartials());
+        }
+
+        return $result;
     }
 
     protected function checkCheckoutSecurity()
@@ -214,9 +256,9 @@ class Checkout extends BaseComponent
     protected function createRules()
     {
         $namedRules = [
-            ['first_name', 'lang:igniter.cart::default.checkout.label_first_name', 'required|min:2|max:32'],
-            ['last_name', 'lang:igniter.cart::default.checkout.label_last_name', 'required|min:2|max:32'],
-            ['email', 'lang:igniter.cart::default.checkout.label_email', 'sometimes|required|email|max:96|unique:customers'],
+            ['first_name', 'lang:igniter.cart::default.checkout.label_first_name', 'required|between:1,48'],
+            ['last_name', 'lang:igniter.cart::default.checkout.label_last_name', 'required|between:1,48'],
+            ['email', 'lang:igniter.cart::default.checkout.label_email', 'sometimes|required|email:filter|max:96|unique:customers'],
             ['telephone', 'lang:igniter.cart::default.checkout.label_telephone', ''],
             ['comment', 'lang:igniter.cart::default.checkout.label_comment', 'max:500'],
             ['payment', 'lang:igniter.cart::default.checkout.label_payment_method', 'sometimes|required|alpha_dash'],
@@ -224,19 +266,12 @@ class Checkout extends BaseComponent
         ];
 
         if (Location::orderTypeIsDelivery()) {
-            if (!empty(post('address_id'))) {
-                $namedRules[] = ['address_id', 'lang:igniter.cart::default.checkout.label_address', 'required|integer'];
-            }
-            else {
-                $namedRules[] = ['address.address_1', 'lang:igniter.cart::default.checkout.label_address_1', 'min:3|max:128'];
-                $namedRules[] = ['address.city', 'lang:igniter.cart::default.checkout.label_city', 'min:2|max:128'];
-                $namedRules[] = ['address.state', 'lang:igniter.cart::default.checkout.label_state', 'max:128'];
-                $namedRules[] = ['address.postcode', 'lang:igniter.cart::default.checkout.label_postcode', 'string'];
-            }
-
-            if ((bool)$this->property('showCountryField', 1)) {
-                $namedRules[] = ['address.country_id', 'lang:igniter.cart::default.checkout.label_country', 'required|integer'];
-            }
+            $namedRules[] = ['address_id', 'lang:igniter.cart::default.checkout.label_address', 'required|integer'];
+            $namedRules[] = ['address.address_1', 'lang:igniter.cart::default.checkout.label_address_1', 'required|min:3|max:128'];
+            $namedRules[] = ['address.city', 'lang:igniter.cart::default.checkout.label_city', 'min:2|max:128'];
+            $namedRules[] = ['address.state', 'lang:igniter.cart::default.checkout.label_state', 'max:128'];
+            $namedRules[] = ['address.postcode', 'lang:igniter.cart::default.checkout.label_postcode', 'string'];
+            $namedRules[] = ['address.country_id', 'lang:igniter.cart::default.checkout.label_country', 'required|integer'];
         }
 
         return $namedRules;

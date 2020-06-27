@@ -3,11 +3,7 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-sm-<?= ($hideSearch) ? '12' : '4' ?> mb-3 mb-sm-0">
-                    <div
-                        id="local-timeslot"
-                        data-control="timepicker"
-                        data-time-slot="<?= e(json_encode($locationTimeslot)); ?>"
-                    >
+                    <div id="local-timeslot">
                         <?= partial('@timeslot'); ?>
                     </div>
                 </div>
@@ -35,7 +31,7 @@
                         <?= partial('@box_one'); ?>
                     </div>
                     <div class="box-divider d-block d-sm-none"></div>
-                    <div class="box-two col-sm-6">
+                    <div id="local-box-two" class="box-two col-sm-6">
                         <?= partial('@box_two'); ?>
                     </div>
                 </div>

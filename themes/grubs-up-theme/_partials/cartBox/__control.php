@@ -1,11 +1,13 @@
 <?php
-
+echo "cart";
 if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
     <?php
     $deliveryTime = Carbon\Carbon::parse($location->deliverySchedule()->getOpenTime());
     $collectionTime = Carbon\Carbon::parse($location->collectionSchedule()->getOpenTime());
     ?>
-    <div class="btn-group btn-group-toggle w-100 text-center order-type" data-toggle="buttons">
+    <div class="btn-group btn-group-toggle w-100 text-center order-type" data-toggle="buttons"
+    data-control="order-type-toggle"
+        data-handler="<?= $orderTypeEventHandler; ?>">
         <?php if ($locationCurrent->hasDelivery()) { ?>
             <label
                 class="btn btn-<?= $location->orderTypeIsDelivery() ? 'primary' : 'light'; ?> <?= $location->orderTypeIsDelivery() ? 'active' : ''; ?>" style="<?= $location->orderTypeIsDelivery() ? 'background-color: #FC6C35!important;' : ''; ?>">
@@ -19,13 +21,13 @@ if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
                 <span
                     class="small center-block">
                         <?php if ($location->deliverySchedule()->isOpen()) { ?>
-                            <?= sprintf(lang('igniter.cart::default.text_in_minutes'), $locationCurrent->deliveryMinutes()); ?>
+                            <?= sprintf(lang('igniter.local::default.text_in_minutes'), $locationCurrent->deliveryMinutes()); ?>
                         <?php }
                         else if ($location->deliverySchedule()->isOpening()) { ?>
-                            <?= sprintf(lang('igniter.cart::default.text_starts'), $deliveryTime->isoFormat($cartBoxTimeFormat)); ?>
+                            <?= sprintf(lang('igniter.local::default.text_starts'), $deliveryTime->isoFormat($cartBoxTimeFormat)); ?>
                         <?php }
                         else { ?>
-                            <?= lang('igniter.cart::default.text_is_closed'); ?>
+                            <?= lang('igniter.local::default.text_is_closed'); ?>
                         <?php } ?>
                     </span>
             </label>
@@ -43,13 +45,13 @@ if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
                 <span
                     class="small center-block">
                         <?php if ($location->collectionSchedule()->isOpen()) { ?>
-                            <?= sprintf(lang('igniter.cart::default.text_in_minutes'), $locationCurrent->collectionMinutes()); ?>
+                            <?= sprintf(lang('igniter.local::default.text_in_minutes'), $locationCurrent->collectionMinutes()); ?>
                         <?php }
                         else if ($location->collectionSchedule()->isOpening()) { ?>
-                            <?= sprintf(lang('igniter.cart::default.text_starts'), $collectionTime->isoFormat($cartBoxTimeFormat)); ?>
+                            <?= sprintf(lang('igniter.local::default.text_starts'), $collectionTime->isoFormat($cartBoxTimeFormat)); ?>
                         <?php }
                         else { ?>
-                            <?= lang('igniter.cart::default.text_is_closed'); ?>
+                            <?= lang('igniter.local::default.text_is_closed'); ?>
                         <?php } ?>
                     </span>
             </label>
@@ -67,8 +69,8 @@ if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
     <?php if ($location->orderTypeIsDelivery()) { ?>
         <p class="text-muted text-center">
             <?= ($minOrderTotal = $location->minimumOrder($cart->subtotal()))
-                ? lang('igniter.cart::default.text_min_total').': '.currency_format($minOrderTotal)
-                : lang('igniter.cart::default.text_no_min_total');
+                ? lang('igniter.local::default.text_min_total').': '.currency_format($minOrderTotal)
+                : lang('igniter.local::default.text_no_min_total');
             ?>
         </p>
     <?php } ?>

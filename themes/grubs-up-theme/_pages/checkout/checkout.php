@@ -34,7 +34,7 @@ permalink: /checkout
         </div>
 
         <div class="col-sm-4">
-            <?= component('cartBox'); ?>
+            <?= component('cartBox/container'); ?>
         </div>
     </div>
 </div>

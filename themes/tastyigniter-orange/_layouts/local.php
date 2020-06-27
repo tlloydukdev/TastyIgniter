@@ -32,7 +32,6 @@ description: 'Local layout'
 <html xmlns="http://www.w3.org/1999/xhtml" lang="<?= App::getLocale(); ?>">
 <head>
     <?= partial('head'); ?>
-    <meta name="csrf-token" content="<?= csrf_token() ?>">
 </head>
 <body class="<?= $this->page->bodyClass; ?>">
 
@@ -59,7 +58,7 @@ description: 'Local layout'
                     </div>
 
                     <div class="col-sm-4">
-                        <?= component('cartBox'); ?>
+                        <?= partial('cartBox/container'); ?>
                     </div>
                 </div>
             </div>

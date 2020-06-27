@@ -12,7 +12,7 @@ $intervalEndHour = Carbon\Carbon::parse($orderDateTime)->addMinutes($intervalMin
 
 ?>
 <button
-        class="btn btn-light btn-timepicker btn-block text-truncate"
+        class="btn btn-light btn-timepicker btn-block text-truncate text-red"
         type="button"
         id="orderTimePicker"
         data-toggle="collapse"

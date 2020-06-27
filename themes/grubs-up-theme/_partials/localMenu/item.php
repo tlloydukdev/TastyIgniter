@@ -1,10 +1,16 @@
 <?php
-$mealtime = $menuItem->mealtime;
+$mealtimes = $menuItem->mealtimes;
 $special = $menuItem->special;
-$mealtimeNotAvailable = ($mealtime AND !$mealtime->isAvailableNow());
+$mealtimeNotAvailable = !$menuItem->isAvailable($location->orderDateTime());
 $specialActive = ($special AND $special->active());
 $menuHasOptions = $menuItem->hasOptions();
 $menuPrice = $specialActive ? $special->getMenuPrice($menuItem->menu_price) : $menuItem->menu_price;
+$mealtimeTitles = [];
+foreach ($menuItem->mealtimes ?? [] as $mealtime) {
+    $mealtimeTitles[] = sprintf(lang('igniter.local::default.text_mealtime'),
+        $mealtime->mealtime_name, $mealtime->start_time, $mealtime->end_time
+    );
+}
 // Get the large image associated with the thumbnail
 // e.g. /assets/media/attachments/public/5ee/c90/8bb/5eec908bbc863647113446.jpg
 $thumb = $menuItem->getMedia('thumb');
@@ -78,9 +84,7 @@ foreach ($thumb as $item) {
                             data-replace-loading="fa fa-spinner fa-spin"
                         <?php } ?>
                     <?php } else { ?>
-                        title="<?= sprintf(lang('igniter.local::default.text_mealtime'),
-                            $mealtime->mealtime_name, $mealtime->start_time, $mealtime->end_time
-                        ); ?>"
+                        title="<?= implode("\r\n", $mealtimeTitles); ?>"
                     <?php } ?>
                 >
                     <i class="fa fa-<?= $mealtimeNotAvailable ? 'clock-o' : 'plus' ?>"></i>

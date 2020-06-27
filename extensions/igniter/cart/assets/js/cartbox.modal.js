@@ -55,6 +55,41 @@
     CartBoxModal.prototype.getCartBoxElement = function () {
         return this.$modalElement.find('[data-control="cart-options"]')
     }
+    
+    CartBoxModal.prototype.onQuantityOrOptionChanged = function (event) {
+        var inputEl = this.$modalElement.find('[name="quantity"]'),
+            $cartItem = this.$modalElement.find('[data-control="cart-item"]');
+
+        var price = $cartItem.data('priceAmount');
+                
+		this.$modalElement.find('input[data-option-price]:checked')
+            .each(function(idx, option){
+                var optionPrice = $(option).data('optionPrice')
+			    price += parseFloat(optionPrice === undefined ? 0 : optionPrice);
+            });
+		
+		this.$modalElement.find('select[data-option-price] option:selected')
+            .each(function(idx, option){
+                var optionPrice = $(option).data('optionPrice')
+                price += parseFloat(optionPrice === undefined ? 0 : optionPrice);
+            });
+            
+		this.$modalElement.find('input[data-option-price][type="number"]')
+            .each(function(idx, option){
+	            var val = parseInt($(option).val()),
+                    optionPrice = $(option).data('optionPrice');
+	            if (val > 0){
+			    	price += val * parseFloat(optionPrice === undefined ? 0 : optionPrice);
+			    }
+            });            
+		
+		price *= inputEl.val();
+		
+		var decimals = $cartItem.data('priceFormat').split('.').pop();
+				
+        $cartItem.find('[data-item-subtotal]')
+            .html($cartItem.data('priceFormat').replace('0.' + decimals, price.toFixed(decimals.length)));
+    }
 
     CartBoxModal.prototype.onSubmitForm = function () {
         if (this.options.onSubmit !== undefined)
@@ -84,6 +119,7 @@
     }
 
     CartBoxModal.prototype.onModalShown = function (event) {
+        var self = this
         this.$modalElement = $(event.target)
 
         $.request(this.options.loadItemHandler, {
@@ -92,13 +128,19 @@
                 menuId: this.options.menuId,
             }
         }).done($.proxy(this.onFetchModalContent, this))
+        .fail(function () {
+            self.$modalElement.modal('hide')
+        })
     }
 
     CartBoxModal.prototype.onFetchModalContent = function (json) {
         this.$modalRootElement.html(json.result);
         this.$modalRootElement.modal()
 
-        var $cartItem = this.$modalElement.find('[data-control="cart-item"]')
+        var $cartItem = this.$modalElement.find('[data-control="cart-item"]');
+
+        $cartItem.on('input', '[name="quantity"]', $.proxy(this.onQuantityOrOptionChanged, this))
+        $cartItem.on('change', '[data-option-price]', $.proxy(this.onQuantityOrOptionChanged, this))
 
         $cartItem.on('submit', 'form', $.proxy(this.onSubmitForm, this))
         $cartItem.on('ajaxDone', 'form', $.proxy(this.onSuccessForm, this))

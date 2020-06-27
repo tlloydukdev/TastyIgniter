@@ -79,7 +79,7 @@ class Location extends Manager
             $slot['dateTime'] = make_carbon($dateTime, FALSE);
 
         if (!is_null($type))
-            $slot['type'] = $type;
+            $slot['type'] = $type;          
 
         if (!$slot) {
             $this->forgetSession('order-timeslot');
@@ -207,9 +207,21 @@ class Location extends Manager
         return $this->getModel()->getOrderTimeInterval($this->orderType());
     }
 
+    public function orderLeadTime()
+    {
+        return $this->getModel()->getOrderLeadTime($this->orderType());
+    }
+
     public function orderTimeIsAsap()
     {
-        return (bool)$this->getSession('order-timeslot.type', 1);
+        return false; // TL grubs - we don't deal in ASAP
+
+        // $sessionDateTime = $this->getSession('order-timeslot.dateTime');
+        // $asapDateTime = Carbon::now()->addMinutes($this->orderLeadTime() * 2);
+        // if ($sessionDateTime AND $sessionDateTime->lte($asapDateTime))
+        //     return TRUE;
+
+        // return (bool)$this->getSession('order-timeslot.type', 1);
     }
 
     /**
@@ -219,20 +231,28 @@ class Location extends Manager
     {
         $dateTime = $this->asapScheduleTimeslot();
         $sessionDateTime = $this->getSession('order-timeslot.dateTime');
-        if (!$this->orderTimeIsAsap()
-            AND $sessionDateTime
-            AND Carbon::now()->lt($sessionDateTime)
-        ) {
+        if (!$this->orderTimeIsAsap()) {
             $dateTime = $sessionDateTime;
         }
+
+        // TL Grubs
+        // Check the session time is still valid
+        if (!$this->checkOrderTime(
+                $this->getSession('order-timeslot.dateTime'), 
+                $this->orderType(), 
+                null
+                )) {
+                $this->updateScheduleTimeSlot($this->scheduleTimeslot()->sortKeys()->first()->first(), FALSE);
+            }
 
         return make_carbon($dateTime)->copy();
     }
 
     public function scheduleTimeslot()
-    {
-        return $this->workingSchedule($this->orderType())
-            ->getTimeslot($this->orderTimeInterval());
+    {       
+        return $this->workingSchedule($this->orderType())->getTimeslot(
+            $this->orderTimeInterval(), null, $this->orderLeadTime()
+        );
     }
 
     public function firstScheduleTimeslot()
@@ -245,19 +265,37 @@ class Location extends Manager
         if ($this->isClosed())
             return $this->firstScheduleTimeslot();
 
-        return Carbon::now()->addMinutes($this->orderTimeInterval());
+        return Carbon::now()->addMinutes($this->orderLeadTime());
     }
 
-    public function checkOrderTime($timestamp, $orderType = null)
+    public function checkOrderTime($timestamp, $orderType = null, $parsedTimeSlots = null)
     {
         if (is_null($orderType))
             $orderType = $this->orderType();
 
         if (!$timestamp instanceof \DateTime)
             $timestamp = new \DateTime($timestamp);
+        
+        if (Carbon::now()->gte($timestamp))
+            return FALSE;
 
         $days = $this->getModel()->hasFutureOrder($orderType)
             ? $this->getModel()->futureOrderDays($orderType) : 0;
+        
+        if(!is_null($parsedTimeSlots)) {
+            $orderTimestamp = make_carbon($timestamp)->copy();
+            $orderDate = $orderTimestamp->format('Y-m-d');
+            $orderHour = $orderTimestamp->format('H:i');
+            
+            $orderingAllowed = false;
+            if(array_key_exists($orderDate, $parsedTimeSlots["hours"])) {
+                if(array_key_exists($orderHour, $parsedTimeSlots["hours"][$orderDate])) {
+                    $orderingAllowed = true;
+                }
+            }
+            if(!$orderingAllowed)
+                return FALSE;
+        }
 
         if ($days < Carbon::now()->diffInDays($timestamp))
             return FALSE;

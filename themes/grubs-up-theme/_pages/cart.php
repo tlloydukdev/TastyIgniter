@@ -17,8 +17,7 @@ permalink: /cart
                     href="<?= restaurant_url('local/menus'); ?>"
                 >Add more items</a>
             </div>
-
-            <?= component('cartBox'); ?>
+            <?= partial('cartBox/container'); ?>
         </div>
     </div>
 </div>

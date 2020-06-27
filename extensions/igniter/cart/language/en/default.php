@@ -1,7 +1,6 @@
 <?php
 
 return [
-    '_text_title' => 'Cart',
     'text_tab_general' => 'General',
     'text_component_title' => 'Cart Component',
     'text_component_desc' => 'Displays cart for menu to be added',
@@ -14,12 +13,14 @@ return [
     'text_add_heading' => 'Adding menu choices',
     'text_no_cart_items' => '<p class="text-center">Add menu items to your cart.</p>',
     'text_apply_coupon' => 'Enter coupon code',
+    'text_apply_tip' => 'Enter other amount',
+    'text_no_tip' => 'Not now',
+    'text_edit_tip' => 'Edit',
     'text_sub_total' => 'Sub Total',
     'text_coupon' => 'Coupon [%s]',
+    'text_tip' => 'Tip',
     'text_payment_fee' => 'Payment Fee',
     'text_vat' => 'VAT [%s]',
-    'text_min_total' => 'Min. Order Amount',
-    'text_no_min_total' => 'No Min. Order Amount',
     'text_order_total' => 'Order Total',
     'text_menu_quantity' => 'Menu Quantity',
     'text_add_to_order' => 'Add to order',
@@ -29,8 +30,6 @@ return [
     'text_change_location' => 'Change Location',
     'text_times' => '&times;',
     'text_equals' => ' &equals; ',
-    'text_starts' => ' starts %s',
-    'text_in_minutes' => 'in %s min',
     'text_empty' => 'There are no cart totals available.',
     'text_sizes' => 'Sizes',
     'text_required' => 'Required',
@@ -42,11 +41,13 @@ return [
     'button_payment' => 'Payment',
     'button_confirm' => 'Confirm',
     'button_apply_coupon' => 'Apply Coupon',
+    'button_apply_tip' => 'Apply Tip',
     'button_view_cart' => 'Back to My Order',
 
     'column_condition_name' => 'Name',
     'column_condition_priority' => 'Priority',
     'column_condition_title' => 'Label',
+    'column_tip_amount' => 'Amount',
 
     'label_menu_quantity' => 'Menu Quantity',
     'label_add_comment' => 'Add Comment',
@@ -61,8 +62,12 @@ return [
     'label_cart_images_h' => 'Image Height',
     'label_cart_images_w' => 'Image Width',
     'label_cart_conditions' => 'Cart Conditions',
+    'label_tipping' => 'Tipping',
     'label_stock_checkout' => 'Stock Checkout',
     'label_show_stock_warning' => 'Show Stock Warning',
+    'label_enable_tipping' => 'Enable tipping',
+    'label_tip_value_type' => 'Tip Value Type',
+    'label_tip_amounts' => 'Tip Values',
 
     'alert_menu_added' => 'Menu has been added to your order.',
     'alert_menu_updated' => 'Menu has been updated successfully',
@@ -79,7 +84,6 @@ return [
     'alert_qty_is_invalid' => 'Selected quantity is not divisive by the minimum quantity of %s.',
     'alert_qty_is_below_min_qty' => 'Selected quantity is below the menu\'s minimum quantity of %s.',
     'alert_no_search_query' => 'Please type in a postcode/address to check if we can deliver to you.',
-    'alert_location_required' => 'No location found or selected',
     'alert_location_closed' => 'Sorry, you can\'t place an order now, we are currently closed,<br /> please come back later during our opening times.',
     'alert_order_unavailable' => 'This restaurant is unavailable to take orders at the moment.',
     'alert_delivery_unavailable' => 'This restaurant is unavailable to take delivery orders at the moment.',
@@ -95,6 +99,7 @@ return [
     'alert_menu_not_within_mealtime' => '%s is available for %s ONLY between (%s - %s)',
     'alert_coupon_location_restricted' => 'Your coupon can not be applied on the selected order location.',
     'alert_menu_location_restricted' => 'Menu [%s] does not be belong to the selected order location.',
+    'alert_tip_not_applied' => 'Please enter a valid tip amount.',
 
     'help_show_cart_images' => 'Show or hide cart menu images',
     'help_cart_image_size' => '(Height x Width)',
@@ -108,6 +113,7 @@ return [
     'help_coupon_condition' => 'Applies coupon to cart.',
     'help_tax_condition' => 'Applies tax to cart',
     'help_payment_fee' => 'Applies payment fee to cart',
+    'help_tip_condition' => 'Applies tips to cart.',
 
     'checkout' => [
         'text_heading' => 'Checkout',
@@ -168,6 +174,7 @@ return [
         'alert_customer_not_logged' => 'Almost there, Please login or register to complete checkout.',
         'alert_delivery_area_changed' => 'Your delivery area has changed, please confirm the delivery cost.',
 
+        'activity_order_created_title' => 'New order placed',
         'activity_order_created' => '<b>:properties.full_name</b> created an order.',
     ],
 

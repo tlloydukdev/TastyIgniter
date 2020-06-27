@@ -27,11 +27,11 @@ $config['list']['toolbar'] = [
             'data-request-form' => '#list-form',
             'data-request-confirm' => 'lang:admin::lang.alert_warning_confirm',
         ],
-        'filter' => [
-            'label' => 'lang:admin::lang.button_icon_filter',
-            'class' => 'btn btn-default btn-filter',
-            'data-toggle' => 'list-filter',
-            'data-target' => '.list-filter',
+        'sliders' => [
+            'label' => lang('igniter.frontend::default.slider.text_title'),
+            'class' => 'btn btn-default',
+            'href' => 'igniter/frontend/sliders',
+            'permission' => 'Igniter.FrontEnd.ManageSlideshow',
         ],
     ],
 ];
@@ -101,7 +101,7 @@ $config['form']['fields'] = [
     ],
     'type' => [
         'label' => 'lang:igniter.frontend::default.banners.label_type',
-        'type' => 'radio',
+        'type' => 'radiotoggle',
         'default' => 'image',
         'options' => [
             'image' => 'lang:igniter.frontend::default.banners.text_image',

@@ -2,8 +2,9 @@
 
 return [
 
+    'text_side_menu' => 'Banners & Sliders',
+
     'banners' => [
-        '_text_title' => 'Banners',
         'text_tab_general' => 'General',
         'component_title' => 'Banner Component',
         'component_desc' => 'Displays banners',
@@ -74,7 +75,6 @@ return [
         'component_desc' => 'Displays images slider on homepage',
         'text_form_name' => 'Slider',
         'text_empty' => 'There are no sliders available.',
-        'text_side_menu' => 'Sliders',
 
         'text_tab_slides' => 'Slides',
 
@@ -92,7 +92,6 @@ return [
     ],
 
     'newsletter' => [
-        '_text_title' => 'Newsletter',
         'text_tab_general' => 'General',
         'component_title' => 'Newsletter Component',
         'component_desc' => 'Displays the subscribe to newsletter form',
@@ -107,7 +106,6 @@ return [
     ],
 
     'featured' => [
-        '_text_title' => 'Featured Menu Item',
         'text_tab_general' => 'General',
         'component_title' => 'Featured Menu Component',
         'component_desc' => 'Displays list of featured menus on the store front',

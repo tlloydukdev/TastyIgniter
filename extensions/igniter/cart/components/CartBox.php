@@ -4,13 +4,15 @@ use ApplicationException;
 use Cart;
 use Exception;
 use Igniter\Cart\Classes\CartManager;
+use Igniter\Cart\Models\CartSettings;
 use Location;
-use Main\Template\Page;
 use Redirect;
 use Request;
 
 class CartBox extends \System\Classes\BaseComponent
 {
+    use \Main\Traits\UsesPage;
+
     /**
      * @var \Igniter\Cart\Classes\CartManager
      */
@@ -63,17 +65,23 @@ class CartBox extends \System\Classes\BaseComponent
                 'type' => 'switch',
                 'default' => FALSE,
             ],
+            'hideZeroOptionPrices' => [
+                'label' => 'Whether to hide zero prices on options',
+                'type' => 'switch',
+                'default' => FALSE,
+            ],
             'checkoutPage' => [
                 'label' => 'Checkout Page',
                 'type' => 'select',
+                'options' => [static::class, 'getThemePageOptions'],
                 'default' => 'checkout/checkout',
             ],
+            'localBoxAlias' => [
+                'label' => 'Specify the LocalBox component alias used to refresh the localbox after the order type is changed',
+                'type' => 'text',
+                'default' => 'localBox',
+            ],
         ];
-    }
-
-    public static function getCheckoutPageOptions()
-    {
-        return Page::lists('baseFileName', 'baseFileName');
     }
 
     public function onRun()
@@ -93,47 +101,40 @@ class CartBox extends \System\Classes\BaseComponent
         $this->page['cartBoxTimeFormat'] = $this->property('cartBoxTimeFormat');
         $this->page['pageIsCart'] = $this->property('pageIsCart');
         $this->page['pageIsCheckout'] = $this->property('pageIsCheckout');
+        $this->page['hideZeroOptionPrices'] = (bool)$this->property('hideZeroOptionPrices');        
 
         $this->page['checkoutEventHandler'] = $this->getEventHandler('onProceedToCheckout');
-        $this->page['changeOrderTypeEventHandler'] = $this->getEventHandler('onChangeOrderType');
         $this->page['updateCartItemEventHandler'] = $this->getEventHandler('onUpdateCart');
         $this->page['applyCouponEventHandler'] = $this->getEventHandler('onApplyCoupon');
+        $this->page['applyTipEventHandler'] = $this->getEventHandler('onApplyTip');
         $this->page['loadCartItemEventHandler'] = $this->getEventHandler('onLoadItemPopup');
         $this->page['removeCartItemEventHandler'] = $this->getEventHandler('onRemoveItem');
         $this->page['removeConditionEventHandler'] = $this->getEventHandler('onRemoveCondition');
+        $this->page['refreshCartEventHandler'] = $this->getEventHandler('onRefresh');
 
         $this->page['cart'] = $this->cartManager->getCart();
         $this->page['location'] = Location::instance();
         $this->page['locationCurrent'] = Location::current();
     }
 
-    public function onChangeOrderType()
+    public function fetchPartials()
     {
-        try {
-            if (!$location = Location::current())
-                throw new ApplicationException(lang('igniter.cart::default.alert_location_required'));
+        $this->prepareVars();
 
-            if (!Location::checkOrderType($orderType = post('type')))
-                throw new ApplicationException(lang('igniter.cart::default.alert_'.$orderType.'_unavailable'));
+        return [
+            '#notification' => $this->renderPartial('flash'),
+            '#cart-items' => $this->renderPartial('@items'),
+            '#cart-coupon' => $this->renderPartial('@coupon_form'),
+            '#cart-tip' => $this->renderPartial('@tip_form'),
+            '#cart-totals' => $this->renderPartial('@totals'),
+            '#cart-buttons' => $this->renderPartial('@buttons'),
+            '[data-cart-total]' => currency_format(Cart::total()),
+        ];
+    }
 
-            Location::updateOrderType($orderType);
-
-            $this->controller->pageCycle();
-
-            if ($this->property('pageIsCheckout'))
-                return Redirect::to($this->controller->pageUrl($this->property('checkoutPage')));
-
-            return [
-                '#notification' => $this->renderPartial('flash'),
-                '#cart-control' => $this->renderPartial('@control'),
-                '#cart-totals' => $this->renderPartial('@totals'),
-                '#cart-buttons' => $this->renderPartial('@buttons'),
-            ];
-        }
-        catch (Exception $ex) {
-            if (Request::ajax()) throw $ex;
-            else flash()->danger($ex->getMessage())->now();
-        }
+    public function onRefresh()
+    {
+        return $this->fetchPartials();
     }
 
     public function onLoadItemPopup()
@@ -145,6 +146,10 @@ class CartBox extends \System\Classes\BaseComponent
             $cartItem = $this->cartManager->getCartItem($rowId);
             $menuItem = $cartItem->model;
         }
+
+        $this->cartManager->validateMenuItem($menuItem);
+
+        $this->cartManager->validateMenuItemStockQty($menuItem, $cartItem ? $cartItem->qty : 0);
 
         $this->controller->pageCycle();
 
@@ -164,14 +169,7 @@ class CartBox extends \System\Classes\BaseComponent
 
             $this->controller->pageCycle();
 
-            return [
-                '#notification' => $this->renderPartial('flash'),
-                '#cart-items' => $this->renderPartial('@items'),
-                '#cart-coupon' => $this->renderPartial('@coupon_form'),
-                '#cart-total' => currency_format(Cart::total()),
-                '#cart-totals' => $this->renderPartial('@totals'),
-                '#cart-buttons' => $this->renderPartial('@buttons'),
-            ];
+            return $this->fetchPartials();
         }
         catch (Exception $ex) {
             if (Request::ajax()) throw $ex;
@@ -189,13 +187,7 @@ class CartBox extends \System\Classes\BaseComponent
 
             $this->controller->pageCycle();
 
-            return [
-                '#notification' => $this->renderPartial('flash'),
-                '#cart-items' => $this->renderPartial('@items'),
-                '#cart-coupon' => $this->renderPartial('@coupon_form'),
-                '#cart-totals' => $this->renderPartial('@totals'),
-                '#cart-buttons' => $this->renderPartial('@buttons'),
-            ];
+            return $this->fetchPartials();
         }
         catch (Exception $ex) {
             if (Request::ajax()) throw $ex;
@@ -210,11 +202,33 @@ class CartBox extends \System\Classes\BaseComponent
 
             $this->controller->pageCycle();
 
-            return [
-                '#cart-totals' => $this->renderPartial('@totals'),
-                '#cart-buttons' => $this->renderPartial('@buttons'),
-                '#notification' => $this->renderPartial('flash'),
-            ];
+            return $this->fetchPartials();
+        }
+        catch (Exception $ex) {
+            if (Request::ajax()) throw $ex;
+            else flash()->alert($ex->getMessage());
+        }
+    }
+
+    public function onApplyTip()
+    {
+        try {
+            $amountType = post('amount_type');
+            if (!in_array($amountType, ['none', 'amount', 'custom']))
+                throw new ApplicationException(lang('igniter.cart::default.alert_tip_not_applied'));
+
+            $amount = post('amount');
+//            if (preg_match('/^\d+([\.\d]{2})?([%])?$/', $amount) === FALSE)
+//                throw new ApplicationException(lang('igniter.cart::default.alert_tip_not_applied'));
+
+            $this->cartManager->applyCondition('tip', [
+                'amountType' => $amountType,
+                'amount' => $amount,
+            ]);
+
+            $this->controller->pageCycle();
+
+            return $this->fetchPartials();
         }
         catch (Exception $ex) {
             if (Request::ajax()) throw $ex;
@@ -231,11 +245,7 @@ class CartBox extends \System\Classes\BaseComponent
             $this->cartManager->removeCondition($conditionId);
             $this->controller->pageCycle();
 
-            return [
-                '#notification' => $this->renderPartial('flash'),
-                '#cart-totals' => $this->renderPartial('@totals'),
-                '#cart-buttons' => $this->renderPartial('@buttons'),
-            ];
+            return $this->fetchPartials();
         }
         catch (Exception $ex) {
             if (Request::ajax()) throw $ex;
@@ -247,7 +257,7 @@ class CartBox extends \System\Classes\BaseComponent
     {
         try {
             if (!is_numeric($id = post('locationId')) OR !$location = Location::getById($id))
-                throw new ApplicationException(lang('igniter.cart::default.alert_location_required'));
+                throw new ApplicationException(lang('igniter.local::default.alert_location_required'));
 
             Location::setCurrent($location);
 
@@ -259,5 +269,56 @@ class CartBox extends \System\Classes\BaseComponent
             if (Request::ajax()) throw $ex;
             else flash()->alert($ex->getMessage());
         }
+    }
+
+    public function locationIsClosed()
+    {
+        $location = Location::instance();
+        $workingSchedule = $location->workingSchedule($location->orderType());
+        if ($workingSchedule->isClosed() AND !$location->current()->hasFutureOrder())
+            return TRUE;
+
+        return !$location->checkOrderType() ? TRUE : FALSE;
+    }
+
+    public function hasMinimumOrder()
+    {
+        $location = Location::instance();
+        $subtotal = $this->cartManager->getCart()->subtotal();
+
+        return ($location->orderTypeIsDelivery() AND !$location->checkMinimumOrder($subtotal));
+    }
+
+    public function buttonLabel()
+    {
+        if ($this->locationIsClosed())
+            return lang('igniter.cart::default.text_is_closed');
+
+        if (!$this->property('pageIsCheckout'))
+            return lang('igniter.cart::default.button_order');
+
+        return lang('igniter.cart::default.button_confirm');
+    }
+
+    public function tippingEnabled()
+    {
+        return (bool)CartSettings::get('enable_tipping');
+    }
+
+    public function tippingAmounts()
+    {
+        $result = [];
+
+        $tipValueType = CartSettings::get('tip_value_type', 'F');
+        $amounts = (array)CartSettings::get('tip_amounts', []);
+
+        $amounts = sort_array($amounts, 'priority');
+
+        foreach ($amounts as $index => $amount) {
+            $amount['valueType'] = $tipValueType;
+            $result[$index] = (object)$amount;
+        }
+
+        return $result;
     }
 }

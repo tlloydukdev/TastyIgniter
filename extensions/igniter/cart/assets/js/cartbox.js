@@ -11,7 +11,6 @@
 
     CartBox.prototype.init = function () {
         $(document).on('click', '[data-cart-control]', $.proxy(this.onControlClick, this))
-        this.$el.on('change', '[data-cart-toggle="order-type"]', $.proxy(this.onOrderTypeToggle, this))
     }
 
     CartBox.prototype.initAffix = function () {
@@ -30,6 +29,7 @@
     }
 
     CartBox.prototype.refreshCart = function ($el) {
+        $.request(this.options.refreshCartHandler)
     }
 
     CartBox.prototype.loadItem = function ($el) {
@@ -60,6 +60,38 @@
         $.request(this.options.applyCouponHandler, {
             data: {code: $input.val()}
         })
+    }
+
+    CartBox.prototype.applyTip = function ($el) {
+        var $input = this.$el.find('[name="amount"]'),
+            amountType = this.$el.find('[name="amount_type"]').val()
+
+        $.request(this.options.applyTipHandler, {
+            data: {amount: $input.val(), amount_type: amountType}
+        })
+    }
+
+    CartBox.prototype.updateTipAmount = function ($el) {
+        var tipAmountType = $el.data('tipAmountType'),
+            tipValue = $el.data('tipValue'),
+            $tipCustomInput = this.$el.find('[data-tip-custom]')
+
+        if ($el.hasClass('active'))
+            return
+
+        $tipCustomInput.hide();
+        this.$el.find('[name="amount_type"]').val(tipAmountType);
+        this.$el.find('[name="amount"]').val(tipValue !== undefined ? tipValue : 0);
+
+        if (tipAmountType === 'custom') {
+            $tipCustomInput.show();
+            this.$el.find('[data-tip-amount-type]').removeClass('active')
+            this.$el.find('[data-tip-amount-type="custom"]').addClass('active')
+            return
+        }
+
+        this.$el.find('[data-cart-control="tip-amount"]').prop('disabled', true)
+        this.applyTip()
     }
 
     CartBox.prototype.removeCondition = function ($el) {
@@ -94,23 +126,15 @@
             case 'apply-coupon':
                 this.applyCoupon($el)
                 break
+            case 'apply-tip':
+                this.applyTip($el)
+                break
+            case 'tip-amount':
+                this.updateTipAmount($el)
+                break
         }
 
         return false
-    }
-
-    CartBox.prototype.onOrderTypeToggle = function (event) {
-        var $el = $(event.currentTarget),
-            $parentEl = $el.closest('#cart-control')
-
-        $parentEl.find('[data-cart-toggle="order-type"]').attr('disabled', true)
-        $parentEl.find('.btn').addClass('disabled')
-        $.request(this.options.changeOrderTypeHandler, {
-            data: {'type': $el.val()}
-        }).always(function () {
-            $parentEl.find('[data-cart-toggle="order-type"]').attr('disabled', false)
-            $parentEl.find('.btn').removeClass('disabled')
-        })
     }
 
     CartBox.DEFAULTS = {
@@ -119,8 +143,8 @@
         updateItemHandler: null,
         removeItemHandler: null,
         applyCouponHandler: null,
-        removeConditionHandler: null,
-        changeOrderTypeHandler: null,
+        applyTipHandler: null,
+        removeConditionHandler: null
     }
 
     // PLUGIN DEFINITION

@@ -3,7 +3,6 @@
 namespace Igniter\Cart\Classes;
 
 use Admin\Models\Addresses_model;
-use Admin\Models\Payments_model;
 use ApplicationException;
 use Auth;
 use Cart;
@@ -93,13 +92,18 @@ class OrderManager
         return $query->first();
     }
 
+    public function getDefaultPayment()
+    {
+        return $this->getPaymentGateways()->where('is_default', TRUE)->first();
+    }
+
     /**
      * @param $code
      * @return \Admin\Models\Payments_model|\Admin\Classes\BasePaymentGateway
      */
     public function getPayment($code)
     {
-        return Payments_model::whereCode($code)->first();
+        return $this->getPaymentGateways()->where('code', $code)->first();
     }
 
     public function getPaymentGateways()
@@ -133,6 +137,9 @@ class OrderManager
         $addressString = implode(' ', array_only($address, [
             'address_1', 'address_2', 'city', 'state', 'postcode', 'country',
         ]));
+
+        if (!$this->location->requiresUserPosition())
+            return;
 
         $collection = app('geocoder')->geocode($addressString);
         if (!$collection OR $collection->isEmpty())
@@ -181,7 +188,7 @@ class OrderManager
 
         $this->setCurrentOrderId($order->order_id);
 
-        $order->addOrderMenus(Cart::content());
+        $order->addOrderMenus(Cart::content()->all());
         $order->addOrderTotals($this->getCartTotals());
 
         // Lets log the coupon so we can redeem it later
@@ -216,7 +223,12 @@ class OrderManager
             ));
         }
 
-        $result = $paymentMethod->processPaymentForm($data, $paymentMethod, $order);
+        if (array_get($data, 'pay_from_profile') == 1) {
+            $result = $paymentMethod->payFromPaymentProfile($order, $data);
+        }
+        else {
+            $result = $paymentMethod->processPaymentForm($data, $paymentMethod, $order);
+        }
 
         return $result;
     }
@@ -232,11 +244,13 @@ class OrderManager
             $order->order_time = $orderDateTime->format('H:i');
         }
 
-        $order->payment = $this->getCurrentPaymentCode();
-
         $order->total_items = $this->cart->count();
         $order->cart = $this->cart->content();
         $order->order_total = $this->cart->total();
+
+        $order->payment = $order->order_total > 0 ? $this->getCurrentPaymentCode() : '';
+
+        $this->applyCurrentPaymentFee($order->payment);
 
         $order->ip_address = Request::getClientIp();
     }
@@ -254,7 +268,7 @@ class OrderManager
         ];
     }
 
-    protected function getCartTotals()
+    public function getCartTotals()
     {
         $totals = $this->cart->conditions()->map(function (CartCondition $condition) {
             $priority = $condition->getPriority();
@@ -356,6 +370,20 @@ class OrderManager
 
     public function getCurrentPaymentCode()
     {
-        return $this->getSession('paymentCode');
+        return $this->getSession('paymentCode', optional($this->getDefaultPayment())->code);
+    }
+
+    public function applyCurrentPaymentFee($code)
+    {
+        $this->setCurrentPaymentCode($code);
+
+        if (!$condition = $this->cart->getCondition('paymentFee'))
+            return;
+
+        $condition->setMetaData(['code' => $code]);
+
+        $this->cart->loadCondition($condition);
+
+        return $condition;
     }
 }

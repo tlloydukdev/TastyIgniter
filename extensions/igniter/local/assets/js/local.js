@@ -17,7 +17,7 @@
             cartWidth = $affixEl.parent().width()
 
         $affixEl.affix({
-            offset: {top: offsetTop, bottom: offsetBottom}
+            offset: { top: offsetTop, bottom: offsetBottom }
         })
 
         $affixEl.on('affixed.bs.affix', function () {
@@ -32,7 +32,7 @@
         $el.find('input[type="radio"]').attr('disabled', true)
         $el.find('.btn').addClass('disabled')
         $.request($el.data('handler'), {
-            data: {'type': $input.val()}
+            data: { 'type': $input.val() }
         }).always(function () {
             $el.find('input[type="radio"]').attr('disabled', false)
             $el.find('.btn').removeClass('disabled')

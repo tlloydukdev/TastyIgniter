@@ -19,13 +19,15 @@ class Extension extends BaseExtension
         $this->app->register(\Igniter\Flame\Cart\CartServiceProvider::class);
 
         AliasLoader::getInstance()->alias('Cart', \Igniter\Flame\Cart\Facades\Cart::class);
-
-        $this->app->make(\Illuminate\Contracts\Http\Kernel::class)
-                  ->pushMiddleware(\Igniter\Cart\Middleware\CartMiddleware::class);
     }
 
     public function boot()
     {
+        if (!$this->app->runningInAdmin()) {
+            $this->app->make(\Illuminate\Contracts\Http\Kernel::class)
+                ->pushMiddleware(\Igniter\Cart\Middleware\CartMiddleware::class);
+        }
+
         $this->bindCartEvents();
         $this->bindCheckoutEvents();
         $this->bindOrderStatusEvent();
@@ -49,6 +51,11 @@ class Extension extends BaseExtension
                 'label' => 'lang:igniter.cart::default.text_vat',
                 'description' => 'lang:igniter.cart::default.help_tax_condition',
             ],
+            \Igniter\Cart\CartConditions\Tip::class => [
+                'name' => 'tip',
+                'label' => 'lang:igniter.cart::default.text_tip',
+                'description' => 'lang:igniter.cart::default.help_tip_condition',
+            ], 
         ];
     }
 
@@ -64,22 +71,6 @@ class Extension extends BaseExtension
             'conditions' => [
                 \Igniter\Cart\AutomationRules\Conditions\OrderAttribute::class,
                 \Igniter\Cart\AutomationRules\Conditions\OrderStatusAttribute::class,
-            ],
-        ];
-    }
-
-    public function registerEventRules()
-    {
-        return [
-            'events' => [
-                'admin.order.paymentProcessed' => \Igniter\Cart\EventRules\Events\OrderPlaced::class,
-                'igniter.cart.beforeAddOrderStatus' => \Igniter\Cart\EventRules\Events\NewOrderStatus::class,
-                'igniter.cart.orderAssigned' => \Igniter\Cart\EventRules\Events\OrderAssigned::class,
-            ],
-            'actions' => [],
-            'conditions' => [
-                \Igniter\Cart\EventRules\Conditions\OrderAttribute::class,
-                \Igniter\Cart\EventRules\Conditions\OrderStatusAttribute::class,
             ],
         ];
     }
@@ -151,7 +142,7 @@ class Extension extends BaseExtension
     public function registerActivityTypes()
     {
         return [
-            ActivityTypes\OrderCreated::class,
+            ActivityTypes\OrderCreated::class => 'orderCreated',
         ];
     }
 
@@ -163,7 +154,7 @@ class Extension extends BaseExtension
             Config::set('cart.abandonedCart', CartSettings::get('abandoned_cart'));
         });
 
-        Event::listen('cart.afterRegister', function ($cart) {
+        Event::listen('cart.afterRegister', function ($cart, $instance) {
             if (Location::current())
                 $cart->instance('location-'.Location::getId());
 

@@ -4,6 +4,8 @@ $orderTimeIsAsap = $location->orderTimeIsAsap();
 ?>
 <div
     class="dropdown"
+    data-control="timepicker"
+    data-time-slot="<?= e(json_encode($locationTimeslot)); ?>"
 >
     <button
         class="btn btn-light btn-timepicker btn-block dropdown-toggle text-truncate"

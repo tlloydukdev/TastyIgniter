@@ -1,4 +1,5 @@
 <?php
+
 // Does not appear to be used
 // cartBox/control.php seems to be in use
 if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
@@ -14,7 +15,7 @@ if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
     >
         <?php if ($locationCurrent->hasDelivery()) { ?>
             <label
-                class="btn btn-light <?= $location->orderTypeIsDelivery() ? 'active' : ''; ?>">
+                class="btn btn-<?= $location->orderTypeIsDelivery() ? 'primary' : 'light'?> <?= $location->orderTypeIsDelivery() ? 'active' : ''; ?>">
                 <input
                     type="radio"
                     name="order_type"
@@ -36,7 +37,7 @@ if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
             </label>
         <?php } ?>
         <?php if ($locationCurrent->hasCollection()) { ?>
-            <label class="btn btn-light <?= $location->orderTypeIsCollection() ? 'active' : ''; ?>">
+            <label class="btn btn-<?= $location->orderTypeIsCollection() ? 'primary' : 'light'; ?> <?= $location->orderTypeIsCollection() ? 'active' : ''; ?>">
                 <input
                     type="radio"
                     name="order_type"
@@ -57,6 +58,15 @@ if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
                     </span>
             </label>
         <?php } ?>
+    </div>
+    <div class="col-sm-12 mb-3 mb-sm-3 pr-0 pl-0">
+        <div
+            id="local-timeslot"
+            data-control="timepicker"
+            data-time-slot="<?= e(json_encode($locationTimeslot)); ?>"
+        >
+            <?= partial('@timeslot'); ?>
+        </div>
     </div>
     <?php if ($location->orderTypeIsDelivery()) { ?>
         <p class="text-muted text-center">
