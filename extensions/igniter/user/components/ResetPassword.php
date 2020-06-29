@@ -63,7 +63,7 @@ class ResetPassword extends BaseComponent
     public function onForgotPassword()
     {
         $namedRules = [
-            ['email', 'lang:igniter.user::default.reset.label_email', 'required|email|between:6,255'],
+            ['email', 'lang:igniter.user::default.reset.label_email', 'required|email:filter|max:96'],
         ];
 
         $this->validate(post(), $namedRules);
@@ -95,7 +95,7 @@ class ResetPassword extends BaseComponent
 
         $customer = Customers_model::whereResetCode($code = post('code'))->first();
 
-        if (!$customer OR $customer->completeResetPassword($code, post('password')))
+        if (!$customer OR !$customer->completeResetPassword($code, post('password')))
             throw new ApplicationException(lang('igniter.user::default.reset.alert_reset_failed'));
 
         flash()->success(lang('igniter.user::default.reset.alert_reset_success'));

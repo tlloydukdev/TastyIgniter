@@ -1,0 +1,8 @@
+{
+  "code": "igniter.pushorder",
+  "name": "Push Order",
+  "description": "Sends a push notification on order change",
+  "version": "1.0.0",
+  "icon": "fa-envelope",
+  "author": "Tim Lloyd"
+}

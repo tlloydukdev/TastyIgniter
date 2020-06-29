@@ -8,6 +8,7 @@ use Auth;
 use Cart;
 use Event;
 use Exception;
+use Igniter\Flame\Exception\ValidationException;
 use Igniter\User\ActivityTypes\CustomerRegistered;
 use Mail;
 use Redirect;
@@ -150,7 +151,7 @@ class Account extends \System\Classes\BaseComponent
     {
         try {
             $namedRules = [
-                ['email', 'lang:igniter.user::default.settings.label_email', 'required|email'],
+                ['email', 'lang:igniter.user::default.settings.label_email', 'required|email:filter|max:96'],
                 ['password', 'lang:igniter.user::default.login.label_password', 'required|min:6|max:32'],
                 ['remember', 'lang:igniter.user::default.login.label_remember', 'integer'],
             ];
@@ -168,7 +169,7 @@ class Account extends \System\Classes\BaseComponent
             if (!Auth::authenticate($credentials, $remember, TRUE))
                 throw new ApplicationException(lang('igniter.user::default.login.alert_invalid_login'));
 
-            Event::fire('igniter.user.login', [$this]);
+            Event::fire('igniter.user.login', [$this], TRUE);
 
             if ($redirect = input('redirect'))
                 return Redirect::to($this->controller->pageUrl($redirect));
@@ -176,10 +177,8 @@ class Account extends \System\Classes\BaseComponent
             if ($redirectUrl = $this->controller->pageUrl($this->property('redirectPage')))
                 return Redirect::intended($redirectUrl);
         }
-        catch (Exception $ex) {
-            flash()->warning($ex->getMessage());
-
-            return Redirect::back()->withInput();
+        catch (ValidationException $ex) {
+            throw new ApplicationException(implode(PHP_EOL, $ex->getErrors()->all()));
         }
     }
 
@@ -192,9 +191,9 @@ class Account extends \System\Classes\BaseComponent
             $data = post();
 
             $rules = [
-                ['first_name', 'lang:igniter.user::default.settings.label_first_name', 'required|min:2|max:32'],
-                ['last_name', 'lang:igniter.user::default.settings.label_last_name', 'required|min:2|max:32'],
-                ['email', 'lang:igniter.user::default.settings.label_email', 'required|email|unique:customers,email'],
+                ['first_name', 'lang:igniter.user::default.settings.label_first_name', 'required|between:1,48'],
+                ['last_name', 'lang:igniter.user::default.settings.label_last_name', 'required|between:1,48'],
+                ['email', 'lang:igniter.user::default.settings.label_email', 'required|email:filter|max:96|unique:customers,email'],
                 ['password', 'lang:igniter.user::default.login.label_password', 'required|min:6|max:32|same:password_confirm'],
                 ['password_confirm', 'lang:igniter.user::default.login.label_password_confirm', 'required'],
                 ['telephone', 'lang:igniter.user::default.settings.label_telephone', 'required'],
@@ -208,8 +207,8 @@ class Account extends \System\Classes\BaseComponent
 
             Event::fire('igniter.user.beforeRegister', [&$data]);
 
-            $data['customer_group_id'] = $defaultCustomerGroupId = setting('customer_group_id');
-            $customerGroup = Customer_groups_model::find($defaultCustomerGroupId);
+            $data['customer_group_id'] = setting('customer_group_id');
+            $customerGroup = Customer_groups_model::getDefault();
             $requireActivation = ($customerGroup AND $customerGroup->requiresApproval());
             $autoActivation = !$requireActivation;
 
@@ -238,10 +237,8 @@ class Account extends \System\Classes\BaseComponent
             if ($redirectUrl = get('redirect', $redirectUrl))
                 return Redirect::intended($redirectUrl);
         }
-        catch (Exception $ex) {
-            flash()->warning($ex->getMessage());
-
-            return Redirect::back()->withInput();
+        catch (ValidationException $ex) {
+            throw new ApplicationException(implode(PHP_EOL, $ex->getErrors()->all()));
         }
     }
 
@@ -254,8 +251,8 @@ class Account extends \System\Classes\BaseComponent
             $data = post();
 
             $rules = [
-                ['first_name', 'lang:igniter.user::default.label_first_name', 'required|min:2|max:32'],
-                ['last_name', 'lang:igniter.user::default.label_last_name', 'required|min:2|max:32'],
+                ['first_name', 'lang:igniter.user::default.label_first_name', 'required|between:1,48'],
+                ['last_name', 'lang:igniter.user::default.label_last_name', 'required|between:1,48'],
                 ['old_password', 'lang:igniter.user::default.label_email', 'sometimes'],
                 ['new_password', 'lang:igniter.user::default.label_password', 'required_with:old_password|min:6|max:32|same:confirm_new_password'],
                 ['confirm_new_password', 'lang:igniter.user::default.label_password_confirm', 'required_with:old_password'],
