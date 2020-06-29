@@ -7,6 +7,9 @@ class Extension extends \System\Classes\BaseExtension
     public function boot()
     {
         $this->addCaptchaValidationRule();
+        
+        $this->loadViewsFrom(base_path() .'/extensions/igniter/frontend/views', 'igniter.frontend');
+    
     }
 
     public function register()

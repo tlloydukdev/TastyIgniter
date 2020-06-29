@@ -6,6 +6,8 @@ use Auth;
 use Cart;
 use Config;
 use Event;
+
+
 use Igniter\Cart\Models\Cart as CartStore;
 use Igniter\Cart\Models\CartSettings;
 use Igniter\Local\Facades\Location;
@@ -17,12 +19,14 @@ class Extension extends BaseExtension
     public function register()
     {
         $this->app->register(\Igniter\Flame\Cart\CartServiceProvider::class);
-
         AliasLoader::getInstance()->alias('Cart', \Igniter\Flame\Cart\Facades\Cart::class);
+        
     }
 
     public function boot()
     {
+        $this->loadViewsFrom(base_path() .'/extensions/igniter/cart/views', 'igniter.cart');
+        
         if (!$this->app->runningInAdmin()) {
             $this->app->make(\Illuminate\Contracts\Http\Kernel::class)
                 ->pushMiddleware(\Igniter\Cart\Middleware\CartMiddleware::class);

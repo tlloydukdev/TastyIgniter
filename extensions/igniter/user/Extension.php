@@ -4,6 +4,10 @@ use Auth;
 
 class Extension extends \System\Classes\BaseExtension
 {
+    public function boot()
+    {
+        $this->loadViewsFrom(base_path() .'/extensions/igniter/user/views', 'igniter.user');
+    }
     public function register()
     {
         $this->registerEventGlobalParams();
