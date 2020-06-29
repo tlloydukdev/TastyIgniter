@@ -14,6 +14,8 @@ use Admin\Traits\FormModelWidget;
 use Admin\Traits\ValidatesForm;
 use Admin\Widgets\Form;
 use Exception;
+use Event;
+use Log;
 use Igniter\Flame\Exception\ApplicationException;
 use Igniter\Flame\Exception\ValidationException;
 
@@ -173,7 +175,10 @@ class StatusEditor extends BaseFormWidget
             throw new ApplicationException($ex->getMessage());
         }
 
-        if ($this->saveRecord($saveData, $keyFrom)) {
+        if ($this->saveRecord($saveData, $keyFrom)) {           
+            if(isset($saveData['notify']) && $saveData['notify'] == 1) {
+                Event::fire('igniter.orderdashboard.orderStatusUpdated', [$saveData]);
+            }
             flash()->success(sprintf(lang('admin::lang.alert_success'), lang($this->getModeConfig('formName')).' '.'updated'))->now();
         }
         else {

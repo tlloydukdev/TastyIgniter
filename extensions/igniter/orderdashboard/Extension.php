@@ -62,6 +62,15 @@ class Extension extends BaseExtension
         });
     }
 
+    public function registerAutomationRules()
+    {
+        return [
+            'events' => [
+                'igniter.orderdashboard.orderStatusUpdated' => \Igniter\OrderDashboard\AutomationRules\Events\StatusUpdated::class,
+            ]
+        ];
+    }
+
     /**
      * Registers any front-end components implemented in this extension.
      *

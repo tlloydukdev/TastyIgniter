@@ -48,8 +48,15 @@
 
         $form.find('[data-status-comment]').html(status.status_comment)
         $form.find('[data-status-notify]').each(function () {
-            if (this.value == status.notify_customer)
-                $(this).trigger('click')
+            if (status.notify_customer) {
+                if (!$(this).is(':checked')) {
+                    $(this).trigger('click')
+                }
+            } else {
+                if ($(this).is(':checked')) {
+                    $(this).trigger('click')
+                }
+            }
         })
     }
 
