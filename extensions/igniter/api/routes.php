@@ -5,7 +5,11 @@ Route::prefix('api/v1/auth')->group(function () {
 
     Route::post('signUp', 'Igniter\\Api\\Controllers\\Users@signUp');
 
+    Route::post('setAddress', 'Igniter\\Api\\Controllers\\Users@setAddress');
+
     Route::post('setLocation', 'Igniter\\Api\\Controllers\\Users@setLocation');
+
+    Route::get('getLocation', 'Igniter\\Api\\Controllers\\Users@getLocation');
 
     Route::post('validateToken', 'Igniter\\Api\\Controllers\\Users@validateToken');
 

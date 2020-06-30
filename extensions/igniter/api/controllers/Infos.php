@@ -96,16 +96,25 @@ class Infos extends \Admin\Classes\AdminController {
             $currentWeekDay = ((int)date('w') + 7 - 1) % 7;
             $currentTime = date('H:i');
             $locationArea = $this->locationAreaModel->where('area_id', $request['user']['areaId'])->first();
-            $location = $this->locationModel->where('location_id', $request['user']['locationId'])->first();
-            if($locationArea->conditions[0]['amount'] == '0.00' && $locationArea->conditions[0]['total'] == '0.00') {
-                $delivery = 'Free on all orders';
-            } else {
-                if($locationArea->conditions[0]['total'] == '0.00') {
-                    $delivery = '£' . $locationArea->conditions[0]['amount'] . ' on all orders';
+            if ($locationArea) {
+                if($locationArea->conditions[0]['amount'] == '0.00' && $locationArea->conditions[0]['total'] == '0.00') {
+                    $delivery = 'Free on all orders';
                 } else {
-                    $delivery = '£' . $locationArea->conditions[0]['amount'] . ' below ' . '£' . $locationArea->conditions[0]['total'];
+                    if($locationArea->conditions[0]['total'] == '0.00') {
+                        $delivery = '£' . $locationArea->conditions[0]['amount'] . ' on all orders';
+                    } else {
+                        $delivery = '£' . $locationArea->conditions[0]['amount'] . ' below ' . '£' . $locationArea->conditions[0]['total'];
+                    }
                 }
+            } else {
+                $delivery = 'Free on all orders';
             }
+            if ($request['user']['locationId'] == '') {
+                abort(400, lang('igniter.api::lang.location.alert_not_correct_location'));
+            }
+
+            $location = $this->locationModel->where('location_id', $request['user']['locationId'])->first();
+            
 
             $openingTimes = $location['options']['hours']['opening']['flexible'];
             for ($i = $currentWeekDay; $i < $currentWeekDay + count($openingTimes); $i++) {
@@ -183,8 +192,10 @@ class Infos extends \Admin\Classes\AdminController {
                 'specials' => $specials,
                 'categories' => $categories,
                 'categoryDetails' => $categoryDetails,
-                'deliveryAmount' => $locationArea->conditions[0]['amount'],
-                'deliveryTotal' => $locationArea->conditions[0]['total'],
+                'deliveryAmount' => ($locationArea) ? $locationArea->conditions[0]['amount'] : 0,
+                'deliveryTotal' => ($locationArea) ? $locationArea->conditions[0]['total'] : 0,
+                'offerDelivery' => ($location['options']['offer_delivery'] == 0) ? false : true,
+                'offerCollection' => ($location['options']['offer_collection'] == 0) ? false : true,
                 'coupons' => $coupons
             ];
         } catch (Exception $ex) {
@@ -227,204 +238,209 @@ class Infos extends \Admin\Classes\AdminController {
             $intent = $this->stripe->setupIntents->create([
               'customer' => $stripe_customer_id,
             ]);
-            $locationArea = $this->locationAreaModel->where('area_id', $request['user']['areaId'])->first();
-            $location = $this->locationModel->where('location_id', $locationArea->location_id)->first();
-
-            $deliveryTimeInterval = $location['options']['delivery_time_interval'];
-            $collectionTimeInterval = $location['options']['collection_time_interval'];
-
-            $deliveryLeadTime = $location['options']['delivery_lead_time'];
-            $collectionLeadTime = $location['options']['collection_lead_time'];
-
-            $deliveryTimeInterval = 30;
-            $collectionTimeInterval = 20;
-
-            $deliveryLeadTime = 30;
-            $collectionLeadTime = 20;
-
-            $currentDate = date('Y-m-d', strtotime("+" . $deliveryLeadTime . " minutes"));
-            $currentTime = date('H:i', strtotime("+" . $deliveryLeadTime . " minutes"));
-            $currentWeekDay = ((int)date('w', strtotime("+" . $deliveryLeadTime . " minutes")) + 7 - 1) % 7;
-
             $response['clientSecret'] = $intent->client_secret;
+            $locationArea = $this->locationAreaModel->where('area_id', $request['user']['areaId'])->first();
+
+            if ($locationArea) {
+                $location = $this->locationModel->where('location_id', $locationArea->location_id)->first();
+            } else {
+                $location = $this->locationModel->where('location_id', $request['user']['locationId'])->first();
+            }
             $response['delivery'] = array();
             $response['pickup'] = array();
-            $deliveryTimes = $location['options']['hours']['delivery']['flexible'];
-            $pickUpTimes = $location['options']['hours']['collection']['flexible'];
-            $currentHour = (float)explode(':', $currentTime)[0];
-            $currentMinute = (float)explode(':', $currentTime)[1];
+            $response['offerDelivery'] = ($location['options']['offer_delivery'] == 0) ? false : true;
+            if ($location['options']['offer_delivery'] == true) {
+                $deliveryTimeInterval = $location['options']['delivery_time_interval'];
+                $deliveryLeadTime = $location['options']['delivery_lead_time'];
 
-            for ($i = $currentWeekDay; $i < $currentWeekDay + count($deliveryTimes); $i++) {
-                if($deliveryTimes[$i % 7]['status'] != 0) {
-                    $date = [
-                        'id' => count($response['delivery']),
-                        'date' => date('Y-m-d', strtotime('+' . (($i - $currentWeekDay) % 7) .'days')),
-                        'day' => date('d', strtotime('+' . (($i - $currentWeekDay) % 7) .'days')),
-                        'weekDay' => $this->weekDays[$i % 7],
-                        'times' => array()
-                    ];
-                   
-                    $openHour = (float)explode(':', $deliveryTimes[$i % 7]['open'])[0];
-                    $openMinute = (float)explode(':', $deliveryTimes[$i % 7]['open'])[1];
+                $currentDate = date('Y-m-d', strtotime("+" . $deliveryLeadTime . " minutes"));
+                $currentTime = date('H:i', strtotime("+" . $deliveryLeadTime . " minutes"));
+                $currentWeekDay = ((int)date('w', strtotime("+" . $deliveryLeadTime . " minutes")) + 7 - 1) % 7;
+                
+                $deliveryTimes = $location['options']['hours']['delivery']['flexible'];
+                
+                $currentHour = (float)explode(':', $currentTime)[0];
+                $currentMinute = (float)explode(':', $currentTime)[1];
 
-                    $closeHour = (float)explode(':', $deliveryTimes[$i % 7]['close'])[0];
-                    $closeMinute = (float)explode(':', $deliveryTimes[$i % 7]['close'])[1];
+                for ($i = $currentWeekDay; $i < $currentWeekDay + count($deliveryTimes); $i++) {
+                    if($deliveryTimes[$i % 7]['status'] != 0) {
+                        $date = [
+                            'id' => count($response['delivery']),
+                            'date' => date('Y-m-d', strtotime('+' . (($i - $currentWeekDay) % 7) .'days')),
+                            'day' => date('d', strtotime('+' . (($i - $currentWeekDay) % 7) .'days')),
+                            'weekDay' => $this->weekDays[$i % 7],
+                            'times' => array()
+                        ];
+                       
+                        $openHour = (float)explode(':', $deliveryTimes[$i % 7]['open'])[0];
+                        $openMinute = (float)explode(':', $deliveryTimes[$i % 7]['open'])[1];
 
-                    if ($i == $currentWeekDay) {
-                        if ($currentTime <= $deliveryTimes[$i % 7]['open']) {
-                            $currentHour = $openHour;
-                            $currentMinute = $openMinute;
-                        } else {
-                            for($j = 0; $j <= 60; $j += $deliveryTimeInterval)
-                            {
-                                if($currentMinute < $j)
+                        $closeHour = (float)explode(':', $deliveryTimes[$i % 7]['close'])[0];
+                        $closeMinute = (float)explode(':', $deliveryTimes[$i % 7]['close'])[1];
+
+                        if ($i == $currentWeekDay) {
+                            if ($currentTime <= $deliveryTimes[$i % 7]['open']) {
+                                $currentHour = $openHour;
+                                $currentMinute = $openMinute;
+                            } else {
+                                for($j = 0; $j <= 60; $j += $deliveryTimeInterval)
                                 {
-                                    $currentMinute = ($j >= 60) ? '00' : $j;
-                                    if ($j >= 60)
-                                        $currentHour += 1;
-                                    break;
+                                    if($currentMinute < $j)
+                                    {
+                                        $currentMinute = ($j >= 60) ? '00' : $j;
+                                        if ($j >= 60)
+                                            $currentHour += 1;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                    } else {
-                        $currentHour = $openHour;
-                        $currentMinute = $openMinute;
-                    }
-
-                    $currentHour += ($currentMinute / 60);
-                    $closeHour += ($closeMinute / 60);
-
-                    $hourDelta = $deliveryTimeInterval / 60;
-                    for ($j = $currentHour; $j < $closeHour; $j += $hourDelta) {
-
-                        $orderMin = (int)(($j - (int)$j) * 60);
-                        $orderHour = $j;
-                        if($orderMin % 5 != 0)
-                        {
-                            $orderMin += (5 - ($orderMin % 5));
-                        }
-                        if($orderMin >= 60)
-                        {
-                            $orderMin = 0;
-                            $orderHour += 1;
-                        }
-                        $k = $j + $hourDelta;
-                        $showMin = (int)(($k - (int)$k) * 60);
-                        $showHour = $k;
-                        if($showMin % 5 != 0)
-                        {
-                            $showMin += (5 - ($showMin % 5));
-                        }
-                        if($showMin >= 60)
-                        {
-                            $showMin = 0;
-                            $showHour += 1;
-                        }
-                        if (((int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin)) >= $deliveryTimes[$i % 7]['close'])
-                        {
-                            break;
-                        }
-
-                        $temp = [
-                            'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin),
-                            'showTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ' - ' .(int)$showHour . ':' . (($showMin < 10) ? ('0' . $showMin) : $showMin),
-                        ];
-                        array_push($date['times'], $temp);
-                    }
-
-                    if(count($date['times']) > 0)
-                        array_push($response['delivery'], $date);
-                }
-            }
-
-            $currentDate = date('Y-m-d', strtotime("+" . $collectionLeadTime . " minutes"));
-            $currentTime = date('H:i', strtotime("+" . $collectionLeadTime . " minutes"));
-            $currentWeekDay = ((int)date('w', strtotime("+" . $collectionLeadTime . " minutes")) + 7 - 1) % 7;
-
-            $currentHour = (float)explode(':', $currentTime)[0];
-            $currentMinute = (float)explode(':', $currentTime)[1];
-            for ($i = $currentWeekDay; $i < $currentWeekDay + count($pickUpTimes); $i++) {
-                if($pickUpTimes[$i % 7]['status'] != 0) {
-                    $date = [
-                        'id' => count($response['pickup']),
-                        'date' => date('Y-m-d', strtotime('+' . (($i - $currentWeekDay) % 7) .'days')),
-                        'day' => date('d', strtotime('+' . (($i - $currentWeekDay) % 7) .'days')),
-                        'weekDay' => $this->weekDays[$i % 7],
-                        'times' => array()
-                    ];
-
-                    $openHour = (float)explode(':', $pickUpTimes[$i % 7]['open'])[0];
-                    $openMinute = (float)explode(':', $pickUpTimes[$i % 7]['open'])[1];
-
-                    $closeHour = (float)explode(':', $pickUpTimes[$i % 7]['close'])[0];
-                    $closeMinute = (float)explode(':', $pickUpTimes[$i % 7]['close'])[1];
-
-                    if ($i == $currentWeekDay) {
-                        if ($currentTime <= $pickUpTimes[$i % 7]['open']) {
+                        } else {
                             $currentHour = $openHour;
                             $currentMinute = $openMinute;
-                        } else {
-                            for($j = 0; $j <= 60; $j += $collectionTimeInterval)
+                        }
+
+                        $currentHour += ($currentMinute / 60);
+                        $closeHour += ($closeMinute / 60);
+
+                        $hourDelta = $deliveryTimeInterval / 60;
+                        for ($j = $currentHour; $j < $closeHour; $j += $hourDelta) {
+
+                            $orderMin = (int)(($j - (int)$j) * 60);
+                            $orderHour = $j;
+                            if($orderMin % 5 != 0)
                             {
-                                if($currentMinute < $j)
-                                {
-                                    $currentMinute = ($j >= 60) ? '00' : $j;
-                                    if ($j >= 60)
-                                        $currentHour += 1;
-                                    break;
-                                }
+                                $orderMin += (5 - ($orderMin % 5));
                             }
+                            if($orderMin >= 60)
+                            {
+                                $orderMin = 0;
+                                $orderHour += 1;
+                            }
+                            $k = $j + $hourDelta;
+                            $showMin = (int)(($k - (int)$k) * 60);
+                            $showHour = $k;
+                            if($showMin % 5 != 0)
+                            {
+                                $showMin += (5 - ($showMin % 5));
+                            }
+                            if($showMin >= 60)
+                            {
+                                $showMin = 0;
+                                $showHour += 1;
+                            }
+                            if (((int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin)) >= $deliveryTimes[$i % 7]['close'])
+                            {
+                                break;
+                            }
+
+                            $temp = [
+                                'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin),
+                                'showTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ' - ' .(int)$showHour . ':' . (($showMin < 10) ? ('0' . $showMin) : $showMin),
+                            ];
+                            array_push($date['times'], $temp);
                         }
-                    } else {
-                        $currentHour = $openHour;
-                        $currentMinute = $openMinute;
+
+                        if(count($date['times']) > 0)
+                            array_push($response['delivery'], $date);
                     }
-
-                    $currentHour += ($currentMinute / 60);
-                    $closeHour += ($closeMinute / 60);
-
-                    $hourDelta = $collectionTimeInterval / 60;
-                    for ($j = $currentHour; $j < $closeHour; $j += $hourDelta) {
-
-                        $orderMin = (int)(($j - (int)$j) * 60);
-                        $orderHour = $j;
-                        if($orderMin % 5 != 0)
-                        {
-                            $orderMin += (5 - ($orderMin % 5));
-                        }
-                        if($orderMin >= 60)
-                        {
-                            $orderMin = 0;
-                            $orderHour += 1;
-                        }
-                        $k = $j + $hourDelta;
-                        $showMin = (int)(($k - (int)$k) * 60);
-                        $showHour = $k;
-                        if($showMin % 5 != 0)
-                        {
-                            $showMin += (5 - ($showMin % 5));
-                        }
-                        if($showMin >= 60)
-                        {
-                            $showMin = 0;
-                            $showHour += 1;
-                        }
-                        if (((int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin)) >= $pickUpTimes[$i % 7]['close'])
-                        {
-                            break;
-                        }
-
-                        $temp = [
-                            'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin),
-                            'showTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ' - ' .(int)$showHour . ':' . (($showMin < 10) ? ('0' . $showMin) : $showMin),
-                        ];
-                        array_push($date['times'], $temp);
-                    }
-
-                    if(count($date['times']) > 0)
-                        array_push($response['pickup'], $date);
                 }
             }
+            $response['offerCollection'] = ($location['options']['offer_collection'] == 0) ? false : true;
+            if ($location['options']['offer_collection'] == true) {
+                $collectionTimeInterval = $location['options']['collection_time_interval'];
+                $collectionLeadTime = $location['options']['collection_lead_time'];
+
+                $currentDate = date('Y-m-d', strtotime("+" . $collectionLeadTime . " minutes"));
+                $currentTime = date('H:i', strtotime("+" . $collectionLeadTime . " minutes"));
+                $currentWeekDay = ((int)date('w', strtotime("+" . $collectionLeadTime . " minutes")) + 7 - 1) % 7;
+                $pickUpTimes = $location['options']['hours']['collection']['flexible'];
+
+                $currentHour = (float)explode(':', $currentTime)[0];
+                $currentMinute = (float)explode(':', $currentTime)[1];
+                for ($i = $currentWeekDay; $i < $currentWeekDay + count($pickUpTimes); $i++) {
+                    if($pickUpTimes[$i % 7]['status'] != 0) {
+                        $date = [
+                            'id' => count($response['pickup']),
+                            'date' => date('Y-m-d', strtotime('+' . (($i - $currentWeekDay) % 7) .'days')),
+                            'day' => date('d', strtotime('+' . (($i - $currentWeekDay) % 7) .'days')),
+                            'weekDay' => $this->weekDays[$i % 7],
+                            'times' => array()
+                        ];
+
+                        $openHour = (float)explode(':', $pickUpTimes[$i % 7]['open'])[0];
+                        $openMinute = (float)explode(':', $pickUpTimes[$i % 7]['open'])[1];
+
+                        $closeHour = (float)explode(':', $pickUpTimes[$i % 7]['close'])[0];
+                        $closeMinute = (float)explode(':', $pickUpTimes[$i % 7]['close'])[1];
+
+                        if ($i == $currentWeekDay) {
+                            if ($currentTime <= $pickUpTimes[$i % 7]['open']) {
+                                $currentHour = $openHour;
+                                $currentMinute = $openMinute;
+                            } else {
+                                for($j = 0; $j <= 60; $j += $collectionTimeInterval)
+                                {
+                                    if($currentMinute < $j)
+                                    {
+                                        $currentMinute = ($j >= 60) ? '00' : $j;
+                                        if ($j >= 60)
+                                            $currentHour += 1;
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            $currentHour = $openHour;
+                            $currentMinute = $openMinute;
+                        }
+
+                        $currentHour += ($currentMinute / 60);
+                        $closeHour += ($closeMinute / 60);
+
+                        $hourDelta = $collectionTimeInterval / 60;
+                        for ($j = $currentHour; $j < $closeHour; $j += $hourDelta) {
+
+                            $orderMin = (int)(($j - (int)$j) * 60);
+                            $orderHour = $j;
+                            if($orderMin % 5 != 0)
+                            {
+                                $orderMin += (5 - ($orderMin % 5));
+                            }
+                            if($orderMin >= 60)
+                            {
+                                $orderMin = 0;
+                                $orderHour += 1;
+                            }
+                            $k = $j + $hourDelta;
+                            $showMin = (int)(($k - (int)$k) * 60);
+                            $showHour = $k;
+                            if($showMin % 5 != 0)
+                            {
+                                $showMin += (5 - ($showMin % 5));
+                            }
+                            if($showMin >= 60)
+                            {
+                                $showMin = 0;
+                                $showHour += 1;
+                            }
+                            if (((int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin)) >= $pickUpTimes[$i % 7]['close'])
+                            {
+                                break;
+                            }
+
+                            $temp = [
+                                'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin),
+                                'showTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin) . ' - ' .(int)$showHour . ':' . (($showMin < 10) ? ('0' . $showMin) : $showMin),
+                            ];
+                            array_push($date['times'], $temp);
+                        }
+
+                        if(count($date['times']) > 0)
+                            array_push($response['pickup'], $date);
+                    }
+                }
+            }
+            
         } catch (Exception $ex) {
             abort(500, lang('igniter.api::lang.server.internal_error'));
         }
@@ -490,9 +506,12 @@ class Infos extends \Admin\Classes\AdminController {
         try {
             $user = $this->userModel->where('customer_id', $request['customer_id'])->first();
             $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
-            $areaId = $customerSetting ? $customerSetting->area_id : '';
-            $locationArea = $this->locationAreaModel->where('area_id', $areaId)->first();
-            $locationId = $locationArea ? $locationArea->location_id : '';
+            $locationId = $request['locationId'];
+            $addressId = '';
+            if ($locationId != '') {
+                if (count($user->addresses) > 0)
+                    $addressId = $user->addresses[0]->address_id;
+            }
             $order = [
                 'customer_id' => $request->customer_id,
                 'total_items' => $request->total_items,
@@ -507,7 +526,7 @@ class Infos extends \Admin\Classes\AdminController {
                 'last_name' => $user->last_name,
                 'telephone' => $user->telephone,
                 'email' => $user->email,
-                'address_id' => $user->addresses[0]->address_id,
+                'address_id' => $addressId,
                 'location_id' => $locationId,
                 'date_added' => new DateTime(),
                 'date_modified' => new DateTime(),
@@ -649,4 +668,3 @@ class Infos extends \Admin\Classes\AdminController {
         StripeInfo::instance()->getInfo();
     }
 }
- 

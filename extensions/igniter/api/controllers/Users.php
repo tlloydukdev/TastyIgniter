@@ -73,10 +73,8 @@ class Users extends \Admin\Classes\AdminController {
             $deliveryAddress = $user->addresses[0]->address_1 . ' ' . $user->addresses[0]->address_2 . ', ' . $user->addresses[0]->postcode;
         $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
         $areaId = $customerSetting ? $customerSetting->area_id : '';
+        $locationId = $customerSetting ? $customerSetting->location_id : '';
         $stripeCustomerId = $customerSetting ? $customerSetting->stripeCustomerId : '';
-
-        $locationArea = $this->locationAreaModel->where('area_id', $areaId)->first();
-        $locationId = $locationArea ? $locationArea->location_id : '';
         
         $response['user'] = [
             'id' => $user->customer_id,
@@ -84,13 +82,49 @@ class Users extends \Admin\Classes\AdminController {
             'firstName' => $user->first_name,
             'lastName' => $user->last_name,
             'telephone' => $user->telephone,
-            'areaId' => $areaId,
             'locationId' => $locationId,
+            'areaId' => $areaId,
             'deliveryAddress' => $deliveryAddress,
             'stripeCustomerId' => $stripeCustomerId,
             'isFacebook' => ($user->isFacebook == true) ? true : false,
             'isPush' => ($isPush == 0) ? false : true
         ];
+
+        $locations = $this->locationModel->where('location_status', 1)->get();
+
+        $isLocationExist = false;
+
+        foreach ($locations as $location) {
+            if ($locationId == $location->location_id) {
+                $isLocationExist = true;
+                if ($location['options']['offer_delivery'] == false) {
+                    $response['user']['areaId'] = '';
+                    $response['user']['deliveryAddress'] = '';
+                }
+            }
+        }
+        if($isLocationExist == false) {
+            $response['user']['locationId'] = '';
+            $response['user']['areaId'] = '';
+            $response['user']['deliveryAddress'] = '';
+        }
+
+        return $response;
+    }
+
+    public function getLocation(Request $request) {
+        $response = [];
+        $locations = $this->locationModel->where('location_status', 1)->get();
+
+        foreach ($locations as $location) {
+            $temp = [
+                'locationId' => $location->location_id,
+                'locationName' => $location->location_name,
+                'offerDelivery' => ($location['options']['offer_delivery'] == 0) ? false : true,
+                'offerCollection' => ($location['options']['offer_collection'] == 0) ? false : true,
+            ];
+            array_push($response, $temp);
+        }
         return $response;
     }
 
@@ -185,15 +219,34 @@ class Users extends \Admin\Classes\AdminController {
                     ];
                     $this->customerPushModel->insertOrIgnore($setting);
                 }
+                return $this->makeUserResponse($user);
             }
-        }
-        $token = TastyJwt::instance()->makeToken($user);
-        if ($this->userModel->where('email', $request['email'])->update(['remember_token' => $token]))
-        {
-            $user = $this->userModel->where('email', $request['email'])->first();
-            if($request['isFacebook'] === true)
-                $user['isFacebook'] = true;
-            return $this->makeUserResponse($user);
+        } else {
+            if($request['isFacebook']) {
+                $token = TastyJwt::instance()->makeToken($user);
+                if ($this->userModel->where('email', $request['email'])->update(['remember_token' => $token]))
+                {
+                    $user = $this->userModel->where('email', $request['email'])->first();
+                    $user['isFacebook'] = true;
+                    if ($request['fcmToken'])
+                    {
+                        $push = $this->customerPushModel->where('customer_id', $user->customer_id)->where('device_type', $request['deviceType'])->first();
+                        if ($push) {
+                            $this->customerPushModel->where('customer_id', $user->customer_id)->where('device_type', $request['deviceType'])->update(['device_token' => $request['fcmToken']]);
+                        } else
+                        {
+                            $setting = [
+                                'customer_id' => $user->customer_id,
+                                'device_token' => $request['fcmToken'],
+                                'device_type' => $request['deviceType'],
+                            ];
+                            $this->customerPushModel->insertOrIgnore($setting);
+                        }
+                    }
+                    return $this->makeUserResponse($user);
+                }
+            }
+            abort(400, lang('igniter.api::lang.auth.alert_user_duplicated'));
         }
         abort(400, lang('igniter.api::lang.auth.alert_signup_failed'));
     }
@@ -242,7 +295,7 @@ class Users extends \Admin\Classes\AdminController {
         return TastyJwt::instance()->validateToken($request);
     }
 
-    public function setLocation(Request $request) {
+    public function setAddress(Request $request) {
         try {
             $userLocation = $this->geocodeSearchQuery($request->address['postcode']);
             $areaId = "";
@@ -255,10 +308,13 @@ class Users extends \Admin\Classes\AdminController {
             if (!$nearByLocation) {
                 abort(400, lang('igniter.api::lang.location.alert_not_correct_location'));
             }
+            if($nearByLocation->location_id != $request->user['locationId']) {
+                abort(400, lang('igniter.api::lang.location.alert_not_correct_location'));
+            }
             if ($nearByLocation->searchDeliveryArea($userLocation->getCoordinates())) {
                 $areaId = $nearByLocation->searchDeliveryArea($userLocation->getCoordinates())->area_id;
             }
-            if($this->customerSettingModel->where('customer_id', $request->user['id'])->first()) {
+            if ($this->customerSettingModel->where('customer_id', $request->user['id'])->first()) {
                 $this->customerSettingModel->where('customer_id', $request->user['id'])->update(['area_id' => $areaId]);
             }
             
@@ -286,7 +342,29 @@ class Users extends \Admin\Classes\AdminController {
             return $response;
     
         } catch (Exception $ex) {
-            abort(400, lang('igniter.api::lang.location.alert_invalid_search_query'));
+            // abort(400, lang('igniter.api::lang.location.alert_invalid_search_query'));
+            abort(400, lang('igniter.api::lang.location.alert_not_correct_location'));
+        }
+    }
+
+
+    public function setLocation(Request $request) {
+        try {
+            if ($this->customerSettingModel->where('customer_id', $request->user['id'])->first()) {
+                $this->customerSettingModel->where('customer_id', $request->user['id'])->update(['location_id' => $request->locationId, 'area_id' => null]);
+                $user = $this->userModel->where('customer_id', $request->user['id'])->first();
+                $user->addresses()->delete();
+                $location = $this->locationModel->where('location_id', $request->locationId)->first();
+                $response = [
+                    'locationId' => $location->location_id,
+                    'locationName' => $location->location_name,
+                    'offerDelivery' => ($location['options']['offer_delivery'] == 0) ? false : true,
+                    'offerCollection' => ($location['options']['offer_collection'] == 0) ? false : true,
+                ];
+                return $response;
+            }
+        } catch (Exception $ex) {
+            abort(500, lang('igniter.api::lang.server.internal_error'));
         }
     }
 
@@ -295,12 +373,15 @@ class Users extends \Admin\Classes\AdminController {
         $collection = Geocoder::geocode($searchQuery);
 
         if (!$collection OR $collection->isEmpty()) {
-            throw new ApplicationException(lang('igniter.api::lang.location.alert_invalid_search_query'));
+            // throw new ApplicationException(lang('igniter.api::lang.location.alert_invalid_search_query'));
+            throw new ApplicationException(lang('igniter.api::lang.location.alert_not_correct_location'));
         }
 
         $userLocation = $collection->first();
-        if (!$userLocation->hasCoordinates())
-            throw new ApplicationException(lang('igniter.api::lang.location.alert_invalid_search_query'));
+        if (!$userLocation->hasCoordinates()) {
+            // throw new ApplicationException(lang('igniter.api::lang.location.alert_invalid_search_query'));
+            throw new ApplicationException(lang('igniter.api::lang.location.alert_not_correct_location'));
+        }
 
         Location::updateUserPosition($userLocation);
         return $userLocation;
