@@ -1,0 +1,12 @@
+{
+  "code": "igniter.soundalert",
+  "name": "Sound Alert on new Order",
+  "description": "Plays a sound on new order",
+  "version": "1.0.0",
+  "icon": {
+    "class": "fa fa-volume-up",
+    "color": "#fff",
+    "backgroundColor": "limegreen"
+  },
+  "author": "Tim Lloyd"
+}
