@@ -1,6 +1,29 @@
 <?php 
 // $records->locationTimeSlots injected from OrderDashboard/Widgets/GroupedLists.php
 $today = date('Y-m-d'); 
+$currentDate = new DateTime($today);
+print "<pre>";
+// Prefilter records to see which ones are in timeslots
+foreach ($records->locationTimeSlots as $key => $locationTimes) {     
+    foreach($locationTimes['hours'] as $date => $hourSlots) {
+        if($date == $today) {
+            foreach($hourSlots as $hour => $hourFormatted) {  
+                $ordersInSlot = false;
+                foreach($records as &$record) {
+                    if($record->attributes['order_date'] == $today && $record->attributes['order_time']== $hour) {
+                        $record->orderInSlot = true;
+                    } else {
+                        $orderDate = new DateTime($record->attributes['order_date']);
+                        if ($orderDate < $currentDate) {
+                            $record->orderIsOld = true;
+                        }
+                    }
+                }
+            }
+        } 
+    }
+}
+
 ?>
 <tr class="groupedLocationHeader">
     <td colspan=999>
@@ -49,7 +72,18 @@ $today = date('Y-m-d');
             <td
                 class="list-col-index-<?= $index ?> list-col-name-<?= $column->getName() ?> list-col-type-<?= $column->type ?> <?= $column->cssClass ?>"
             >
+            <?php if($column->getName() == 'order-date') {
+                if($record->orderIsOld) { 
+                    echo "<span style='color: red;'>"; 
+                } 
+                ?>        
                 <?= $this->getColumnValue($record, $column) ?>
+                <?php
+                if($record->orderIsOld) { echo "</span>"; } 
+            } else {
+                ?><?= $this->getColumnValue($record, $column) ?><?php
+            }
+            ?>        
             </td>
         <?php } ?>
 
