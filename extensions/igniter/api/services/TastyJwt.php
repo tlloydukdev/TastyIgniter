@@ -5,6 +5,7 @@ namespace Igniter\Api\Services;
 // Libary Import
 use Illuminate\Support\Facades\Hash;
 use Igniter\Flame\Traits\Singleton;
+use Illuminate\Support\Facades\Log;
 
 /**
  * TastyJwt -- customized JWT plugin Service
@@ -30,16 +31,12 @@ class TastyJwt {
     }
 
     public function validateToken($request) {
-        if ($request->bearerToken()) {
-            $userModelClass = 'Admin\Models\Customers_model';
-            $userModel = new $userModelClass;
-            $user = $userModel->where('remember_token', $request->bearerToken())->first();
-            if ($user) {
-                return 1;
-            }
-            return 0;
-        } else {
-            return 0;
+        $userModelClass = 'Admin\Models\Customers_model';
+        $userModel = new $userModelClass;
+        $user = $userModel->where('remember_token', $request->bearerToken())->first();
+        if ($user) {
+            return 1;
         }
+        return 0;
     }
 }

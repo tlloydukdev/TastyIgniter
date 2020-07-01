@@ -106,7 +106,7 @@ class Infos extends \Admin\Classes\AdminController {
                         $delivery = '£' . $locationArea->conditions[0]['amount'] . ' below ' . '£' . $locationArea->conditions[0]['total'];
                     }
                 }
-            } else {
+            } else { 
                 $delivery = 'Free on all orders';
             }
             if ($request['user']['locationId'] == '') {
@@ -125,20 +125,21 @@ class Infos extends \Admin\Classes\AdminController {
                             $minute = (int)explode(':', $openingTimes[$i % 7]['open'])[1];
                             $titleOpenTime = "We're Open";
                             $titleOpenTimeColor = "green";
-                            $openTime = (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '') . ' - ';
+
+                            $openTime = (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : (($hour < 10) ? ('0' . $hour) : $hour)) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : 'AM') . ' - ';
                             $hour = (int)explode(':', $openingTimes[$i % 7]['close'])[0];
                             $minute = (int)explode(':', $openingTimes[$i % 7]['close'])[1];
-                            $openTime = $openTime . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
+                            $openTime = $openTime . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : (($hour < 10) ? ('0' . $hour) : $hour)) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : 'AM');
                             break;
                         } else if($currentTime <= $openingTimes[$i % 7]['open']) {
                             $hour = (int)explode(':', $openingTimes[$i % 7]['open'])[0];
                             $minute = (int)explode(':', $openingTimes[$i % 7]['open'])[1];
                             $titleOpenTime = "Opening Today";
                             $titleOpenTimeColor = "green";
-                            $openTime = (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '') . ' - ';
+                            $openTime = (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : (($hour < 10) ? ('0' . $hour) : $hour)) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : 'AM') . ' - ';
                             $hour = (int)explode(':', $openingTimes[$i % 7]['close'])[0];
                             $minute = (int)explode(':', $openingTimes[$i % 7]['close'])[1];
-                            $openTime = $openTime . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
+                            $openTime = $openTime . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : (($hour < 10) ? ('0' . $hour) : $hour)) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : 'AM');
                             break;
                         } else if($currentTime >= $openingTimes[$i % 7]['close']) {
                             continue;
@@ -147,12 +148,12 @@ class Infos extends \Admin\Classes\AdminController {
                     } else {
                         $hour = (int)explode(':', $openingTimes[$i % 7]['open'])[0];
                         $minute = (int)explode(':', $openingTimes[$i % 7]['open'])[1];
-                        $titleOpenTime = "Opening " . $this->weekDays[$i % 7] . " " . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
+                        $titleOpenTime = "Opening " . $this->weekDays[$i % 7] . " " . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : (($hour < 10) ? ('0' . $hour) : $hour)) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : 'AM');
                         $titleOpenTimeColor = "red";
-                        $openTime = (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '') . ' - ';
+                        $openTime = (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : (($hour < 10) ? ('0' . $hour) : $hour)) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : 'AM') . ' - ';
                         $hour = (int)explode(':', $openingTimes[$i % 7]['close'])[0];
                         $minute = (int)explode(':', $openingTimes[$i % 7]['close'])[1];
-                        $openTime = $openTime . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : $hour) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : '');
+                        $openTime = $openTime . (($hour > 12) ? (($hour - 12 < 10) ? ('0' . ($hour - 12)) : $hour) : (($hour < 10) ? ('0' . $hour) : $hour)) . ':' . (($minute < 10) ? ('0' . $minute) : $minute) . (($hour > 12) ? 'PM' : 'AM');
                         break;
                     }
                 }
@@ -161,16 +162,22 @@ class Infos extends \Admin\Classes\AdminController {
             $specailsCategoryId = $this->categoryModel->where('permalink_slug', 'specials')->first()->category_id;
 
 
-            $customSpecials = $this->menuCategoryModel::with('menu')->where('category_id', $specailsCategoryId)->get();
+            $customSpecials = $this->menuCategoryModel::with(array('menu'=>function($query){
+                $query->where('menu_status', 1);
+            }))->where('category_id', $specailsCategoryId)->get();
             $specials = array();
             foreach ($customSpecials as $special) {
                 if ($this->locationableModel->where('locationable_type', 'menus')->where('locationable_id', $special->menu_id)->where('location_id', $request['user']['locationId'])->first()) {
-                    array_push($specials, $special);
+                    if ($this->menuModel->where('menu_id', $special->menu_id)->where('menu_status', 1)->first()) {
+                        array_push($specials, $special);
+                    }
                 }
             }
 
             $categories = $this->categoryModel->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();
-            $categoryDetails = $this->categoryModel::with('menus')->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();
+            $categoryDetails = $this->categoryModel::with(array('menus'=>function($query){
+                $query->where('menu_status', 1);
+            }))->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();
             $allCoupons = $this->couponModel->get();
             $coupons = array();
             foreach ($allCoupons as $value) {
@@ -506,7 +513,7 @@ class Infos extends \Admin\Classes\AdminController {
         try {
             $user = $this->userModel->where('customer_id', $request['customer_id'])->first();
             $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
-            $locationId = $request['locationId'];
+            $locationId = $request['location_id'];
             $addressId = '';
             if ($locationId != '') {
                 if (count($user->addresses) > 0)
@@ -528,6 +535,7 @@ class Infos extends \Admin\Classes\AdminController {
                 'email' => $user->email,
                 'address_id' => $addressId,
                 'location_id' => $locationId,
+                'processed' => 1,
                 'date_added' => new DateTime(),
                 'date_modified' => new DateTime(),
             ];
