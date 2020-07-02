@@ -6,5 +6,6 @@
 
 # Ignore all vendor files included by composer and the lock file
 /vendor
+!/vendor/tastyigniter/
 composer.lock
 node_modules

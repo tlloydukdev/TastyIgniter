@@ -2,7 +2,6 @@
 // $records->locationTimeSlots injected from OrderDashboard/Widgets/GroupedLists.php
 $today = date('Y-m-d'); 
 $currentDate = new DateTime($today);
-print "<pre>";
 // Prefilter records to see which ones are in timeslots
 foreach ($records->locationTimeSlots as $key => $locationTimes) {     
     foreach($locationTimes['hours'] as $date => $hourSlots) {

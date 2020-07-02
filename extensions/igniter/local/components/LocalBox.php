@@ -287,8 +287,12 @@ class LocalBox extends \System\Classes\BaseComponent
             return;
         }
 
-        $this->location->updateOrderType(
-            $this->property('defaultOrderType', Locations_model::DELIVERY)
-        );
+        // TL grubs
+        $this->location->updateOrderType($locationCurrent->hasDelivery()
+            ? $locationCurrent::DELIVERY
+            : $locationCurrent::COLLECTION);
+        //$this->location->updateOrderType(
+        //    $this->property('defaultOrderType', Locations_model::DELIVERY)
+        //);
     }
 }

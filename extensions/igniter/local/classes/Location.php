@@ -233,12 +233,13 @@ class Location extends Manager
         $sessionDateTime = $this->getSession('order-timeslot.dateTime');
         if (!$this->orderTimeIsAsap()) {
             $dateTime = $sessionDateTime;
-        }
+        } 
 
         // TL Grubs
         // Check the session time is still valid
+        
         if (!$this->checkOrderTime(
-                $this->getSession('order-timeslot.dateTime'), 
+                $dateTime, 
                 $this->orderType(), 
                 null
                 )) {

@@ -32,6 +32,7 @@ class Infos extends \Admin\Classes\AdminController {
         'locationArea' => 'Admin\Models\Location_areas_model',
         'menuOption' => 'Admin\Models\Menu_item_options_model',
         'coupon' => 'Admin\Models\Coupons_model',
+        'couponHistory' => 'Admin\Models\Coupons_history_model',
         'order' => 'Admin\Models\Orders_model',
         'orderTotal' => 'Igniter\Api\Models\OrderTotal',
         'orderMenu' => 'Igniter\Api\Models\OrderMenu',
@@ -51,6 +52,7 @@ class Infos extends \Admin\Classes\AdminController {
     private $menuOptionModel;
     private $menuModel;
     private $couponModel;
+    private $couponHistoryModel;
     private $locationableModel;
     private $orderModel;
     private $orderTotalModel;
@@ -75,6 +77,7 @@ class Infos extends \Admin\Classes\AdminController {
         $this->menuOptionModel = new $this->modelConfig['menuOption'];
         $this->menuModel = new $this->modelConfig['menu'];
         $this->couponModel = new $this->modelConfig['coupon'];
+        $this->couponHistoryModel = new $this->modelConfig['couponHistory'];
         $this->locationableModel = new $this->modelConfig['locationable'];
         $this->orderModel = new $this->modelConfig['order'];
         $this->orderTotalModel = new $this->modelConfig['orderTotal'];
@@ -182,8 +185,10 @@ class Infos extends \Admin\Classes\AdminController {
             $coupons = array();
             foreach ($allCoupons as $value) {
                 $coupon = [
+                    'couponId' => $value->coupon_id,
                     'code' => $value->code,
                     'type' => $value->type,
+                    'minTotal' => $value->min_total,
                     'discount' => $value->discount,
                 ];
                 array_push($coupons, $coupon);
@@ -541,6 +546,23 @@ class Infos extends \Admin\Classes\AdminController {
             ];
             if ($this->orderModel->insertOrIgnore($order)) {
                 $currentOrder = $this->orderModel->where('customer_id', $request->customer_id)->orderBy('order_id', 'desc')->first();
+
+                $coupon = $this->couponModel->where('coupon_id', $request->coupon_id)->first();
+
+                if ($coupon) {
+                    $couponHistory = [
+                        'coupon_id' => $request->coupon_id,
+                        'order_id' => $currentOrder->order_id,
+                        'customer_id' => $request->customer_id,
+                        'code' => $coupon->code,
+                        'min_total' => $coupon->min_total,
+                        'amount' => $request->discount_amount,
+                        'date_used' => new DateTime(),
+                        'status' => 1,
+                    ];
+                    $this->couponHistoryModel->insertOrIgnore($couponHistory);
+                }
+                
                 $orderTotalData = [
                     'order_id' => $currentOrder->order_id,
                     'code' => 'delivery',

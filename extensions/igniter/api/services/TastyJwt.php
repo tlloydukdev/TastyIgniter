@@ -33,6 +33,9 @@ class TastyJwt {
     public function validateToken($request) {
         $userModelClass = 'Admin\Models\Customers_model';
         $userModel = new $userModelClass;
+        if ($request->bearerToken() == null) {
+            return 0;
+        }
         $user = $userModel->where('remember_token', $request->bearerToken())->first();
         if ($user) {
             return 1;

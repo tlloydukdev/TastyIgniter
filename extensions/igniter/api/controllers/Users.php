@@ -203,23 +203,27 @@ class Users extends \Admin\Classes\AdminController {
         if (!$user) {
             if ($this->userModel->insertOrIgnore($requestUser)) {
                 $user = $this->userModel->where('email', $request['email'])->first();
-                $setting = [
-                    'customer_id' => $user->customer_id,
-                    'stripe_customer_id' => $stripe_customer->id,
-                    'area_id' => null,
-                    'push_status' => 1
-                ];
-                $this->customerSettingModel->insertOrIgnore($setting);
-                if ($request['fcmToken'])
+                $token = TastyJwt::instance()->makeToken($user);
+                if ($this->userModel->where('email', $request['email'])->update(['remember_token' => $token]))
                 {
                     $setting = [
                         'customer_id' => $user->customer_id,
-                        'device_token' => $request['fcmToken'],
-                        'device_type' => $request['deviceType'],
+                        'stripe_customer_id' => $stripe_customer->id,
+                        'area_id' => null,
+                        'push_status' => 1
                     ];
-                    $this->customerPushModel->insertOrIgnore($setting);
+                    $this->customerSettingModel->insertOrIgnore($setting);
+                    if ($request['fcmToken'])
+                    {
+                        $setting = [
+                            'customer_id' => $user->customer_id,
+                            'device_token' => $request['fcmToken'],
+                            'device_type' => $request['deviceType'],
+                        ];
+                        $this->customerPushModel->insertOrIgnore($setting);
+                    }
+                    return $this->makeUserResponse($user);
                 }
-                return $this->makeUserResponse($user);
             }
         } else {
             if($request['isFacebook']) {
