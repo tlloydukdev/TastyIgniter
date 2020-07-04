@@ -21,3 +21,69 @@ tr.groupedTimeSlotHeader td {
     background-color: #888; 
     font-weight: bold;   
  }
+
+ /* Admin login overrides */
+ body.page-login {
+     background-color: #FC6C35;
+ }
+ .login-container .btn-primary {
+     background-color: #FC6C35;
+     border-color: #FC6C35;
+ }
+ .login-container .card {
+     background-color: white;
+     border-color: white;
+ }
+ .login-container:before {
+    height: 50px;
+    width: 100%;
+    display: block;
+    content: '';
+    background-image: url('/assets/media/uploads/GUlogo.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position:  center;   
+ }
+
+.login-container .card {
+    margin-top: 20px;
+}
+ /* Admin UI overrides */
+ nav.navbar-top {
+     background-color: #FFFFFF;
+ }
+ .nav-sidebar {
+     background-color: #FC6C35;
+ }
+ .nav-sidebar .nav .nav {
+     background-color: #FC6C35;
+ }
+ 
+.nav-sidebar .nav li.active > a:not(.has-arrow) {
+     background-color: #e23f00!important;
+ }
+ .navbar-brand {
+     background-image: url('/assets/logo/gu-logo.png');
+     background-repeat: no-repeat;
+     background-size: 120px 30px;
+     background-position: center;
+     width: 120px;
+     height: 30px;
+     margin-left: 10px;
+}
+
+i.logo-icon:before {
+    content: unset;
+}
+.nav-sidebar .nav > li > a {
+    opacity: 1;
+}
+li.nav-item .dropdown-menu a:nth-last-child(-n+3) {
+    display: none;
+}
+li.nav-item .dropdown-menu div.dropdown-divider {
+    display: none;
+}
+.navbar .page-title {
+    display: none;
+}
