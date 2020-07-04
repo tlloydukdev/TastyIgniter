@@ -134,7 +134,7 @@ class PaymentIntentsGateway extends AbstractGateway
      */
     public function createCard(array $parameters = array())
     {
-        return $this->createRequest('\Omnipay\Stripe\Message\PaymentIntents\CreatePaymentMethodRequest', $parameters);
+      return $this->createRequest('\Omnipay\Stripe\Message\PaymentIntents\CreatePaymentMethodRequest', $parameters);
     }
 
     /**

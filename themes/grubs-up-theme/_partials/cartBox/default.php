@@ -1,5 +1,5 @@
 <div
-    class="<?= (!$pageIsCart) ? 'affix-cart d-none d-sm-block' : ''; ?>"
+    class="<?= (!$pageIsCart) ? 'affix-cart-top d-none d-sm-block' : ''; ?>"
     data-control="cart-box"
     data-load-item-handler="<?= $loadCartItemEventHandler; ?>"
     data-update-item-handler="<?= $updateCartItemEventHandler; ?>"

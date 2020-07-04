@@ -4,6 +4,7 @@ $hasCollection = $location->current()->hasCollection();
 $schedule = $location->workingSchedule($location->orderType());
 $openingTime = Carbon\Carbon::parse($schedule->getOpenTime());
 $closingTime = Carbon\Carbon::parse($schedule->getCloseTime());
+$openingTimeFormat = "dddd, h:mma";
 ?>
 <dl class="no-spacing">
     <?php if ($schedule->isOpen()) { ?>
@@ -46,6 +47,6 @@ $closingTime = Carbon\Carbon::parse($schedule->getCloseTime());
         <?php } ?>
     </dd>
     <dd class="text-muted">
-        <?= implode(', ', $__SELF__->getAreaConditionLabels()); ?>
+        <?php // echo implode(', ', $__SELF__->getAreaConditionLabels()); ?>
     </dd>
 </dl>

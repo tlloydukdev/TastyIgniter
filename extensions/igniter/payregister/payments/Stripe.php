@@ -83,9 +83,34 @@ class Stripe extends BasePaymentGateway
             $profile = $this->updatePaymentProfile($order->customer, $data);
             $fields['customerReference'] = array_get($profile->profile_data, 'customer_id');
         }
-
+        
         try {
             $gateway = $this->createGateway();
+            if(is_null($order->customer)) {
+              // This is a guest checking out, let's create a new cus_ record
+              $response = $gateway->createCustomer([
+                  'name' => $data['first_name'].' '.$data['last_name'],
+                  'email' => $fields['metadata']['customer_email'],
+              ])->send();
+
+              if (!$response->isSuccessful()) {
+                  throw new ApplicationException($response->getMessage());
+              }
+              
+              $fields['customerReference'] = $response->getCustomerReference();
+            }
+            
+            $fields['billing_details']['name'] = $data['first_name'].' '.$data['last_name'];
+            
+            $desc = "";
+            foreach($order->cart as $item) {
+              $desc .= $item->qty . "x " . $item->name . ", ";
+            }
+            $desc = trim($desc);
+            $desc = rtrim($desc, ',');
+            
+            $fields['description'] = $desc;
+
             $response = $gateway->purchase($fields)->send();
 
             if ($response->isRedirect()) {

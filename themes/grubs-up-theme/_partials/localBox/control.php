@@ -37,7 +37,7 @@ if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
             </label>
         <?php } ?>
         <?php if ($locationCurrent->hasCollection()) { ?>
-            <label class="btn btn-<?= $location->orderTypeIsCollection() ? 'primary' : 'light'; ?> <?= $location->orderTypeIsCollection() ? 'active' : ''; ?>">
+            <label style="background-color: #FC6C35; border-color: #FC6C35;" class="btn btn-<?= $location->orderTypeIsCollection() ? 'primary' : 'light'; ?> <?= $location->orderTypeIsCollection() ? 'active' : ''; ?>">
                 <input
                     type="radio"
                     name="order_type"
@@ -50,7 +50,7 @@ if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
                             <?= sprintf(lang('igniter.local::default.text_in_min'), $locationCurrent->collectionMinutes()); ?>
                         <?php }
                         else if ($location->collectionSchedule()->isOpening()) { ?>
-                            <?= sprintf(lang('igniter.local::default.text_starts'), $collectionTime->isoFormat($cartBoxTimeFormat)); ?>
+                            <?php //echo sprintf(lang('igniter.local::default.text_starts'), $collectionTime->isoFormat($cartBoxTimeFormat)); ?>
                         <?php }
                         else { ?>
                             <?= lang('igniter.cart::default.text_is_closed'); ?>

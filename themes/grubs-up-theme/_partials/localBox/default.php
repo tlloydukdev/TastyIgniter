@@ -1,5 +1,5 @@
 <div id="local-box">
-    <div class="panel local-search">
+    <div class="panel local-search d-none"> <!-- hidden -->
         <div class="panel-body">
             <div class="row">
                 <?php if (!$hideSearch) { ?>
