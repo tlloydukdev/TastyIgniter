@@ -3,7 +3,7 @@
 <head>
     <?= get_metas(); ?>
     <meta name="csrf-token" content="<?= csrf_token() ?>">
-    <?= get_favicon(); ?>
+    <link rel="icon" href="/assets/media/uploads/favicon.ico">
     <title><?= sprintf(lang('admin::lang.site_title'), Template::getTitle(), setting('site_name')); ?></title>
     <?= get_style_tags(); ?>
 </head>

@@ -1,11 +1,11 @@
-<div class="row-fluid" style="margin-top: -15px;">
-    <h4 class="pl-2 pt-0 mt-0">Grouped Orders by Time Slot</h4>
-</div>
+<!-- <div class="row-fluid" style="margin-top: -15px;">
+    <h4 class="pl-2 pt-0 mt-0">Todays Orders</h4>
+</div> -->
 <div style="display: none;" class="print-display-area" id="print-display-area"></div>
 
 <!-- All Orders -->
 
-<div class="row-fluid">    
+<div class="row-fluid" style="margin-top: -30px;">    
     <div class="control-statuseditor"
         data-control="status-editor"
         data-alias="formStatusId"

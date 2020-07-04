@@ -143,7 +143,7 @@ return [
         'category' => 'Categories',
         'table' => 'Tables',
         'sale' => 'Sales',
-        'order' => 'Orders',
+        'order' => 'All Orders',
         'reservation' => 'Reservations',
         'coupon' => 'Coupons',
         'review' => 'Reviews',

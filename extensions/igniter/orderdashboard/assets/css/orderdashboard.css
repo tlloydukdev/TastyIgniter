@@ -1,5 +1,7 @@
 /* Order Dashboard Overrides */
-
+.page-content, body {
+    background-color: #ffffff;
+}
 a.nav-link.reservations {
     display: none!important;
 }
@@ -86,4 +88,34 @@ li.nav-item .dropdown-menu div.dropdown-divider {
 }
 .navbar .page-title {
     display: none;
+}
+
+/* Grids */
+
+a.btn-action {
+    color: #e23f00;
+}
+
+.table-striped tbody tr {
+    background-color: #efefef;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #ffffff;
+}
+
+.list-filter {
+    background-color: #fff;
+}
+.table th {
+    border-top: 1px solid #ccc;
+}
+.table td {
+    border-top: 1px solid #ccc;
+}
+.table > thead > tr > th {
+    background-color: #ddd;
+    color: #333;
+}
+.table-striped thead th {
+    border-bottom: 2px solid #ccc;
 }

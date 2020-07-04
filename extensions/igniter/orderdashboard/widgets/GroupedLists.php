@@ -413,6 +413,7 @@ class GroupedLists extends BaseWidget
         if(is_null($locationId)) {
             // Super Admin
             // We are dealing with multiple locations so need to build a list from the orders
+            
             foreach($records as $record) {
 
                 foreach ($columns as $key => $column) {
@@ -456,8 +457,16 @@ class GroupedLists extends BaseWidget
         
         $locationModel = $lc->getModel()::find($locationId);
         $lc->setModel($locationModel);
+        
+        $lc->updateOrderType('delivery');       
+        $deliveryTimeslots = $this->parseTimeslot($lc->workingSchedule($lc->orderType())->getTimeslot(
+        $lc->orderTimeInterval(), new DateTime(date('Y-m-d 00:00:00')), $lc->orderLeadTime()));
 
-        $timeSlots = $this->parseTimeslot($lc->scheduleTimeslot());
+        $lc->updateOrderType('collection');
+        $collectionTimeslots = $this->parseTimeslot($lc->workingSchedule($lc->orderType())->getTimeslot(
+        $lc->orderTimeInterval(),new DateTime(date('Y-m-d 00:00:00')), $lc->orderLeadTime()));
+
+        $timeSlots = array_merge_recursive ($deliveryTimeslots, $collectionTimeslots);
 
         return $timeSlots;
 
@@ -484,6 +493,7 @@ class GroupedLists extends BaseWidget
 
         ksort($parsed['dates']);
         ksort($parsed['hours']);
+
         return $parsed;
     }
 

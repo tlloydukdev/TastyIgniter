@@ -60,19 +60,20 @@
         "source": {
             "type": "git",
             "url": "https://github.com/guzzle/guzzle.git",
-            "reference": "400cefd25a23a3098486bfb52685b5367a464171"
+            "reference": "e8ed4dbf49b260ff129ff0e0400718c3269971bf"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/guzzle/guzzle/zipball/400cefd25a23a3098486bfb52685b5367a464171",
-            "reference": "400cefd25a23a3098486bfb52685b5367a464171",
+            "url": "https://api.github.com/repos/guzzle/guzzle/zipball/e8ed4dbf49b260ff129ff0e0400718c3269971bf",
+            "reference": "e8ed4dbf49b260ff129ff0e0400718c3269971bf",
             "shasum": ""
         },
         "require": {
             "ext-json": "*",
             "guzzlehttp/promises": "^1.0",
             "guzzlehttp/psr7": "^1.6.1",
-            "php": ">=5.5"
+            "php": ">=5.5",
+            "symfony/polyfill-intl-idn": "^1.17.0"
         },
         "require-dev": {
             "ext-curl": "*",
@@ -80,10 +81,9 @@
             "psr/log": "^1.1"
         },
         "suggest": {
-            "ext-intl": "Required for Internationalized Domain Name (IDN) support",
             "psr/log": "Required for using the Log middleware"
         },
-        "time": "2019-12-30T04:52:42+00:00",
+        "time": "2020-07-02T06:52:04+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -129,25 +129,25 @@
         "source": {
             "type": "git",
             "url": "https://github.com/guzzle/promises.git",
-            "reference": "89b1a76b7fda5853401297dc4b2a093cba1fda23"
+            "reference": "bbf3b200bc83c1e9298580a9f99b9be248543467"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/guzzle/promises/zipball/89b1a76b7fda5853401297dc4b2a093cba1fda23",
-            "reference": "89b1a76b7fda5853401297dc4b2a093cba1fda23",
+            "url": "https://api.github.com/repos/guzzle/promises/zipball/bbf3b200bc83c1e9298580a9f99b9be248543467",
+            "reference": "bbf3b200bc83c1e9298580a9f99b9be248543467",
             "shasum": ""
         },
         "require": {
-            "php": ">=5.6"
+            "php": ">=5.5"
         },
         "require-dev": {
-            "phpunit/phpunit": "^5.7.27 || ^7.5"
+            "phpunit/phpunit": "^4.8.36 || ^5.7.27 || ^7.5"
         },
-        "time": "2020-02-15T23:33:03+00:00",
+        "time": "2020-06-21T23:10:57+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.4-dev"
+                "dev-master": "1.3-dev"
             }
         },
         "installation-source": "source",
@@ -182,12 +182,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/guzzle/psr7.git",
-            "reference": "c73b502efd02beb2602500aa36793fb405e383ac"
+            "reference": "188cc82398f157483976ccf61bd04ee80afcf29c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/guzzle/psr7/zipball/c73b502efd02beb2602500aa36793fb405e383ac",
-            "reference": "c73b502efd02beb2602500aa36793fb405e383ac",
+            "url": "https://api.github.com/repos/guzzle/psr7/zipball/188cc82398f157483976ccf61bd04ee80afcf29c",
+            "reference": "188cc82398f157483976ccf61bd04ee80afcf29c",
             "shasum": ""
         },
         "require": {
@@ -205,7 +205,7 @@
         "suggest": {
             "laminas/laminas-httphandlerrunner": "Emit PSR-7 responses"
         },
-        "time": "2020-02-12T23:13:46+00:00",
+        "time": "2020-05-17T20:05:25+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -255,12 +255,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/moneyphp/money.git",
-            "reference": "1961f445ef0273a651ece4b9177d8885d37deda4"
+            "reference": "512333ef834bd77f76e865a30eb5963d480e2ed7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/moneyphp/money/zipball/1961f445ef0273a651ece4b9177d8885d37deda4",
-            "reference": "1961f445ef0273a651ece4b9177d8885d37deda4",
+            "url": "https://api.github.com/repos/moneyphp/money/zipball/512333ef834bd77f76e865a30eb5963d480e2ed7",
+            "reference": "512333ef834bd77f76e865a30eb5963d480e2ed7",
             "shasum": ""
         },
         "require": {
@@ -292,7 +292,7 @@
             "florianv/swap": "Exchange rates library for PHP",
             "psr/cache-implementation": "Used for Currency caching"
         },
-        "time": "2020-03-18T17:54:55+00:00",
+        "time": "2020-06-22T11:38:08+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -405,12 +405,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/thephpleague/omnipay-common.git",
-            "reference": "24ea70aa6e0f76d8b85d7a35d8a6560c746f566f"
+            "reference": "d6a1bed63cae270da32b2171fe31f820d334d452"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/24ea70aa6e0f76d8b85d7a35d8a6560c746f566f",
-            "reference": "24ea70aa6e0f76d8b85d7a35d8a6560c746f566f",
+            "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/d6a1bed63cae270da32b2171fe31f820d334d452",
+            "reference": "d6a1bed63cae270da32b2171fe31f820d334d452",
             "shasum": ""
         },
         "require": {
@@ -430,7 +430,7 @@
         "suggest": {
             "league/omnipay": "The default Omnipay package provides a default HTTP Adapter."
         },
-        "time": "2020-02-12T12:28:23+00:00",
+        "time": "2020-06-02T05:57:19+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -484,17 +484,17 @@
     },
     {
         "name": "omnipay/mollie",
-        "version": "v5.2.0",
-        "version_normalized": "5.2.0.0",
+        "version": "v5.2.1",
+        "version_normalized": "5.2.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/thephpleague/omnipay-mollie.git",
-            "reference": "d966a6a113a8b1671c996befb4e075ebb00b443e"
+            "reference": "cec171d9f26ce8a3d1b3c8a2f34148d4b001fa3f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/omnipay-mollie/zipball/d966a6a113a8b1671c996befb4e075ebb00b443e",
-            "reference": "d966a6a113a8b1671c996befb4e075ebb00b443e",
+            "url": "https://api.github.com/repos/thephpleague/omnipay-mollie/zipball/cec171d9f26ce8a3d1b3c8a2f34148d4b001fa3f",
+            "reference": "cec171d9f26ce8a3d1b3c8a2f34148d4b001fa3f",
             "shasum": ""
         },
         "require": {
@@ -508,7 +508,7 @@
             "phpro/grumphp": "^0.14",
             "squizlabs/php_codesniffer": "^3"
         },
-        "time": "2019-11-04T15:05:02+00:00",
+        "time": "2019-12-14T09:17:28+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -619,12 +619,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/php-http/discovery.git",
-            "reference": "82dbef649ccffd8e4f22e1953c3a5265992b83c0"
+            "reference": "3cc2bcdbdf80067a92a79cde81c8e5b055e47e5d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-http/discovery/zipball/82dbef649ccffd8e4f22e1953c3a5265992b83c0",
-            "reference": "82dbef649ccffd8e4f22e1953c3a5265992b83c0",
+            "url": "https://api.github.com/repos/php-http/discovery/zipball/3cc2bcdbdf80067a92a79cde81c8e5b055e47e5d",
+            "reference": "3cc2bcdbdf80067a92a79cde81c8e5b055e47e5d",
             "shasum": ""
         },
         "require": {
@@ -644,11 +644,11 @@
             "php-http/message": "Allow to use Guzzle, Diactoros or Slim Framework factories",
             "puli/composer-plugin": "Sets up Puli which is recommended for Discovery to work. Check http://docs.php-http.org/en/latest/discovery.html for more details."
         },
-        "time": "2020-01-03T11:25:47+00:00",
+        "time": "2020-07-04T09:23:05+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.7-dev"
+                "dev-master": "1.9-dev"
             }
         },
         "installation-source": "source",
@@ -810,16 +810,16 @@
         "source": {
             "type": "git",
             "url": "https://github.com/php-http/message.git",
-            "reference": "fcf9b45c267b7a11d83f6578ccc418a0a54484f7"
+            "reference": "226ba9f7a4bddb6295b9ccff5a70b54013562ff0"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-http/message/zipball/fcf9b45c267b7a11d83f6578ccc418a0a54484f7",
-            "reference": "fcf9b45c267b7a11d83f6578ccc418a0a54484f7",
+            "url": "https://api.github.com/repos/php-http/message/zipball/226ba9f7a4bddb6295b9ccff5a70b54013562ff0",
+            "reference": "226ba9f7a4bddb6295b9ccff5a70b54013562ff0",
             "shasum": ""
         },
         "require": {
-            "clue/stream-filter": "^1.4",
+            "clue/stream-filter": "^1.4.1",
             "php": "^7.1",
             "php-http/message-factory": "^1.0.2",
             "psr/http-message": "^1.0"
@@ -844,7 +844,7 @@
             "slim/slim": "Used with Slim Framework PSR-7 implementation",
             "zendframework/zend-diactoros": "Used with Diactoros Factories"
         },
-        "time": "2020-01-03T15:30:01+00:00",
+        "time": "2020-05-14T06:40:00+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -992,19 +992,19 @@
         "source": {
             "type": "git",
             "url": "https://github.com/php-fig/http-client.git",
-            "reference": "fd5d37ae5a76ee3c5301a762faf66bf9519132ef"
+            "reference": "2dfb5f6c5eff0e91e20e913f8c5452ed95b86621"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-fig/http-client/zipball/fd5d37ae5a76ee3c5301a762faf66bf9519132ef",
-            "reference": "fd5d37ae5a76ee3c5301a762faf66bf9519132ef",
+            "url": "https://api.github.com/repos/php-fig/http-client/zipball/2dfb5f6c5eff0e91e20e913f8c5452ed95b86621",
+            "reference": "2dfb5f6c5eff0e91e20e913f8c5452ed95b86621",
             "shasum": ""
         },
         "require": {
-            "php": "^7.0",
+            "php": "^7.0 || ^8.0",
             "psr/http-message": "^1.0"
         },
-        "time": "2019-09-04T06:46:09+00:00",
+        "time": "2020-06-29T06:28:15+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1261,12 +1261,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/square/connect-php-sdk.git",
-            "reference": "9f4102ab6887abec5c290c333c23c88d0c94dd88"
+            "reference": "8874fbe94efc1c0e1d3ff652c8d0665663be8852"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/square/connect-php-sdk/zipball/9f4102ab6887abec5c290c333c23c88d0c94dd88",
-            "reference": "9f4102ab6887abec5c290c333c23c88d0c94dd88",
+            "url": "https://api.github.com/repos/square/connect-php-sdk/zipball/8874fbe94efc1c0e1d3ff652c8d0665663be8852",
+            "reference": "8874fbe94efc1c0e1d3ff652c8d0665663be8852",
             "shasum": ""
         },
         "require": {
@@ -1280,7 +1280,7 @@
             "satooshi/php-coveralls": "~0.6.1",
             "squizlabs/php_codesniffer": "~2.0"
         },
-        "time": "2020-03-25T16:21:56+00:00",
+        "time": "2020-06-29T20:54:07+00:00",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -1298,7 +1298,7 @@
                 "homepage": "https://squareup.com/developers"
             }
         ],
-        "description": "PHP client library for the Square Connect v2 API",
+        "description": "This Package is deprecated, it is replaced by https://packagist.org/packages/square/square.",
         "homepage": "https://github.com/square/connect-php-sdk",
         "keywords": [
             "api",
@@ -1314,22 +1314,26 @@
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/deprecation-contracts.git",
-            "reference": "ede224dcbc36138943a296107db2b8b2a690ac1c"
+            "reference": "5e20b83385a77593259c9f8beb2c43cd03b2ac14"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/ede224dcbc36138943a296107db2b8b2a690ac1c",
-            "reference": "ede224dcbc36138943a296107db2b8b2a690ac1c",
+            "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/5e20b83385a77593259c9f8beb2c43cd03b2ac14",
+            "reference": "5e20b83385a77593259c9f8beb2c43cd03b2ac14",
             "shasum": ""
         },
         "require": {
-            "php": "^7.1"
+            "php": ">=7.1"
         },
-        "time": "2020-02-14T07:31:56+00:00",
+        "time": "2020-06-06T08:49:21+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
                 "dev-master": "2.1-dev"
+            },
+            "thanks": {
+                "name": "symfony/contracts",
+                "url": "https://github.com/symfony/contracts"
             }
         },
         "installation-source": "source",
@@ -1362,16 +1366,16 @@
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/http-foundation.git",
-            "reference": "84974727af49080a0b70e39c72f116c14f225a5c"
+            "reference": "1b66b861f3ff55fb39c13822a0fc915018b5ac84"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/http-foundation/zipball/84974727af49080a0b70e39c72f116c14f225a5c",
-            "reference": "84974727af49080a0b70e39c72f116c14f225a5c",
+            "url": "https://api.github.com/repos/symfony/http-foundation/zipball/1b66b861f3ff55fb39c13822a0fc915018b5ac84",
+            "reference": "1b66b861f3ff55fb39c13822a0fc915018b5ac84",
             "shasum": ""
         },
         "require": {
-            "php": "^7.2.5",
+            "php": ">=7.2.5",
             "symfony/deprecation-contracts": "^2.1",
             "symfony/polyfill-mbstring": "~1.1",
             "symfony/polyfill-php80": "^1.15"
@@ -1385,11 +1389,11 @@
         "suggest": {
             "symfony/mime": "To use the file extension guesser"
         },
-        "time": "2020-04-08T05:57:21+00:00",
+        "time": "2020-06-23T11:46:20+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "5.1-dev"
+                "dev-master": "5.2-dev"
             }
         },
         "installation-source": "source",
@@ -1419,18 +1423,86 @@
         "homepage": "https://symfony.com"
     },
     {
+        "name": "symfony/polyfill-intl-idn",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/polyfill-intl-idn.git",
+            "reference": "a57f8161502549a742a63c09f0a604997bf47027"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/a57f8161502549a742a63c09f0a604997bf47027",
+            "reference": "a57f8161502549a742a63c09f0a604997bf47027",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.3",
+            "symfony/polyfill-mbstring": "^1.3",
+            "symfony/polyfill-php72": "^1.10"
+        },
+        "suggest": {
+            "ext-intl": "For best performance"
+        },
+        "time": "2020-06-06T08:46:27+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.17-dev"
+            },
+            "thanks": {
+                "name": "symfony/polyfill",
+                "url": "https://github.com/symfony/polyfill"
+            }
+        },
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Polyfill\\Intl\\Idn\\": ""
+            },
+            "files": [
+                "bootstrap.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Laurent Bassin",
+                "email": "laurent@bassin.info"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony polyfill for intl's idn_to_ascii and idn_to_utf8 functions",
+        "homepage": "https://symfony.com",
+        "keywords": [
+            "compatibility",
+            "idn",
+            "intl",
+            "polyfill",
+            "portable",
+            "shim"
+        ]
+    },
+    {
         "name": "symfony/polyfill-mbstring",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/polyfill-mbstring.git",
-            "reference": "81ffd3a9c6d707be22e3012b827de1c9775fc5ac"
+            "reference": "7110338d81ce1cbc3e273136e4574663627037a7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/81ffd3a9c6d707be22e3012b827de1c9775fc5ac",
-            "reference": "81ffd3a9c6d707be22e3012b827de1c9775fc5ac",
+            "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/7110338d81ce1cbc3e273136e4574663627037a7",
+            "reference": "7110338d81ce1cbc3e273136e4574663627037a7",
             "shasum": ""
         },
         "require": {
@@ -1439,11 +1511,15 @@
         "suggest": {
             "ext-mbstring": "For best performance"
         },
-        "time": "2020-03-09T19:04:49+00:00",
+        "time": "2020-06-06T08:46:27+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.15-dev"
+                "dev-master": "1.17-dev"
+            },
+            "thanks": {
+                "name": "symfony/polyfill",
+                "url": "https://github.com/symfony/polyfill"
             }
         },
         "installation-source": "source",
@@ -1480,28 +1556,93 @@
         ]
     },
     {
+        "name": "symfony/polyfill-php72",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/polyfill-php72.git",
+            "reference": "3d9c70ff1b9f6bb618f9954b2f7f760220c2b38a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/polyfill-php72/zipball/3d9c70ff1b9f6bb618f9954b2f7f760220c2b38a",
+            "reference": "3d9c70ff1b9f6bb618f9954b2f7f760220c2b38a",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.3"
+        },
+        "time": "2020-06-06T08:46:27+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.17-dev"
+            },
+            "thanks": {
+                "name": "symfony/polyfill",
+                "url": "https://github.com/symfony/polyfill"
+            }
+        },
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Polyfill\\Php72\\": ""
+            },
+            "files": [
+                "bootstrap.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Nicolas Grekas",
+                "email": "p@tchwork.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony polyfill backporting some PHP 7.2+ features to lower PHP versions",
+        "homepage": "https://symfony.com",
+        "keywords": [
+            "compatibility",
+            "polyfill",
+            "portable",
+            "shim"
+        ]
+    },
+    {
         "name": "symfony/polyfill-php80",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/polyfill-php80.git",
-            "reference": "8854dc880784d2ae32908b75824754339b5c0555"
+            "reference": "4a5b6bba3259902e386eb80dd1956181ee90b5b2"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/8854dc880784d2ae32908b75824754339b5c0555",
-            "reference": "8854dc880784d2ae32908b75824754339b5c0555",
+            "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/4a5b6bba3259902e386eb80dd1956181ee90b5b2",
+            "reference": "4a5b6bba3259902e386eb80dd1956181ee90b5b2",
             "shasum": ""
         },
         "require": {
             "php": ">=7.0.8"
         },
-        "time": "2020-03-03T16:59:03+00:00",
+        "time": "2020-06-06T08:46:27+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.15-dev"
+                "dev-master": "1.17-dev"
+            },
+            "thanks": {
+                "name": "symfony/polyfill",
+                "url": "https://github.com/symfony/polyfill"
             }
         },
         "installation-source": "source",

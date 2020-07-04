@@ -120,7 +120,7 @@ class Extension extends BaseExtension
                         'priority' => 6,
                         'href' => admin_url('igniter/orderdashboard/groupedorders'),
                         'class' => 'grouped',
-                        'title' => 'Grouped Orders',
+                        'title' => 'Todays Orders',
                         //'permission' => 'Igniter.OrderDashboard',
                     ]
                 ],

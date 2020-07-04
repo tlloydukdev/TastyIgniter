@@ -721,18 +721,11 @@ class ClientTest extends TestCase
 
         $config = $client->getConfig();
 
-        if (extension_loaded('intl')) {
-            self::assertTrue($config['idn_conversion']);
-        } else {
-            self::assertFalse($config['idn_conversion']);
-        }
+        self::assertTrue($config['idn_conversion']);
     }
 
     public function testIdnIsTranslatedToAsciiWhenConversionIsEnabled()
     {
-        if (!extension_loaded('intl')) {
-            self::markTestSkipped('intl PHP extension is not loaded');
-        }
         $mockHandler = new MockHandler([new Response()]);
         $client = new Client(['handler' => $mockHandler]);
 
@@ -759,13 +752,10 @@ class ClientTest extends TestCase
 
     /**
      * @expectedException \GuzzleHttp\Exception\InvalidArgumentException
-     * @expectedExceptionMessage IDN conversion failed (errors: IDNA_ERROR_LEADING_HYPHEN)
+     * @expectedExceptionMessage IDN conversion failed
      */
     public function testExceptionOnInvalidIdn()
     {
-        if (!extension_loaded('intl')) {
-            self::markTestSkipped('intl PHP extension is not loaded');
-        }
         $mockHandler = new MockHandler([new Response()]);
         $client = new Client(['handler' => $mockHandler]);
 
@@ -778,10 +768,6 @@ class ClientTest extends TestCase
      */
     public function testIdnBaseUri()
     {
-        if (!extension_loaded('intl')) {
-            self::markTestSkipped('intl PHP extension is not loaded');
-        }
-
         $mock = new MockHandler([new Response()]);
         $client = new Client([
             'handler'  => $mock,
@@ -796,9 +782,6 @@ class ClientTest extends TestCase
 
     public function testIdnWithRedirect()
     {
-        if (!extension_loaded('intl')) {
-            self::markTestSkipped('intl PHP extension is not loaded');
-        }
         $mockHandler = new MockHandler([
             new Response(302, ['Location' => 'http://www.tést.com/whatever']),
             new Response()

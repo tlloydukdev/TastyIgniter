@@ -3,9 +3,8 @@ igniter/demo/
 igniter/frontend/
 igniter/importexport/
 igniter/pages/
-igniter/payregister
-igniter/reservation
-igniter/socialite
+igniter/reservation/
+igniter/socialite/
 igniter/user
 igniter/orderdashboard/vendor
 old_api
