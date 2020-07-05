@@ -49,7 +49,9 @@ class Orders extends \Admin\Classes\AdminController
 
         if ($this->action === 'assigned')
             $this->requiredPermissions = null;
-
+        
+        $this->addJs('$/igniter/orderdashboard/assets/js/printorder.js', 'printorder-js');
+        
         AdminMenu::setContext('orders', 'sales');
     }
 
@@ -63,6 +65,51 @@ class Orders extends \Admin\Classes\AdminController
         $this->vars['model'] = $model;
 
         $this->suppressLayout = TRUE;
+    }
+
+    // TL grubs
+    public function index_onLoadPopup() {
+        $context = post('context');
+        $orderId = (int)post('orderId');
+
+        if (!in_array($context, ['orderPreview']))
+             throw new ApplicationException('Invalid type specified - must be orderPreview');
+
+        return ['#previewModalContentGrouped' => $this->previewModalContent($context, $orderId)];
+         
+    }
+
+    public function print($context, $recordId = null)
+    {
+        $this->suppressLayout = TRUE;
+        $data['model'] = $this->formFindModelObject($recordId);        
+        
+        return view('pdf_view', $data);
+        // $pdf = PDF::loadView('pdf_view', $data);  
+        // return $pdf->download('order' . $recordId . '.pdf');
+
+        
+    }
+
+    public function previewModalContent($context, $orderId) {
+
+        if (!in_array($context, ['orderPreview']))
+             throw new ApplicationException('Invalid type specified');
+
+         if(!isset($orderId) || !is_int($orderId))
+            throw new ApplicationException('Invalid or missing OrderId');
+
+        $this->vars['context'] = $context;
+        $this->vars['orderId'] = $orderId;
+
+        // $ordersModel = new OrderDashboardModel();
+        // $data = $ordersModel->where('order_id', '=', $orderId)->first();
+
+        $model = $this->formFindModelObject($orderId);
+
+        $this->vars['model'] = $model;                
+        $html = $this->makePartial('preview_popup');
+        return $html;
     }
 
     public function formExtendFieldsBefore($form)

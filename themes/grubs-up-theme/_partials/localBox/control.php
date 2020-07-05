@@ -47,7 +47,7 @@ if ($locationCurrent->hasDelivery() OR $locationCurrent->hasCollection()) { ?>
                 <span
                     class="small center-block">
                         <?php if ($location->collectionSchedule()->isOpen()) { ?>
-                            <?= sprintf(lang('igniter.local::default.text_in_min'), $locationCurrent->collectionMinutes()); ?>
+                            <?php //echo sprintf(lang('igniter.local::default.text_in_min'), $locationCurrent->collectionMinutes()); ?>
                         <?php }
                         else if ($location->collectionSchedule()->isOpening()) { ?>
                             <?php //echo sprintf(lang('igniter.local::default.text_starts'), $collectionTime->isoFormat($cartBoxTimeFormat)); ?>

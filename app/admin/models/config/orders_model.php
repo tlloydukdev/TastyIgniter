@@ -78,6 +78,30 @@ $config['list']['columns'] = [
             'href' => 'orders/edit/{order_id}',
         ],
     ],
+        'preview' => [
+        'type' => 'button',
+        'iconCssClass' => 'fa fa-eye',
+        'attributes' => [
+            'class' => 'btn btn-edit btn-preview-order',
+            'data-toggle'=> "modal",
+            'data-backdrop'=>"static",
+            'data-request'=>"onLoadPopup",
+            'data-request-data'=>"context: 'orderPreview', orderId: {order_id}",            
+            'href' => '#',
+            'data-target' => '#previewModalGrouped',
+            'role' => 'button'
+        ],
+    ],
+    'print_order' => [
+        'type' => 'button',
+        'iconCssClass' => 'fa fa-print',
+        'attributes' => [
+            'class' => 'btn btn-print-order',         
+            'href' => 'igniter/orderdashboard/groupedorders/print/{order_id}',
+            // 'target' => '_blank',
+            'role' => 'button'
+        ],
+    ],
     'order_id' => [
         'label' => 'lang:admin::lang.column_id',
         'searchable' => TRUE,

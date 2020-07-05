@@ -142,7 +142,7 @@ return [
         'menu' => 'Menu Items',
         'category' => 'Categories',
         'table' => 'Tables',
-        'sale' => 'Sales',
+        'sale' => 'Orders',
         'order' => 'All Orders',
         'reservation' => 'Reservations',
         'coupon' => 'Coupons',

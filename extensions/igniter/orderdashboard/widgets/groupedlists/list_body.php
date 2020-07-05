@@ -1,4 +1,16 @@
 <?php 
+// dd($locationCurrent);
+// dd($locationCurrent->getCollectionTimeAttribute('blah'));
+// $deliveryInterval = $locationCurrent->getDeliveryTimeAttribute('blah');
+// $collectionInterval = $locationCurrent->getCollectionTimeAttribute('blah');
+// if($location->orderTypeIsDelivery()) {
+//     $intervalMinutes = $deliveryInterval;
+// } else {
+//     $intervalMinutes = $collectionInterval;
+// }
+// $intervalEndHour = Carbon\Carbon::parse($orderDateTime)->addMinutes($intervalMinutes);
+
+
 // $records->locationTimeSlots injected from OrderDashboard/Widgets/GroupedLists.php
 $today = date('Y-m-d'); 
 $currentDate = new DateTime($today);
@@ -42,9 +54,13 @@ foreach($locationTimes['hours'] as $date => $hourSlots) {
                 }
             }
             if($ordersInSlot) {
+                $startTimeSlot = date("H:i", strtotime($hour));
+                $endTimeSlot = Carbon\Carbon::parse($startTimeSlot)->addMinutes(10)->format('H:i'); // grubs change this in future!!
+                $hourTitle = $startTimeSlot . " - " . $endTimeSlot;
     ?>
     <tr class="groupedTimeSlotHeader">
-        <td colspan=999><span class="title"><?=$hour?></span></td>
+        
+        <td colspan=999><span class="title"><?=$hourTitle?></span></td>
     </tr>
     <?php
         // Orders in time slots
