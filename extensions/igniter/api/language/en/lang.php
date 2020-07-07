@@ -15,7 +15,9 @@ return [
         'alert_not_correct_location' =>'We are sorry but delivery is not currently available in your area.',
         'alert_invalid_search_query' => 'We couldn\'t locate the entered address/postcode, please enter a valid address/postcode.',
     ],
-
+    'coupon' => [
+        'not_allowed_coupon' =>'Your discount code has expired or is invalid.',
+    ],
     'server' => [
         'internal_error' =>'Internal Server Error.',
     ],

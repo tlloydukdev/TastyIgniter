@@ -32,4 +32,5 @@ Route::prefix('api/v1/home')->group(function () {
     Route::get('getPolicy', 'Igniter\\Api\\Controllers\\Infos@getPolicy');
     Route::get('getTerms', 'Igniter\\Api\\Controllers\\Infos@getTerms');
     Route::get('getStripeInfo', 'Igniter\\Api\\Controllers\\Infos@getStripeInfo');
+    Route::post('validateCoupon', 'Igniter\\Api\\Controllers\\Infos@validateCoupon');
 });

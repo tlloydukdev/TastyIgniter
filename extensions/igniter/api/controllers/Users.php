@@ -206,6 +206,7 @@ class Users extends \Admin\Classes\AdminController {
                 $token = TastyJwt::instance()->makeToken($user);
                 if ($this->userModel->where('email', $request['email'])->update(['remember_token' => $token]))
                 {
+                    $user = $this->userModel->where('email', $request['email'])->first();
                     $setting = [
                         'customer_id' => $user->customer_id,
                         'stripe_customer_id' => $stripe_customer->id,
@@ -355,6 +356,48 @@ class Users extends \Admin\Classes\AdminController {
     public function setLocation(Request $request) {
         try {
             if ($this->customerSettingModel->where('customer_id', $request->user['id'])->first()) {
+                $this->customerSettingModel->where('customer_id', $request->user['id'])->update(['location_id' => $request->locationId, 'area_id' => null]);
+                $user = $this->userModel->where('customer_id', $request->user['id'])->first();
+                $user->addresses()->delete();
+                $location = $this->locationModel->where('location_id', $request->locationId)->first();
+                $response = [
+                    'locationId' => $location->location_id,
+                    'locationName' => $location->location_name,
+                    'offerDelivery' => ($location['options']['offer_delivery'] == 0) ? false : true,
+                    'offerCollection' => ($location['options']['offer_collection'] == 0) ? false : true,
+                ];
+                return $response;
+            } else {
+                $user = $this->userModel->where('customer_id', $request->user['id'])->first();
+                $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
+                if (!$customerSetting) {
+                    $stripe_customer = $this->stripe->customers->create([
+                        'name' => $request['firstName'],
+                        'email' => $request['email'],
+                    ]);
+                    $setting = [
+                        'customer_id' => $user->customer_id,
+                        'stripe_customer_id' => $stripe_customer->id,
+                        'area_id' => null,
+                        'push_status' => 1
+                    ];
+                    $this->customerSettingModel->insertOrIgnore($setting);
+                }
+                if ($request['fcmToken'] != '')
+                {
+                    $push = $this->customerPushModel->where('customer_id', $user->customer_id)->where('device_type', $request['deviceType'])->first();
+                    if ($push) {
+                        $this->customerPushModel->where('customer_id', $user->customer_id)->where('device_type', $request['deviceType'])->update(['device_token' => $request['fcmToken']]);
+                    } else
+                    {
+                        $setting = [
+                            'customer_id' => $user->customer_id,
+                            'device_token' => $request['fcmToken'],
+                            'device_type' => $request['deviceType'],
+                        ];
+                        $this->customerPushModel->insertOrIgnore($setting);
+                    }
+                }
                 $this->customerSettingModel->where('customer_id', $request->user['id'])->update(['location_id' => $request->locationId, 'area_id' => null]);
                 $user = $this->userModel->where('customer_id', $request->user['id'])->first();
                 $user->addresses()->delete();

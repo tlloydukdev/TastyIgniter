@@ -117,8 +117,9 @@ class Infos extends \Admin\Classes\AdminController {
             }
 
             $location = $this->locationModel->where('location_id', $request['user']['locationId'])->first();
-            
+                
 
+            $titleOpenTime = $titleOpenTimeColor = $openTime = '';
             $openingTimes = $location['options']['hours']['opening']['flexible'];
             for ($i = $currentWeekDay; $i < $currentWeekDay + count($openingTimes); $i++) {
                 if($openingTimes[$i % 7]['status'] != 0) {
@@ -171,7 +172,21 @@ class Infos extends \Admin\Classes\AdminController {
             $specials = array();
             foreach ($customSpecials as $special) {
                 if ($this->locationableModel->where('locationable_type', 'menus')->where('locationable_id', $special->menu_id)->where('location_id', $request['user']['locationId'])->first()) {
-                    if ($this->menuModel->where('menu_id', $special->menu_id)->where('menu_status', 1)->first()) {
+                    $menu = $this->menuModel->where('menu_id', $special->menu_id)->where('menu_status', 1)->first();
+                    if ($menu) {
+                        $thumb=$menu->getMedia('thumb');
+                        $firstOnly = true;
+                        $menuItemUrl = '#';
+                        foreach ($thumb as $item) {
+                            if ($firstOnly) {
+                                    $baseUrl = $item->getPublicPath(); // Config::get('system.assets.attachment.path');
+                                    $menuItemUrl = $baseUrl . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
+                                    $firstOnly = false;
+                            }
+                        }
+                    
+                        $special['menu']['menu_image_url'] = $menuItemUrl;
+
                         array_push($specials, $special);
                     }
                 }
@@ -181,6 +196,23 @@ class Infos extends \Admin\Classes\AdminController {
             $categoryDetails = $this->categoryModel::with(array('menus'=>function($query){
                 $query->where('menu_status', 1);
             }))->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();
+            foreach($categoryDetails as $detail) {              
+                 foreach($detail['menus'] as $menu) {
+                     $thumb=$menu->getMedia('thumb');
+                     $firstOnly = true;
+                     $menuItemUrl = '#';
+                     foreach ($thumb as $item) {
+                         if ($firstOnly) {
+                                 $baseUrl = $item->getPublicPath(); // Config::get('system.assets.attachment.path');
+                                 $menuItemUrl = $baseUrl . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
+                                 $firstOnly = false;
+                         }
+                     }
+                    
+                     $menu->menu_image_url = $menuItemUrl;
+                    
+                 }
+             }
             $allCoupons = $this->couponModel->get();
             $coupons = array();
             foreach ($allCoupons as $value) {
@@ -214,6 +246,16 @@ class Infos extends \Admin\Classes\AdminController {
             abort(500, lang('igniter.api::lang.server.internal_error'));
         }
         return $response;
+    }
+
+    public function validateCoupon(Request $request) {
+        $user = $this->userModel->where('customer_id', $request['userId'])->first();
+        $coupon = $this->couponModel->where('coupon_id', $request['couponId'])->first();
+        if ($coupon->hasReachedMaxRedemption())
+            abort(400, lang('igniter.api::lang.coupon.not_allowed_coupon'));
+        if ($user && $coupon->customerHasMaxRedemption($user))
+            abort(400, lang('igniter.api::lang.coupon.not_allowed_coupon'));
+        return 'true';
     }
 
     public function menuDetail(Request $request) {
@@ -259,7 +301,6 @@ class Infos extends \Admin\Classes\AdminController {
                 $location = $this->locationModel->where('location_id', $request['user']['locationId'])->first();
             }
             $response['delivery'] = array();
-            $response['pickup'] = array();
             $response['offerDelivery'] = ($location['options']['offer_delivery'] == 0) ? false : true;
             if ($location['options']['offer_delivery'] == true) {
                 $deliveryTimeInterval = $location['options']['delivery_time_interval'];
@@ -315,7 +356,7 @@ class Infos extends \Admin\Classes\AdminController {
                         $closeHour += ($closeMinute / 60);
 
                         $hourDelta = $deliveryTimeInterval / 60;
-                        for ($j = $currentHour; $j < $closeHour; $j += $hourDelta) {
+                        for ($j = $currentHour; $j < $closeHour - $hourDelta; $j += $hourDelta) {
 
                             $orderMin = (int)(($j - (int)$j) * 60);
                             $orderHour = $j;
@@ -340,10 +381,6 @@ class Infos extends \Admin\Classes\AdminController {
                                 $showMin = 0;
                                 $showHour += 1;
                             }
-                            if (((int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin)) >= $deliveryTimes[$i % 7]['close'])
-                            {
-                                break;
-                            }
 
                             $temp = [
                                 'orderTime' => (int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin),
@@ -357,6 +394,7 @@ class Infos extends \Admin\Classes\AdminController {
                     }
                 }
             }
+            $response['pickup'] = array();
             $response['offerCollection'] = ($location['options']['offer_collection'] == 0) ? false : true;
             if ($location['options']['offer_collection'] == true) {
                 $collectionTimeInterval = $location['options']['collection_time_interval'];
@@ -408,9 +446,8 @@ class Infos extends \Admin\Classes\AdminController {
 
                         $currentHour += ($currentMinute / 60);
                         $closeHour += ($closeMinute / 60);
-
                         $hourDelta = $collectionTimeInterval / 60;
-                        for ($j = $currentHour; $j < $closeHour; $j += $hourDelta) {
+                        for ($j = $currentHour; $j <= $closeHour - $hourDelta; $j += $hourDelta) {
 
                             $orderMin = (int)(($j - (int)$j) * 60);
                             $orderHour = $j;
@@ -434,10 +471,6 @@ class Infos extends \Admin\Classes\AdminController {
                             {
                                 $showMin = 0;
                                 $showHour += 1;
-                            }
-                            if (((int)$orderHour . ':' . (($orderMin < 10) ? ('0' . $orderMin) : $orderMin)) >= $pickUpTimes[$i % 7]['close'])
-                            {
-                                break;
                             }
 
                             $temp = [
