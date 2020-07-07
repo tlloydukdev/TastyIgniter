@@ -87,7 +87,11 @@ class Infos extends \Admin\Classes\AdminController {
         $this->pageModel = new $this->modelConfig['page'];
         $this->customerSettingModel = new $this->modelConfig['customerSetting'];
 
-        $this->stripe = new \Stripe\StripeClient(config('api.stripe_key_test_secret'));
+        if(config('api.stripe_test_mode')) {
+            $this->stripe = new \Stripe\StripeClient(config('api.stripe_key_test_secret'));
+        } else {
+            $this->stripe = new \Stripe\StripeClient(config('api.stripe_key_live_secret'));
+        }      
     }
 
     public function menu(Request $request) {
@@ -296,7 +300,11 @@ class Infos extends \Admin\Classes\AdminController {
         try {
             
             $stripe_customer_id = $this->customerSettingModel->where('customer_id', $request['user']['id'])->first()->stripe_customer_id;
-            \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
+            if(config('api.stripe_test_mode')) {
+                \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
+            } else {
+                \Stripe\Stripe::setApiKey(config('api.stripe_key_live_secret'));
+            }
             $response['savedCards'] = \Stripe\PaymentMethod::all([
               'customer' => $stripe_customer_id,
               'type' => 'card',
@@ -420,6 +428,7 @@ class Infos extends \Admin\Classes\AdminController {
                 $currentHour = (float)explode(':', $currentTime)[0];
                 $currentMinute = (float)explode(':', $currentTime)[1];
                 for ($i = $currentWeekDay; $i < $currentWeekDay + count($pickUpTimes); $i++) {
+
                     if($pickUpTimes[$i % 7]['status'] != 0) {
                         $date = [
                             'id' => count($response['pickup']),
@@ -429,11 +438,13 @@ class Infos extends \Admin\Classes\AdminController {
                             'times' => array()
                         ];
 
-                        $openHour = (float)explode(':', $pickUpTimes[$i % 7]['open'])[0];
-                        $openMinute = (float)explode(':', $pickUpTimes[$i % 7]['open'])[1];
-
-                        $closeHour = (float)explode(':', $pickUpTimes[$i % 7]['close'])[0];
-                        $closeMinute = (float)explode(':', $pickUpTimes[$i % 7]['close'])[1];
+                        $openTimePlusLead = date("H:i", strtotime("+" . $collectionLeadTime . " minutes", strtotime($pickUpTimes[$i % 7]['open'])));
+                        $openHour = (float)explode(':', $openTimePlusLead)[0];
+                        $openMinute = (float)explode(':', $openTimePlusLead)[1];
+                        
+                        $openTimeMinusLead = date("H:i", strtotime("-" . $collectionLeadTime . " minutes", strtotime($pickUpTimes[$i % 7]['close'])));
+                        $closeHour = (float)explode(':', $openTimeMinusLead)[0];
+                        $closeMinute = (float)explode(':', $openTimeMinusLead)[1];
 
                         if ($i == $currentWeekDay) {
                             if ($currentTime <= $pickUpTimes[$i % 7]['open']) {
@@ -507,7 +518,11 @@ class Infos extends \Admin\Classes\AdminController {
     public function getSavedCard(Request $request) {
         try {
             $stripe_customer_id = $this->customerSettingModel->where('customer_id', $request['user']['id'])->first()->stripe_customer_id;
-            \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
+            if(config('api.stripe_test_mode')) {
+                \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
+            } else {
+                \Stripe\Stripe::setApiKey(config('api.stripe_key_live_secret'));
+            }
             $response = \Stripe\PaymentMethod::all([
               'customer' => $stripe_customer_id,
               'type' => 'card',
@@ -526,7 +541,11 @@ class Infos extends \Admin\Classes\AdminController {
               []
             );
             $stripe_customer_id = $this->customerSettingModel->where('customer_id', $request['user']['id'])->first()->stripe_customer_id;
-            \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
+            if(config('api.stripe_test_mode')) {
+                \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
+            } else {
+                \Stripe\Stripe::setApiKey(config('api.stripe_key_live_secret'));
+            }
             $response = \Stripe\PaymentMethod::all([
               'customer' => $stripe_customer_id,
               'type' => 'card',
@@ -542,7 +561,11 @@ class Infos extends \Admin\Classes\AdminController {
         try {
             $payment_intent = null;
             $stripe_customer_id = $this->customerSettingModel->where('customer_id', $request['user']['id'])->first()->stripe_customer_id;
-            \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
+            if(config('api.stripe_test_mode')) {
+                \Stripe\Stripe::setApiKey(config('api.stripe_key_test_secret'));
+            } else {
+                \Stripe\Stripe::setApiKey(config('api.stripe_key_live_secret'));
+            }
             \Stripe\PaymentIntent::create([
                 'amount' => $request['amount'],
                 'currency' => 'gbp',

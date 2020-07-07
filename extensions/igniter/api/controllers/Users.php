@@ -57,7 +57,11 @@ class Users extends \Admin\Classes\AdminController {
                 'approval' => 0
             ]);
         }
-        $this->stripe = new \Stripe\StripeClient(config('api.stripe_key_test_secret'));
+        if(config('api.stripe_test_mode')) {
+            $this->stripe = new \Stripe\StripeClient(config('api.stripe_key_test_secret'));
+        } else {
+            $this->stripe = new \Stripe\StripeClient(config('api.stripe_key_live_secret'));
+        }
     }
 
     public function makeUserResponse($user) {
