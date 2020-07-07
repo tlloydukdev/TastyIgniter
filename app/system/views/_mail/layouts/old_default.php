@@ -1,4 +1,4 @@
-name = "Default layout"
+name = "Old Default layout"
 ==
 {{ $body }}
 ==
@@ -20,11 +20,12 @@ name = "Default layout"
             <td align="center">
                 <table class="content" width="100%" cellpadding="0" cellspacing="0">
                     @partial('header')
+                        @isset($site_logo)
                         <img
-                            src="https://order-grubs-up.com/assets/logo/gu-logo.png"
-                            style="height: 90px;"
+                            src="{{ \Main\Models\Image_tool_model::resize($site_logo, ['height' => 90]) }}"
                             alt="{{ $site_name }}"
                         >
+                        @endisset
                     @endpartial
                     <tr>
                         <td class="body" width="100%" cellpadding="0" cellspacing="0">
