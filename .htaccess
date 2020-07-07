@@ -20,6 +20,7 @@
 	## Turn on URL rewriting
     ##
 	RewriteEngine On
+    
     RewriteCond %{REQUEST_METHOD} OPTIONS
     RewriteRule ^(.*)$ $1 [R=200,L]
 
@@ -27,6 +28,7 @@
 	## If your installation resides in a subdirectory, enter the name here also
     ##
 	RewriteBase /
+    
 
     ## Redirect index.php from url to prevent duplicate urls
     ##
@@ -57,4 +59,6 @@
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.php [L,QSA]
+
+    RedirectMatch ^/$ /taunton/menus
 </IfModule>

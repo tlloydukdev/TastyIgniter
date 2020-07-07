@@ -1,5 +1,26 @@
 # Changelog
 
+## 7.40.0 - 2020-07-06
+* [#964](https://github.com/stripe/stripe-php/pull/964) Add OAuthService
+
+## 7.39.0 - 2020-06-25
+* [#960](https://github.com/stripe/stripe-php/pull/960) Add constants for `payment_behavior` on `Subscription`
+
+## 7.38.0 - 2020-06-24
+* [#959](https://github.com/stripe/stripe-php/pull/959) Add multiple constants missing for `Event`
+
+## 7.37.2 - 2020-06-23
+* [#957](https://github.com/stripe/stripe-php/pull/957) Updated PHPDocs
+
+## 7.37.1 - 2020-06-11
+* [#952](https://github.com/stripe/stripe-php/pull/952) Improve PHPDoc
+
+## 7.37.0 - 2020-06-09
+* [#950](https://github.com/stripe/stripe-php/pull/950) Add support for `id_npwp` and `my_frp` as `type` on `TaxId`
+
+## 7.36.2 - 2020-06-03
+* [#946](https://github.com/stripe/stripe-php/pull/946) Update PHPDoc
+
 ## 7.36.1 - 2020-05-28
 * [#938](https://github.com/stripe/stripe-php/pull/938) Remove extra array_keys() call.
 * [#942](https://github.com/stripe/stripe-php/pull/942) fix autopagination for service methods
@@ -17,7 +38,7 @@
 * [#933](https://github.com/stripe/stripe-php/pull/933) Services bugfix: convert nested null params to empty strings
 
 ## 7.33.0 - 2020-05-14
-* [#771](https://github.com/stripe/stripe-php/pull/771) Introduce client/services API
+* [#771](https://github.com/stripe/stripe-php/pull/771) Introduce client/services API. The [migration guide](https://github.com/stripe/stripe-php/wiki/Migration-to-StripeClient-and-services-in-7.33.0) contains before & after examples of the backwards-compatible changes.
 
 ## 7.32.1 - 2020-05-13
 * [#932](https://github.com/stripe/stripe-php/pull/932) Fix multiple PHPDoc

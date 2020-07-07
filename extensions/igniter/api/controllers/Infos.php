@@ -7,7 +7,6 @@ use AdminMenu;
 // Local Import
 use Igniter\Api\Services\TastyJwt;
 use Igniter\Api\Services\TastyJson;
-use Igniter\Api\Vendor\Stripe\StripeInfo;
 
 // Libary Import
 use Illuminate\Http\Request;
@@ -751,7 +750,5 @@ class Infos extends \Admin\Classes\AdminController {
         return $response;
     }
 
-    public function getStripeInfo(Request $Request) {
-        StripeInfo::instance()->getInfo();
-    }
+
 }
