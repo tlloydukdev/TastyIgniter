@@ -719,6 +719,17 @@ class Infos extends \Admin\Classes\AdminController {
             $favorites = array();
             foreach ($favoriteIds as $favorite) {
                 $menu = $this->menuModel->where('menu_id', $favorite->menu_id)->first();
+                $thumb=$menu->getMedia('thumb');
+                $firstOnly = true;
+                $menuItemUrl = '#';
+                foreach ($thumb as $item) {
+                    if ($firstOnly) {
+                        $baseUrl = $item->getPublicPath(); // Config::get('system.assets.attachment.path');
+                        $menuItemUrl = $baseUrl . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
+                        $firstOnly = false;
+                    }
+                }
+                $menu->menu_image_url = $menuItemUrl;
                 $menu['isFavorite'] = true;
                 array_push($favorites, $menu);
             }
