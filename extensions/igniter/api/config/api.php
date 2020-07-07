@@ -45,8 +45,8 @@ return [
 
     'stripe_key_test_public' => 'pk_test_KGSgL4Ccd2oGEKsSYXBF4SD600LfoqUiWa',
     'stripe_key_test_secret' => 'sk_test_0GKPRu2IwccbM9NMmvl56JrO00bDvBvXPh',
-    'stripe_key_live_public' => 'pk_live_KGSgL4Ccd2oGEKsSYXBF4SD600LfoqUiWa',
-    'stripe_key_live_secret' => 'sk_live_0GKPRu2IwccbM9NMmvl56JrO00bDvBvXPh',
+    'stripe_key_live_public' => 'pk_live_5TNiP2ODZ7qbihZ5XUKdyNC900mQRCP3BJ',
+    'stripe_key_live_secret' => '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',
     'pepipost_api_key' => '44db0e969fee401958c4d0a4a06b22a6',
     'from_mail'=> 'grubsupdev@gmail.com',
     'from_mail_name' => 'Daniel Brown',
