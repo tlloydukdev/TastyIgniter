@@ -196,7 +196,8 @@ class Infos extends \Admin\Classes\AdminController {
             $categoryDetails = $this->categoryModel::with(array('menus'=>function($query){
                 $query->where('menu_status', 1);
             }))->where('category_id', '<>', $specailsCategoryId)->orderBy('priority', 'ASC')->get();
-            foreach($categoryDetails as $detail) {              
+            foreach($categoryDetails as $detail) {
+
                  foreach($detail['menus'] as $menu) {
                      $thumb=$menu->getMedia('thumb');
                      $firstOnly = true;
@@ -263,7 +264,19 @@ class Infos extends \Admin\Classes\AdminController {
             abort(401, lang('igniter.api::lang.auth.alert_token_expired'));
         }
         try {
-            $response['menu'] = $this->menuModel->where('menu_id', $request->id)->first();
+            $menu = $this->menuModel->where('menu_id', $request->id)->first();;
+            $thumb=$menu->getMedia('thumb');
+            $firstOnly = true;
+            $menuItemUrl = '#';
+            foreach ($thumb as $item) {
+                if ($firstOnly) {
+                    $baseUrl = $item->getPublicPath(); // Config::get('system.assets.attachment.path');
+                    $menuItemUrl = $baseUrl . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
+                    $firstOnly = false;
+                }
+            }
+            $menu->menu_image_url = $menuItemUrl;
+            $response['menu'] = $menu;
             $favorite = $this->favoriteModel->where('customer_id', $request['userId'])->where('menu_id', $request['id'])->first();
             if ($favorite) {
                 $response['menu']['isFavorite'] = true;
