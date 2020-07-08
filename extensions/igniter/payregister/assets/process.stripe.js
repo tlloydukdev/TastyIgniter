@@ -48,7 +48,7 @@
             $paymentInput = $form.find('input[name="payment"]:checked')
 
         if ($paymentInput.val() !== 'stripe') return
-
+        $('.checkout-btn').prop('disabled', true);
         // Prevent the form from submitting with the default action
         event.preventDefault()
 

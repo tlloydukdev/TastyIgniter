@@ -14,6 +14,7 @@
     }
 
     Checkout.prototype.init = function () {
+        
         $(document).on('click', '[data-checkout-control]', $.proxy(this.onControlClick, this))
         $(this.paymentInputSelector + ':checked', document).trigger('change')
 
@@ -84,7 +85,9 @@
                 this.choosePayment($el)
                 break
             case 'confirm-checkout':
-                this.confirmCheckout($el)
+                if($("#stripe-card-errors").html().length == 0) {
+                  this.confirmCheckout($el)
+                }
                 break
             case 'delete-payment-profile':
                 this.deletePaymentProfile($el)
@@ -95,22 +98,25 @@
     }
 
     Checkout.prototype.onSubmitCheckoutForm = function (event) {
+        event.preventDefault();
+        
         var $checkoutForm = $(event.target),
             $checkoutBtn = $('.checkout-btn')
 
         $checkoutBtn.prop('disabled', true)
 
-        event.preventDefault();
+        
 
         var _event = jQuery.Event('submitCheckoutForm')
         $checkoutForm.trigger(_event)
         if (_event.isDefaultPrevented()) {
-            $checkoutBtn.prop('disabled', false)
+            console.log("prevent", _event);
+            //$checkoutBtn.prop('disabled', false)
             return false;
         }
 
         $checkoutForm.request($checkoutForm.data('handler')).always(function () {
-            $checkoutBtn.prop('disabled', false)
+            //$checkoutBtn.prop('disabled', false)
         })
     }
 
@@ -153,6 +159,7 @@
 
     $(document).render(function () {
         $('[data-control="checkout"]').checkout()
+
     })
 
     $(document)

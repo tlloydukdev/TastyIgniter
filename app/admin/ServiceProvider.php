@@ -400,6 +400,13 @@ class ServiceProvider extends AppServiceProvider
                             'title' => lang('admin::lang.side_menu.mail_template'),
                             'permission' => 'Admin.MailTemplates',
                         ],
+                        'mail_layouts' => [
+                            'priority' => 20,
+                            'class' => 'mail_layouts',
+                            'href' => admin_url('mail_layouts'),
+                            'title' => 'Mail Layouts',
+                            'permission' => 'Admin.MailTemplates',
+                        ],
                     ],
                 ],
                 'users' => [

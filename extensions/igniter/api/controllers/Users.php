@@ -78,7 +78,7 @@ class Users extends \Admin\Classes\AdminController {
         $customerSetting = $this->customerSettingModel->where('customer_id', $user->customer_id)->first();
         $areaId = $customerSetting ? $customerSetting->area_id : '';
         $locationId = $customerSetting ? $customerSetting->location_id : '';
-        $stripeCustomerId = $customerSetting ? $customerSetting->stripeCustomerId : '';
+        $stripeCustomerId = $customerSetting ? $customerSetting->stripe_customer_id : '';
         
         $response['user'] = [
             'id' => $user->customer_id,
