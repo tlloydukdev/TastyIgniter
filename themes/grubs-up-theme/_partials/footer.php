@@ -1,6 +1,6 @@
 <div class="footer pt-md-5 pb-md-5">
     
-    <?php //echo partial('mobile_banner'); ?>
+    <?php echo partial('mobile_banner'); ?>
 
     <div class="container">
         <div class="row" style="margin-top: 5px;">
