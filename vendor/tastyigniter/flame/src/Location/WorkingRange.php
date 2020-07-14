@@ -19,7 +19,7 @@ class WorkingRange
     public static function create(array $times): self
     {
         list($start, $end) = $times;
-
+        
         return new static(
             WorkingTime::create($start),
             WorkingTime::create($end)
@@ -49,7 +49,8 @@ class WorkingRange
             if ($rangeStart->format('Gi') < $start->format('Gi'))
                 $start = $rangeStart;
 
-            $rangeEnd = $range->end();
+            $rangeEnd = $range->end();   
+
             if ($rangeEnd->format('Gi') > $end->format('Gi'))
                 $end = $rangeEnd;
         }

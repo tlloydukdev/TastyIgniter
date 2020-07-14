@@ -307,6 +307,7 @@ class WorkingSchedule
         $dateTime = Carbon::instance($this->parseDate($dateTime));      
         //$checkDateTime = $dateTime->copy()->addMinutes($leadTime * 2);
         $checkDateTime = $dateTime->copy()->addMinutes($leadTime); // TL grubs, remove * 2 padding from above 
+
         $interval = new DateInterval('PT'.($interval ?: 15).'M');
         $leadTime = new DateInterval('PT'.($leadTime ?: 25).'M');
 
