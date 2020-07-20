@@ -173,29 +173,31 @@ class Infos extends \Admin\Classes\AdminController {
 
             $specailsCategoryId = $this->categoryModel->where('permalink_slug', 'specials')->first()->category_id;
 
-
-            $customSpecials = $this->menuCategoryModel::with(array('menu'=>function($query){
-                $query->where('menu_status', 1);
+            $customSpecials = $this->categoryModel::with(array('menus'=>function($query){
+                $query->where('menu_status', 1)->orderBy('menu_priority', 'ASC');
             }))->where('category_id', $specailsCategoryId)->get();
+            
             $specials = array();
-            foreach ($customSpecials as $special) {
-                if ($this->locationableModel->where('locationable_type', 'menus')->where('locationable_id', $special->menu_id)->where('location_id', $request['user']['locationId'])->first()) {
-                    $menu = $this->menuModel->where('menu_id', $special->menu_id)->where('menu_status', 1)->first();
-                    if ($menu) {
-                        $thumb=$menu->getMedia('thumb');
-                        $firstOnly = true;
-                        $menuItemUrl = '#';
-                        foreach ($thumb as $item) {
-                            if ($firstOnly) {
-                                    $baseUrl = $item->getPublicPath(); // Config::get('system.assets.attachment.path');
-                                    $menuItemUrl = $baseUrl . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
-                                    $firstOnly = false;
+            foreach ($customSpecials as $specialCat) {
+                foreach($specialCat['menus'] as $special) {                
+                    if ($this->locationableModel->where('locationable_type', 'menus')->where('locationable_id', $special->menu_id)->where('location_id', $request['user']['locationId'])->first()) {
+                        $menu = $this->menuModel->where('menu_id', $special->menu_id)->where('menu_status', 1)->first();
+                        if ($menu) {
+                            $thumb=$menu->getMedia('thumb');
+                            $firstOnly = true;
+                            $menuItemUrl = '#';
+                            foreach ($thumb as $item) {
+                                if ($firstOnly) {
+                                        $baseUrl = $item->getPublicPath(); // Config::get('system.assets.attachment.path');
+                                        $menuItemUrl = $baseUrl . $item->getPartitionDirectory() . '/' . $item->getAttribute('name');
+                                        $firstOnly = false;
+                                }
                             }
-                        }
-                    
-                        $special['menu']['menu_image_url'] = $menuItemUrl;
+                            
+                            $special['menu_image_url'] = $menuItemUrl;
 
-                        array_push($specials, $special);
+                            array_push($specials, array("menu_id" => $special->menu_id, "category_id" => $specialCat->category_id, "menu" => $special));
+                        }
                     }
                 }
             }
