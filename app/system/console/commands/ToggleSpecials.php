@@ -1,7 +1,7 @@
 <?php namespace System\Console\Commands;
 
 use Illuminate\Console\Command;
-use Admin\Models\Menus_model as menuModel;
+use Admin\Models\Menus_model as MenuModel;
 use DateTime;
 
 class ToggleSpecials extends Command
@@ -29,7 +29,7 @@ class ToggleSpecials extends Command
             "1" => [ 141 ], // Monday
             "2" => [ 142, 143 ], // Tuesday
             "3" => [ 144, 145 ], // Wednesday
-            "4" => [ 146, 118], // Thursday
+            "4" => [ 146, 118 ], // Thursday
             "5" => [ 136, 135, 134 ], // Friday
             "6" => [ ], // Saturday
             "7" => [ ], // Sunday
@@ -38,14 +38,14 @@ class ToggleSpecials extends Command
         $currentDate = new DateTime($now);
         $today = $currentDate->format('N');
         $todayName = $currentDate->format('l');
-        $model = new menuModel;
+        $model = new MenuModel;
 
         $this->output->writeln('<question>Toggling menu items for ' . $todayName . '...</question>');
 
         foreach($menuItemMap as $day => $items) {
             // First, set all rotating specials to disabled
             foreach($items as $itemId) {
-                $this->output->writeln('<comment>Disabling menu item ' . $itemId . '...</comment>');
+                //$this->output->writeln('<comment>Disabling menu item ' . $itemId . '...</comment>');
                 $model->where("menu_id", $itemId)->update(array("menu_status" => false));
             }                  
         }
@@ -53,8 +53,13 @@ class ToggleSpecials extends Command
             // Next, only set todays specials to enabled
             if($day == $today) {
                 foreach($items as $itemId) {
-                    $this->output->writeln('<info>Enabling menu item ' . $itemId . '...</info>');
-                    $model->where("menu_id", $itemId)->update(array("menu_status" => true));
+                    $menuItem = $model->find($itemId); 
+                    if($menuItem !== null) {
+                        $this->output->writeln('<info>Enabling menu item ' . $menuItem->menu_name . '...</info>');
+                        $model->where("menu_id", $itemId)->update(array("menu_status" => true));
+                    } else {
+                        $this->output->writeln('<error>Unable to find menu ID ' . $itemId . '. Check Tasty Admin.</error>');
+                    }
                 }
             }             
         }
