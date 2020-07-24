@@ -61,6 +61,9 @@ class ToggleSpecials extends Command
                         $this->output->writeln('<error>Unable to find menu ID ' . $itemId . '. Check Tasty Admin.</error>');
                     }
                 }
+                if(count($items) == 0 ) {
+                    $this->output->writeln('<error>There are no specials today.</error>');
+                }
             }             
         }
 
