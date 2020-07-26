@@ -1,0 +1,17 @@
+{
+  "code": "orderx-pizza-theme",
+  "name": "OrderX Demo Theme",
+  "description": "Demo theme for OrderX",
+  "version": "v1.0.0",
+  "author": "OrderX Dev Team",
+  "locked": false,
+  "require": {
+    "igniter.cart": "*",
+    "igniter.frontend": "*",
+    "igniter.local": "*",
+    "igniter.pages": "*",
+    "igniter.payregister": "*",
+    "igniter.reservation": "*",
+    "igniter.user": "*"
+  }
+}
